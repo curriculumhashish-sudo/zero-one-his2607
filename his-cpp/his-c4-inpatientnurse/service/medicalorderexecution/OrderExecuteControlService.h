@@ -26,6 +26,7 @@
 
 #include "domain/dto/PayloadDTO.h"
 #include "domain/dto/medicalorderexecution/OrderExecuteDTO.h"
+#include "domain/dto/medicalorderexecution/MedicalOrderExecutionDTO.h"
 
 class OrderExecuteControlService
 {
@@ -36,6 +37,12 @@ public:
 
 	CancelExecutionResultDTO::Wrapper cancelOrderExecution(
 		const CancelExecutionRequestDTO::Wrapper& dto,
+		const PayloadDTO& payload);
+	BatchOrderExecutionResponseDTO::Wrapper skipBatch(
+		const BatchSkipOrderRequestDTO::Wrapper& dto,
+		const PayloadDTO& payload);
+	BatchOrderExecutionResponseDTO::Wrapper cancelBatch(
+		const BatchCancelExecutionRequestDTO::Wrapper& dto,
 		const PayloadDTO& payload);
 
 	std::unordered_set<std::string> listOperableEncounterIds(const PayloadDTO& payload) const;

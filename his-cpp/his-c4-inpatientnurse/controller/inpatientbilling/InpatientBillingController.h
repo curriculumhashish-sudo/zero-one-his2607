@@ -22,6 +22,7 @@
 
 #include "domain/dto/inpatientbilling/InpatientBillingDTO.h"
 #include "domain/vo/inpatientbilling/InpatientBillingVO.h"
+#include "controller/RequestValidation.h"
 using namespace oatpp;
 #include OATPP_CODEGEN_BEGIN(ApiController)
 #define API_TAG ZH_WORDS_GETTER("inpatientbilling.tag")
@@ -31,7 +32,6 @@ class InpatientBillingController : public oatpp::web::server::api::ApiController
     API_ACCESS_DECLARE(InpatientBillingController);
 
 public:
-    // 分页查询计价目录（GET）
     API_DEF_ENDPOINT_INFO_AUTH(
         ZH_WORDS_GETTER("inpatientbilling.page-pricing-catalog.summary"),
         pagePricingCatalog,
@@ -40,10 +40,10 @@ public:
         API_DEF_ADD_PAGE_PARAMS();
         info->queryParams["pageIndex"].required = true;
         info->queryParams["pageSize"].required = true;
-        API_DEF_ADD_QUERY_PARAMS(String, "encounterId",
-            ZH_WORDS_GETTER("inpatientbilling.field.encounterId"), "337907884548657152", false);
-        API_DEF_ADD_QUERY_PARAMS(String, "patientId",
-            ZH_WORDS_GETTER("inpatientbilling.field.patientId"), "326940849401761792", false);
+	        API_DEF_ADD_QUERY_PARAMS(String, "encounterId",
+	            ZH_WORDS_GETTER("inpatientbilling.field.encounterId"), "337907884548657152", true);
+	        API_DEF_ADD_QUERY_PARAMS(String, "patientId",
+	            ZH_WORDS_GETTER("inpatientbilling.field.patientId"), "326940849401761792", true);
         API_DEF_ADD_QUERY_PARAMS(String, "keyword",
             ZH_WORDS_GETTER("inpatientbilling.field.keyword"), ZH_WORDS_GETTER("business-text.sample.medication-keyword"), false);
         API_DEF_ADD_QUERY_PARAMS(String, "categoryCode",
@@ -58,14 +58,13 @@ public:
         "/inpatientbilling/page-pricing-catalog",
         pagePricingCatalog,
         PagePricingCatalogQuery,
-        execPagePricingCatalog(query));
-    // 确认直接计价（POST）
+        execPagePricingCatalog(query, authObject->getPayload()));
     API_DEF_ENDPOINT_INFO_AUTH(
         ZH_WORDS_GETTER("inpatientbilling.confirm-direct-pricing.summary"),
         confirmDirectPricing,
         ConfirmDirectPricingJsonVO::Wrapper,
         API_TAG,
-        info->body.addExample("default", ConfirmDirectPricingDTO::createShared());
+        info->body.addExample("default", ConfirmDirectPricingDTO::createExample());
         info->responses[Status::CODE_200].addExample(
             "success", ConfirmDirectPricingJsonVO::createShared());
     );
@@ -73,17 +72,16 @@ public:
         API_M_POST,
         "/inpatientbilling/confirm-direct-pricing",
         confirmDirectPricing,
-        BODY_DTO(ConfirmDirectPricingDTO::Wrapper, dto),
-        execConfirmDirectPricing(dto));
-    // 查询已计价医嘱列表（GET）
+        C4_REQUIRED_BODY_DTO(ConfirmDirectPricingDTO::Wrapper, dto),
+        execConfirmDirectPricing(dto, authObject->getPayload()));
     API_DEF_ENDPOINT_INFO_AUTH(
         ZH_WORDS_GETTER("inpatientbilling.list-priced-orders.summary"),
         listPricedOrders,
         ListPricedOrdersJsonVO::Wrapper,
         API_TAG,
-        API_DEF_ADD_QUERY_PARAMS(String, "encounterIds",
-            ZH_WORDS_GETTER("inpatientbilling.field.encounterIds"),
-            "337907884548657152,337907884548657153", true);
+		API_DEF_ADD_QUERY_PARAMS(String, "encounterId",
+			ZH_WORDS_GETTER("inpatientbilling.field.encounterId"),
+			"337907884548657152", true);
         API_DEF_ADD_QUERY_PARAMS(String, "pricedTimeFrom",
             ZH_WORDS_GETTER("inpatientbilling.field.pricedTimeFrom"), "2026-07-24 00:00:00", false);
         API_DEF_ADD_QUERY_PARAMS(String, "pricedTimeTo",
@@ -96,16 +94,15 @@ public:
         "/inpatientbilling/list-priced-orders",
         listPricedOrders,
         ListPricedOrdersQuery,
-        execListPricedOrders(query));
-    // 查询补费父医嘱列表（GET）
+        execListPricedOrders(query, authObject->getPayload()));
     API_DEF_ENDPOINT_INFO_AUTH(
         ZH_WORDS_GETTER("inpatientbilling.list-supplement-parent-orders.summary"),
         listSupplementParentOrders,
         ListSupplementParentOrdersJsonVO::Wrapper,
         API_TAG,
-        API_DEF_ADD_QUERY_PARAMS(String, "encounterIds",
-            ZH_WORDS_GETTER("inpatientbilling.field.encounterIds"),
-            "337907884548657152,337907884548657153", true);
+		API_DEF_ADD_QUERY_PARAMS(String, "encounterId",
+			ZH_WORDS_GETTER("inpatientbilling.field.encounterId"),
+			"337907884548657152", true);
         API_DEF_ADD_QUERY_PARAMS(String, "therapyType",
             ZH_WORDS_GETTER("inpatientbilling.field.therapyType"), "TEMPORARY", false);
         API_DEF_ADD_QUERY_PARAMS(String, "keyword",
@@ -120,14 +117,13 @@ public:
         "/inpatientbilling/list-supplement-parent-orders",
         listSupplementParentOrders,
         ListSupplementParentOrdersQuery,
-        execListSupplementParentOrders(query));
-    // 确认补费计价（POST）
+        execListSupplementParentOrders(query, authObject->getPayload()));
     API_DEF_ENDPOINT_INFO_AUTH(
         ZH_WORDS_GETTER("inpatientbilling.confirm-supplement-pricing.summary"),
         confirmSupplementPricing,
         ConfirmSupplementPricingJsonVO::Wrapper,
         API_TAG,
-        info->body.addExample("default", ConfirmSupplementPricingDTO::createShared());
+        info->body.addExample("default", ConfirmSupplementPricingDTO::createExample());
         info->responses[Status::CODE_200].addExample(
             "success", ConfirmSupplementPricingJsonVO::createShared());
     );
@@ -135,15 +131,14 @@ public:
         API_M_POST,
         "/inpatientbilling/confirm-supplement-pricing",
         confirmSupplementPricing,
-        BODY_DTO(ConfirmSupplementPricingDTO::Wrapper, dto),
-        execConfirmSupplementPricing(dto));
-    // 取消计价（POST）
+        C4_REQUIRED_BODY_DTO(ConfirmSupplementPricingDTO::Wrapper, dto),
+        execConfirmSupplementPricing(dto, authObject->getPayload()));
     API_DEF_ENDPOINT_INFO_AUTH(
         ZH_WORDS_GETTER("inpatientbilling.cancel-pricing.summary"),
         cancelPricing,
         CancelPricingJsonVO::Wrapper,
         API_TAG,
-        info->body.addExample("default", CancelPricingDTO::createShared());
+        info->body.addExample("default", CancelPricingDTO::createExample());
         info->responses[Status::CODE_200].addExample(
             "success", CancelPricingJsonVO::createShared());
     );
@@ -151,9 +146,8 @@ public:
         API_M_POST,
         "/inpatientbilling/cancel-pricing",
         cancelPricing,
-        BODY_DTO(CancelPricingDTO::Wrapper, dto),
-        execCancelPricing(dto));
-    // 查询自动计费配置列表（GET）
+        C4_REQUIRED_BODY_DTO(CancelPricingDTO::Wrapper, dto),
+        execCancelPricing(dto, authObject->getPayload()));
     API_DEF_ENDPOINT_INFO_AUTH(
         ZH_WORDS_GETTER("inpatientbilling.list-auto-roll-configs.summary"),
         listAutoRollConfigs,
@@ -173,14 +167,13 @@ public:
         "/inpatientbilling/list-auto-roll-configs",
         listAutoRollConfigs,
         ListAutoRollConfigsQuery,
-        execListAutoRollConfigs(query));
-    // 新增自动计费规则（POST）
+        execListAutoRollConfigs(query, authObject->getPayload()));
     API_DEF_ENDPOINT_INFO_AUTH(
         ZH_WORDS_GETTER("inpatientbilling.create-auto-gen-rule.summary"),
         createAutoGenRule,
         CreateAutoGenRuleJsonVO::Wrapper,
         API_TAG,
-        info->body.addExample("default", CreateAutoGenRuleDTO::createShared());
+        info->body.addExample("default", CreateAutoGenRuleDTO::createExample());
         info->responses[Status::CODE_200].addExample(
             "success", CreateAutoGenRuleJsonVO::createShared());
     );
@@ -188,15 +181,27 @@ public:
         API_M_POST,
         "/inpatientbilling/create-auto-gen-rule",
         createAutoGenRule,
-        BODY_DTO(CreateAutoGenRuleDTO::Wrapper, dto),
-        execCreateAutoGenRule(dto));
-    // 修改自动计费规则（POST）
+        C4_REQUIRED_BODY_DTO(CreateAutoGenRuleDTO::Wrapper, dto),
+        execCreateAutoGenRule(dto, authObject->getPayload()));
     API_DEF_ENDPOINT_INFO_AUTH(
         ZH_WORDS_GETTER("inpatientbilling.update-auto-gen-rule.summary"),
         updateAutoGenRule,
         UpdateAutoGenRuleJsonVO::Wrapper,
         API_TAG,
-        info->body.addExample("default", UpdateAutoGenRuleDTO::createShared());
+		auto example = UpdateAutoGenRuleDTO::createShared();
+		example->ruleId = "RUL202607240001";
+		example->idempotencyKey = "AUTO-RULE-UPDATE-20260813-0001";
+		example->expectedVersion = static_cast<v_int64>(0);
+		example->encounterId = "337907884548657152";
+		example->patientId = "326940849401761792";
+		example->ruleName = ZH_WORDS_GETTER("business-text.sample.billing-rule-update-name");
+		example->activityId = "ACT_MORNING_ROUTINE";
+		example->chargeDefinitionId = "CDEF_NURSING_CARE";
+		example->quantityValue = 2.0;
+		example->performingOrgId = "327170091059744768";
+		example->priority = "1";
+		example->remark = "Updated billing rule";
+		info->body.addExample("default", example);
         info->responses[Status::CODE_200].addExample(
             "success", UpdateAutoGenRuleJsonVO::createShared());
     );
@@ -204,15 +209,14 @@ public:
         API_M_POST,
         "/inpatientbilling/update-auto-gen-rule",
         updateAutoGenRule,
-        BODY_DTO(UpdateAutoGenRuleDTO::Wrapper, dto),
-        execUpdateAutoGenRule(dto));
-    // 删除自动计费规则（POST）
+        C4_REQUIRED_BODY_DTO(UpdateAutoGenRuleDTO::Wrapper, dto),
+        execUpdateAutoGenRule(dto, authObject->getPayload()));
     API_DEF_ENDPOINT_INFO_AUTH(
         ZH_WORDS_GETTER("inpatientbilling.delete-auto-gen-rule.summary"),
         deleteAutoGenRule,
         DeleteAutoGenRuleJsonVO::Wrapper,
         API_TAG,
-        info->body.addExample("default", DeleteAutoGenRuleDTO::createShared());
+        info->body.addExample("default", DeleteAutoGenRuleDTO::createExample());
         info->responses[Status::CODE_200].addExample(
             "success", DeleteAutoGenRuleJsonVO::createShared());
     );
@@ -220,15 +224,14 @@ public:
         API_M_POST,
         "/inpatientbilling/delete-auto-gen-rule",
         deleteAutoGenRule,
-        BODY_DTO(DeleteAutoGenRuleDTO::Wrapper, dto),
-        execDeleteAutoGenRule(dto));
-    // 启用或停用自动计费规则（POST）
+        C4_REQUIRED_BODY_DTO(DeleteAutoGenRuleDTO::Wrapper, dto),
+        execDeleteAutoGenRule(dto, authObject->getPayload()));
     API_DEF_ENDPOINT_INFO_AUTH(
 		ZH_WORDS_GETTER("inpatientbilling.set-auto-gen-rule-status.summary"),
         activateAutoGenRule,
         ActivateAutoGenRuleJsonVO::Wrapper,
         API_TAG,
-        info->body.addExample("default", ActivateAutoGenRuleDTO::createShared());
+        info->body.addExample("default", ActivateAutoGenRuleDTO::createExample());
         info->responses[Status::CODE_200].addExample(
             "success", ActivateAutoGenRuleJsonVO::createShared());
     );
@@ -236,31 +239,31 @@ public:
         API_M_POST,
 		"/inpatientbilling/set-auto-gen-rule-status",
         activateAutoGenRule,
-        BODY_DTO(ActivateAutoGenRuleDTO::Wrapper, dto),
-        execActivateAutoGenRule(dto));
+        C4_REQUIRED_BODY_DTO(ActivateAutoGenRuleDTO::Wrapper, dto),
+        execActivateAutoGenRule(dto, authObject->getPayload()));
 private:
     PagePricingCatalogJsonVO::Wrapper execPagePricingCatalog(
-        const PagePricingCatalogQuery::Wrapper& query);
+		const PagePricingCatalogQuery::Wrapper& query, const PayloadDTO& payload);
     ConfirmDirectPricingJsonVO::Wrapper execConfirmDirectPricing(
-        const ConfirmDirectPricingDTO::Wrapper& dto);
+        const ConfirmDirectPricingDTO::Wrapper& dto, const PayloadDTO& payload);
     ListPricedOrdersJsonVO::Wrapper execListPricedOrders(
-        const ListPricedOrdersQuery::Wrapper& query);
+		const ListPricedOrdersQuery::Wrapper& query, const PayloadDTO& payload);
     ListSupplementParentOrdersJsonVO::Wrapper execListSupplementParentOrders(
-        const ListSupplementParentOrdersQuery::Wrapper& query);
+		const ListSupplementParentOrdersQuery::Wrapper& query, const PayloadDTO& payload);
     ConfirmSupplementPricingJsonVO::Wrapper execConfirmSupplementPricing(
-        const ConfirmSupplementPricingDTO::Wrapper& dto);
+        const ConfirmSupplementPricingDTO::Wrapper& dto, const PayloadDTO& payload);
     CancelPricingJsonVO::Wrapper execCancelPricing(
-        const CancelPricingDTO::Wrapper& dto);
+        const CancelPricingDTO::Wrapper& dto, const PayloadDTO& payload);
     ListAutoRollConfigsJsonVO::Wrapper execListAutoRollConfigs(
-        const ListAutoRollConfigsQuery::Wrapper& query);
+		const ListAutoRollConfigsQuery::Wrapper& query, const PayloadDTO& payload);
     CreateAutoGenRuleJsonVO::Wrapper execCreateAutoGenRule(
-        const CreateAutoGenRuleDTO::Wrapper& dto);
+		const CreateAutoGenRuleDTO::Wrapper& dto, const PayloadDTO& payload);
     UpdateAutoGenRuleJsonVO::Wrapper execUpdateAutoGenRule(
-        const UpdateAutoGenRuleDTO::Wrapper& dto);
+		const UpdateAutoGenRuleDTO::Wrapper& dto, const PayloadDTO& payload);
     DeleteAutoGenRuleJsonVO::Wrapper execDeleteAutoGenRule(
-        const DeleteAutoGenRuleDTO::Wrapper& dto);
+		const DeleteAutoGenRuleDTO::Wrapper& dto, const PayloadDTO& payload);
     ActivateAutoGenRuleJsonVO::Wrapper execActivateAutoGenRule(
-        const ActivateAutoGenRuleDTO::Wrapper& dto);
+		const ActivateAutoGenRuleDTO::Wrapper& dto, const PayloadDTO& payload);
 };
 #undef API_TAG
 #include OATPP_CODEGEN_END(ApiController)

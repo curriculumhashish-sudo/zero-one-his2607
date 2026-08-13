@@ -23,6 +23,50 @@
 #include "../../GlobalInclude.h"
 #include OATPP_CODEGEN_BEGIN(DTO)
 
+class OrderExecutionSlotDTO : public oatpp::DTO
+{
+	DTO_INIT(OrderExecutionSlotDTO, DTO);
+
+	API_DTO_FIELD_REQUIRE(String, planTime,
+		ZH_WORDS_GETTER("medical-order-execution.field.planTime"), true);
+	API_DTO_FIELD_REQUIRE(String, procedureId,
+		ZH_WORDS_GETTER("medical-order-execution.field.procedureId"), false);
+	API_DTO_FIELD_REQUIRE(String, statusEnum,
+		ZH_WORDS_GETTER("medical-order-execution.field.statusEnum"), true);
+	API_DTO_FIELD_REQUIRE(String, recordedTime,
+		ZH_WORDS_GETTER("medical-order-execution.field.recordedTime"), false);
+};
+
+class OrderExecutionChargeBindingDTO : public oatpp::DTO
+{
+	DTO_INIT(OrderExecutionChargeBindingDTO, DTO);
+
+	API_DTO_FIELD_REQUIRE(String, bindType,
+		ZH_WORDS_GETTER("medical-order-execution.field.bindingType"), true);
+	API_DTO_FIELD_REQUIRE(String, bindingType,
+		ZH_WORDS_GETTER("medical-order-execution.field.bindingType"), true);
+	API_DTO_FIELD_REQUIRE(String, bindingId,
+		ZH_WORDS_GETTER("medical-order-execution.field.bindingId"), true);
+	API_DTO_FIELD_REQUIRE(String, activityId,
+		ZH_WORDS_GETTER("medical-order-execution.field.activityId"), false);
+	API_DTO_FIELD_REQUIRE(String, deviceId,
+		ZH_WORDS_GETTER("medical-order-execution.field.deviceId"), false);
+	API_DTO_FIELD_REQUIRE(String, chargeItemDefinitionId,
+		ZH_WORDS_GETTER("medical-order-execution.field.chargeItemDefinitionId"), true);
+	API_DTO_FIELD_REQUIRE(String, name,
+		ZH_WORDS_GETTER("medical-order-execution.field.name"), false);
+	API_DTO_FIELD_REQUIRE(String, specificationText,
+		ZH_WORDS_GETTER("medical-order-execution.field.specificationText"), false);
+	API_DTO_FIELD_REQUIRE(Float64, unitPrice,
+		ZH_WORDS_GETTER("medical-order-execution.field.unitPrice"), false);
+	API_DTO_FIELD_REQUIRE(Float64, quantity,
+		ZH_WORDS_GETTER("medical-order-execution.field.quantity"), false);
+	API_DTO_FIELD_REQUIRE(String, unitCode,
+		ZH_WORDS_GETTER("medical-order-execution.field.unitCode"), false);
+	API_DTO_FIELD_REQUIRE(String, priorityEnum,
+		ZH_WORDS_GETTER("medical-order-execution.field.priorityEnum"), false);
+};
+
 /**
  * DTO: single medical order item for verification and execution list rows.
  * Contains the fields needed by the frontend (subset of wkf_service_request columns).
@@ -37,6 +81,9 @@ class MedicalOrderItemDTO : public oatpp::DTO
 
     // Service request primary key
     API_DTO_FIELD_DEFAULT(String, id, "service request ID");
+
+    // Source request table, used by execution commands to select the correct workflow table
+    API_DTO_FIELD_DEFAULT(String, orderType, "order source: SERVICE_REQUEST or MED_REQUEST");
 
     // Business number
     API_DTO_FIELD_DEFAULT(String, busNo, "business number");
@@ -57,6 +104,9 @@ class MedicalOrderItemDTO : public oatpp::DTO
     // Order type: long_term / temporary
     API_DTO_FIELD_DEFAULT(String, intentEnum, "order type (long_term/temporary)");
 
+	API_DTO_FIELD_DEFAULT(String, therapyEnum,
+		ZH_WORDS_GETTER("medical-order-execution.field.therapyEnum"));
+
     // Order priority
     API_DTO_FIELD_DEFAULT(String, priorityEnum, "order priority");
 
@@ -76,6 +126,53 @@ class MedicalOrderItemDTO : public oatpp::DTO
 
     // Order creation time
     API_DTO_FIELD_DEFAULT(String, authoredTime, "order creation time");
+
+	API_DTO_FIELD_DEFAULT(String, planTime,
+		ZH_WORDS_GETTER("medical-order-execution.field.planTime"));
+
+	API_DTO_FIELD_DEFAULT(String, adviceDisplayName,
+		ZH_WORDS_GETTER("medical-order-execution.field.adviceDisplayName"));
+
+	API_DTO_FIELD_DEFAULT(String, procedureId,
+		ZH_WORDS_GETTER("medical-order-execution.field.procedureId"));
+	API_DTO_FIELD_DEFAULT(String, listRowKey,
+		ZH_WORDS_GETTER("medical-order-execution.field.listRowKey"));
+	API_DTO_FIELD_DEFAULT(String, statusDisplay,
+		ZH_WORDS_GETTER("medical-order-execution.field.statusDisplay"));
+	API_DTO_FIELD_DEFAULT(String, therapyDisplay,
+		ZH_WORDS_GETTER("medical-order-execution.field.therapyDisplay"));
+	API_DTO_FIELD_DEFAULT(String, specificationText,
+		ZH_WORDS_GETTER("medical-order-execution.field.specificationText"));
+	API_DTO_FIELD_DEFAULT(String, dosageDisplay,
+		ZH_WORDS_GETTER("medical-order-execution.field.dosageDisplay"));
+	API_DTO_FIELD_DEFAULT(String, usageDisplay,
+		ZH_WORDS_GETTER("medical-order-execution.field.usageDisplay"));
+	API_DTO_FIELD_DEFAULT(String, frequencyDisplay,
+		ZH_WORDS_GETTER("medical-order-execution.field.frequencyDisplay"));
+	API_DTO_FIELD_DEFAULT(String, stopTime,
+		ZH_WORDS_GETTER("medical-order-execution.field.stopTime"));
+	API_DTO_FIELD_DEFAULT(String, requesterName,
+		ZH_WORDS_GETTER("medical-order-execution.field.requesterName"));
+	API_DTO_FIELD_DEFAULT(String, performerLocationDisplay,
+		ZH_WORDS_GETTER("medical-order-execution.field.performerLocationDisplay"));
+	API_DTO_FIELD_DEFAULT(Boolean, tcmFlag,
+		ZH_WORDS_GETTER("medical-order-execution.field.tcmFlag"));
+	API_DTO_FIELD_DEFAULT(Float64, chineseHerbsDoseQuantity,
+		ZH_WORDS_GETTER("medical-order-execution.field.chineseHerbsDoseQuantity"));
+	API_DTO_FIELD_DEFAULT(List<String>, lineRequestIds,
+		ZH_WORDS_GETTER("medical-order-execution.field.lineRequestIds"));
+	API_DTO_FIELD_DEFAULT(List<OrderExecutionSlotDTO::Wrapper>, pendingSlots,
+		ZH_WORDS_GETTER("medical-order-execution.field.pendingSlots"));
+	API_DTO_FIELD_DEFAULT(List<OrderExecutionSlotDTO::Wrapper>, executedSlots,
+		ZH_WORDS_GETTER("medical-order-execution.field.executedSlots"));
+	API_DTO_FIELD_DEFAULT(List<OrderExecutionSlotDTO::Wrapper>, skippedSlots,
+		ZH_WORDS_GETTER("medical-order-execution.field.skippedSlots"));
+	API_DTO_FIELD_DEFAULT(List<OrderExecutionSlotDTO::Wrapper>, cancelledSlots,
+		ZH_WORDS_GETTER("medical-order-execution.field.cancelledSlots"));
+	API_DTO_FIELD_DEFAULT(List<OrderExecutionChargeBindingDTO::Wrapper>, bindingItems,
+		ZH_WORDS_GETTER("medical-order-execution.field.bindingItems"));
+	API_DTO_FIELD_DEFAULT(List<OrderExecutionChargeBindingDTO::Wrapper>, bindItems,
+		ZH_WORDS_GETTER("medical-order-execution.field.bindingItems"));
 
     // ============================================================
     // Quantity
@@ -133,23 +230,17 @@ class MedicalOrderItemDTO : public oatpp::DTO
 public:
     MedicalOrderItemDTO()
     {
-        id = "337907884548657152";
-        busNo = "MO202607240001";
-        prescriptionNo = "RX202607240001";
-        statusEnum = "verified";
-        categoryEnum = "medication";
-        intentEnum = "temporary";
-        priorityEnum = "routine";
-        patientId = "326940849401761792";
-        encounterId = "337907884548657152";
-        authoredTime = "2026-07-24 08:00:00";
-        quantity = 1.0;
-        unitCode = "tablet";
-        requesterId = "DOCTOR001";
-        performerId = "NURSE001";
-        locationId = "334526752078102528";
+		quantity = 0.0;
+		chineseHerbsDoseQuantity = 0.0;
+		tcmFlag = false;
         executionCount = 0;
-        remark = ZH_WORDS_GETTER("business-text.sample.medication-remark");
+		lineRequestIds = List<String>::createShared();
+		pendingSlots = List<OrderExecutionSlotDTO::Wrapper>::createShared();
+		executedSlots = List<OrderExecutionSlotDTO::Wrapper>::createShared();
+		skippedSlots = List<OrderExecutionSlotDTO::Wrapper>::createShared();
+		cancelledSlots = List<OrderExecutionSlotDTO::Wrapper>::createShared();
+		bindingItems = List<OrderExecutionChargeBindingDTO::Wrapper>::createShared();
+		bindItems = List<OrderExecutionChargeBindingDTO::Wrapper>::createShared();
     }
 };
 

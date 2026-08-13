@@ -24,18 +24,57 @@
 
 #include OATPP_CODEGEN_BEGIN(DTO)
 
+class SummaryVersionItemDTO : public oatpp::DTO
+{
+	DTO_INIT(SummaryVersionItemDTO, DTO);
+
+	API_DTO_FIELD_REQUIRE(String, summaryNo,
+		ZH_WORDS_GETTER("medicationcollection.field.summaryNo"), true);
+	API_DTO_FIELD_REQUIRE(UInt64, version,
+		ZH_WORDS_GETTER("medicationcollection.field.version"), true);
+
+public:
+	static Wrapper createExample()
+	{
+		auto dto = createShared();
+		dto->summaryNo = "MS202607210001";
+		dto->version = static_cast<v_uint64>(0);
+		return dto;
+	}
+};
+
+class SummaryFailureDTO : public oatpp::DTO
+{
+	DTO_INIT(SummaryFailureDTO, DTO);
+
+	API_DTO_FIELD_REQUIRE(String, summaryNo,
+		ZH_WORDS_GETTER("medicationcollection.field.summaryNo"), false);
+	API_DTO_FIELD_REQUIRE(String, reason,
+		ZH_WORDS_GETTER("medicationcollection.field.failureReason"), false);
+
+public:
+	SummaryFailureDTO() = default;
+};
+
 class SubmitSummaryRequestDTO : public oatpp::DTO
 {
 	DTO_INIT(SubmitSummaryRequestDTO, DTO);
 
+	API_DTO_FIELD_REQUIRE(String, idempotencyKey,
+		ZH_WORDS_GETTER("medicationcollection.field.idempotencyKey"), true);
+	API_DTO_FIELD_REQUIRE(List<SummaryVersionItemDTO::Wrapper>, items,
+		ZH_WORDS_GETTER("medicationcollection.field.summaryItems"), true);
+	// Legacy field retained for clients migrating to versioned items.
 	API_DTO_FIELD_REQUIRE(List<String>, summaryNos,
-		ZH_WORDS_GETTER("medicationcollection.field.summaryNos"), true);
+		ZH_WORDS_GETTER("medicationcollection.field.summaryNos"), false);
 
 public:
-	SubmitSummaryRequestDTO()
+	static Wrapper createExample()
 	{
-		summaryNos = List<String>::createShared();
-		summaryNos->push_back("MS202607210001");
+		auto dto = createShared();
+		dto->idempotencyKey = "submit-20260721-0001";
+		dto->items = {SummaryVersionItemDTO::createExample()};
+		return dto;
 	}
 };
 
@@ -43,6 +82,13 @@ class SubmitSummaryResponseDTO : public oatpp::DTO
 {
 	DTO_INIT(SubmitSummaryResponseDTO, DTO);
 
+	API_DTO_FIELD_REQUIRE(List<String>, successSummaryNos,
+		ZH_WORDS_GETTER("medicationcollection.field.successSummaryNos"), false);
+	API_DTO_FIELD_REQUIRE(List<String>, failedSummaryNos,
+		ZH_WORDS_GETTER("medicationcollection.field.failedSummaryNos"), false);
+	API_DTO_FIELD_REQUIRE(List<SummaryFailureDTO::Wrapper>, failures,
+		ZH_WORDS_GETTER("medicationcollection.field.failures"), false);
+	// Legacy response field mirrors successful summary numbers.
 	API_DTO_FIELD_REQUIRE(List<String>, summaryNos,
 		ZH_WORDS_GETTER("medicationcollection.field.summaryNos"), false);
 	API_DTO_FIELD_REQUIRE(String, message,
@@ -51,9 +97,10 @@ class SubmitSummaryResponseDTO : public oatpp::DTO
 public:
 	SubmitSummaryResponseDTO()
 	{
+		successSummaryNos = List<String>::createShared();
+		failedSummaryNos = List<String>::createShared();
+		failures = List<SummaryFailureDTO::Wrapper>::createShared();
 		summaryNos = List<String>::createShared();
-		summaryNos->push_back("MS202607210001");
-		message = "Summary submitted to pharmacy.";
 	}
 };
 
@@ -61,14 +108,21 @@ class CancelSummaryRequestDTO : public oatpp::DTO
 {
 	DTO_INIT(CancelSummaryRequestDTO, DTO);
 
+	API_DTO_FIELD_REQUIRE(String, idempotencyKey,
+		ZH_WORDS_GETTER("medicationcollection.field.idempotencyKey"), true);
+	API_DTO_FIELD_REQUIRE(List<SummaryVersionItemDTO::Wrapper>, items,
+		ZH_WORDS_GETTER("medicationcollection.field.summaryItems"), true);
+	// Legacy field retained for clients migrating to versioned items.
 	API_DTO_FIELD_REQUIRE(List<String>, summaryNos,
-		ZH_WORDS_GETTER("medicationcollection.field.summaryNos"), true);
+		ZH_WORDS_GETTER("medicationcollection.field.summaryNos"), false);
 
 public:
-	CancelSummaryRequestDTO()
+	static Wrapper createExample()
 	{
-		summaryNos = List<String>::createShared();
-		summaryNos->push_back("MS202607210001");
+		auto dto = createShared();
+		dto->idempotencyKey = "cancel-20260721-0001";
+		dto->items = {SummaryVersionItemDTO::createExample()};
+		return dto;
 	}
 };
 
@@ -76,6 +130,13 @@ class CancelSummaryResponseDTO : public oatpp::DTO
 {
 	DTO_INIT(CancelSummaryResponseDTO, DTO);
 
+	API_DTO_FIELD_REQUIRE(List<String>, successSummaryNos,
+		ZH_WORDS_GETTER("medicationcollection.field.successSummaryNos"), false);
+	API_DTO_FIELD_REQUIRE(List<String>, failedSummaryNos,
+		ZH_WORDS_GETTER("medicationcollection.field.failedSummaryNos"), false);
+	API_DTO_FIELD_REQUIRE(List<SummaryFailureDTO::Wrapper>, failures,
+		ZH_WORDS_GETTER("medicationcollection.field.failures"), false);
+	// Legacy response field mirrors successful summary numbers.
 	API_DTO_FIELD_REQUIRE(List<String>, summaryNos,
 		ZH_WORDS_GETTER("medicationcollection.field.summaryNos"), false);
 	API_DTO_FIELD_REQUIRE(String, message,
@@ -84,9 +145,10 @@ class CancelSummaryResponseDTO : public oatpp::DTO
 public:
 	CancelSummaryResponseDTO()
 	{
+		successSummaryNos = List<String>::createShared();
+		failedSummaryNos = List<String>::createShared();
+		failures = List<SummaryFailureDTO::Wrapper>::createShared();
 		summaryNos = List<String>::createShared();
-		summaryNos->push_back("MS202607210001");
-		message = "Summary cancelled.";
 	}
 };
 

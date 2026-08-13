@@ -23,6 +23,17 @@
 #include "domain/do/nursing/VitalSignDO.h"
 #include "domain/do/nursing/VitalSignDetailDO.h"
 
+struct TemperaturePaperHeaderData
+{
+	std::string inpatientNo;
+	std::string patientName;
+	std::string gender;
+	std::string age;
+	std::string admitAt;
+	std::string dischargeAt;
+	std::string wardName;
+	std::string bedNo;
+};
 
 class TemperatureDAO : public BaseDAO
 {
@@ -54,6 +65,19 @@ public:
     std::list<VitalSignDetailDO> selectByVitalSignIds(const std::list<std::string>& ids);
 
     int deleteByVitalSignId(const std::string& vitalSignId);
+
+	int updateMainRecord(const VitalSignDO& data, int64_t expectedVersion);
+
+	std::shared_ptr<TemperaturePaperHeaderData> selectPaperHeader(
+		const std::string& encounterId, const std::string& patientId);
+
+	std::list<std::string> selectSurgeryDates(const std::string& encounterId);
+	std::list<std::string> selectIdempotencyResult(
+		const std::string& operation, const std::string& idempotencyKey);
+	int insertIdempotencyResult(
+		const std::string& auditId, const std::string& operation,
+		const std::string& idempotencyKey, const std::string& operatorId,
+		const std::string& fingerprint, const std::string& resultData);
 };
 
 #endif // !_TEMPERATURE_DAO_

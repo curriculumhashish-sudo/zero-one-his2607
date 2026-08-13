@@ -20,18 +20,35 @@
 #include "EncounterManageService.h"
 #include "dao/encountermanage/EncounterManageDAO.h"
 
-PagePatientQueueDTO::Wrapper EncounterManageService::listPatients(const PagePatientQueueQuery::Wrapper& query)
+PagePatientQueueDTO::Wrapper EncounterManageService::listPatients(
+	const PagePatientQueueQuery::Wrapper& query, const std::string& userId)
 {
 	auto page=PagePatientQueueDTO::createShared(); page->rows=oatpp::List<PatientQueueItemDTO::Wrapper>::createShared();
 	page->pageIndex=query->pageIndex; page->pageSize=query->pageSize;
-	EncounterManageDAO dao; page->total=dao.countPatients(query); page->calcPages();
-	for (auto& row:dao.selectPatients(query)) page->addData(row);
+	EncounterManageDAO dao; page->total=dao.countPatients(query, userId); page->calcPages();
+	for (auto& row:dao.selectPatients(query, userId)) page->addData(row);
 	return page;
 }
 
-PatientStatisticsDTO::Wrapper EncounterManageService::getStatistics(const PatientStatisticsQuery::Wrapper& query)
+PatientStatisticsDTO::Wrapper EncounterManageService::getStatistics(
+	const PatientStatisticsQuery::Wrapper& query, const std::string& userId)
 {
 	auto dto=PatientStatisticsDTO::createShared(); EncounterManageDAO dao;
-	dto->totalCount=dao.countPatients(query); dto->pendingAuditCount=dao.countPendingAudit(query); dto->pendingExecuteCount=dao.countPendingExecute(query);
+	dto->totalCount=dao.countPatients(query, userId);
+	dto->pendingAuditCount=dao.countPendingAudit(query, userId);
+	dto->pendingExecuteCount=dao.countPendingExecute(query, userId);
 	return dto;
+}
+
+WardTreeDTO::Wrapper EncounterManageService::getWardTree(const std::string& userId)
+{
+	auto result = WardTreeDTO::createShared();
+	result->wardNodes = oatpp::List<WardNodeDTO::Wrapper>::createShared();
+	EncounterManageDAO dao;
+	for (auto& ward : dao.selectWards(userId)) {
+		ward->houseNodes = oatpp::List<HouseNodeDTO::Wrapper>::createShared();
+		for (auto& house : dao.selectHouses(ward->wardId.getValue(""), userId)) ward->houseNodes->push_back(house);
+		result->wardNodes->push_back(ward);
+	}
+	return result;
 }

@@ -19,11 +19,13 @@ class OrderNotExecuteDTO : public oatpp::DTO
 		ZH_WORDS_GETTER("medical_advice.notexecute.field.plan_time"), true);
 
 public:
-	OrderNotExecuteDTO()
+	static Wrapper createExample()
 	{
-		advice_id = "337907884548657152";
-		advice_type = "MED_REQUEST";
-		plan_time = "2026-07-24 08:00:00";
+		auto dto = createShared();
+		dto->advice_id = "337907884548657152";
+		dto->advice_type = "MED_REQUEST";
+		dto->plan_time = "2026-07-24 08:00:00";
+		return dto;
 	}
 
 	// Validate the request item.
@@ -65,34 +67,36 @@ class CancelExecutionItemDTO : public oatpp::DTO
 		ZH_WORDS_GETTER("medical_advice.cancelexecute.field.items.procedureId"), true);
 
 public:
-	CancelExecutionItemDTO()
+	static Wrapper createExample()
 	{
-		encounterId = "337907884548657152";
-		procedureId = "PROC202607240001";
+		auto dto = createShared();
+		dto->encounterId = "337907884548657152";
+		dto->procedureId = "PROC202607240001";
+		return dto;
 	}
 };
 
-/*取消执行医嘱DTO请求对象*/
 class CancelExecutionRequestDTO : public oatpp::DTO 
 {
 	DTO_INIT(CancelExecutionRequestDTO, DTO);
 
 	API_DTO_FIELD_REQUIRE(List<CancelExecutionItemDTO::Wrapper>, items,
-		ZH_WORDS_GETTER("medical_advice.cancelexecute.field.items"), true);
+		ZH_WORDS_GETTER("medical_advice.cancelexecute.field.itemList"), true);
 
 	API_DTO_FIELD_REQUIRE(String, statusReasonText,
 		ZH_WORDS_GETTER("medical_advice.cancelexecute.field.statusReasonText"), true);
 
 public:
-	CancelExecutionRequestDTO()
+	static Wrapper createExample()
 	{
-		items = {CancelExecutionItemDTO::createShared()};
-		statusReasonText = ZH_WORDS_GETTER("business-text.execution.deferred-reason");
+		auto dto = createShared();
+		dto->items = {CancelExecutionItemDTO::createExample()};
+		dto->statusReasonText = ZH_WORDS_GETTER("business-text.execution.deferred-reason");
+		return dto;
 	}
 
 	std::string validate()
 	{
-		/*字段非空基本校验，取消执行item列表不能多于50项*/
 		if (!items || items->empty())
 			return "items is required.";
 		if (items->size() > 50)
@@ -100,7 +104,6 @@ public:
 		if (!statusReasonText || statusReasonText->empty())
 			return "statusReasonText is required.";
 
-		/*内部字段都不能为空*/
 		for (auto& item : *items)
 		{
 			if (!item)
@@ -117,35 +120,24 @@ public:
 	}
 };
 
-/*取消执行返回结果DTO*/
 class CancelExecutionResultDTO : public oatpp::DTO
 {
 	DTO_INIT(CancelExecutionResultDTO, DTO);
 
-	/*是否成功(请求列表中一条失败整体就失败)*/
-	DTO_FIELD(Boolean, success);
-	DTO_FIELD_INFO(success) {
-		info->description = ZH_WORDS_GETTER("medical_advice.cancelexecute.result.success");
-	}
+	API_DTO_FIELD_REQUIRE(Boolean, success,
+		ZH_WORDS_GETTER("medical_advice.cancelexecute.result.success"), true);
 
-	/*如果取消执行的医嘱涉及药品，该字段就是重新生成的药品汇总单id*/
-	DTO_FIELD(List<String>, rebuiltSummaryNos);
-	DTO_FIELD_INFO(rebuiltSummaryNos) {
-		info->description = ZH_WORDS_GETTER("medical_advice.cancelexecute.result.rebuiltSummaryNos");
-	}
+	API_DTO_FIELD_REQUIRE(List<String>, rebuiltSummaryNos,
+		ZH_WORDS_GETTER("medical_advice.cancelexecute.result.rebuiltSummaryNos"), true);
 
-	/*描述执行结果*/
-	DTO_FIELD(String, message);
-	DTO_FIELD_INFO(message) {
-		info->description = ZH_WORDS_GETTER("medical_advice.cancelexecute.result.message");
-	}
+	API_DTO_FIELD_REQUIRE(String, message,
+		ZH_WORDS_GETTER("medical_advice.cancelexecute.result.message"), false);
 
 public:
 	CancelExecutionResultDTO()
 	{
-		success = true;
-		rebuiltSummaryNos = {"SUM202607240001"};
-		message = ZH_WORDS_GETTER("business-text.execution.cancel-success");
+		success = false;
+		rebuiltSummaryNos = List<String>::createShared();
 	}
 };
 

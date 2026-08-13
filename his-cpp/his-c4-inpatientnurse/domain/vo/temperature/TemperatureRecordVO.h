@@ -47,6 +47,28 @@ public:
 	}
 };
 
+class TemperatureInitJsonVO : public JsonVO<TemperatureInitResponseDTO::Wrapper>
+{
+	DTO_INIT(TemperatureInitJsonVO, JsonVO<TemperatureInitResponseDTO::Wrapper>);
+
+public:
+	TemperatureInitJsonVO()
+	{
+		this->data = TemperatureInitResponseDTO::createShared();
+	}
+};
+
+class TemperatureSheetBatchSaveJsonVO : public JsonVO<TemperatureSheetBatchSaveResponseDTO::Wrapper>
+{
+	DTO_INIT(TemperatureSheetBatchSaveJsonVO, JsonVO<TemperatureSheetBatchSaveResponseDTO::Wrapper>);
+
+public:
+	TemperatureSheetBatchSaveJsonVO()
+	{
+		this->data = TemperatureSheetBatchSaveResponseDTO::createShared();
+	}
+};
+
 #include OATPP_CODEGEN_END(DTO)
 
 #endif // !_TEMPERATURE_RECORD_VO_

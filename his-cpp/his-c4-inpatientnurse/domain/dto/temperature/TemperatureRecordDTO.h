@@ -46,8 +46,22 @@ class TemperatureSheetTemperaturePointDTO : public oatpp::DTO
 		ZH_WORDS_GETTER("temperature.field.recordedAt"), false);
 	API_DTO_FIELD_REQUIRE(String, temperature,
 		ZH_WORDS_GETTER("temperature.field.temperature"), false);
+	API_DTO_FIELD_REQUIRE(String, cooledTemperature,
+		ZH_WORDS_GETTER("temperature.field.cooledTemperature"), false);
+	API_DTO_FIELD_REQUIRE(String, pulse,
+		ZH_WORDS_GETTER("temperature.field.pulse"), false);
+	API_DTO_FIELD_REQUIRE(String, heartRate,
+		ZH_WORDS_GETTER("temperature.field.heartRate"), false);
+	API_DTO_FIELD_REQUIRE(String, respiration,
+		ZH_WORDS_GETTER("temperature.field.respiration"), false);
+	API_DTO_FIELD_REQUIRE(String, bloodPressure,
+		ZH_WORDS_GETTER("temperature.field.bloodPressure"), false);
+	API_DTO_FIELD_REQUIRE(String, specialEvent,
+		ZH_WORDS_GETTER("temperature.field.specialEvent"), false);
 	API_DTO_FIELD_REQUIRE(String, vitalSignId,
 		ZH_WORDS_GETTER("temperature.field.vitalSignId"), false);
+	API_DTO_FIELD_REQUIRE(Int64, version,
+		ZH_WORDS_GETTER("temperature.field.version"), false);
 };
 
 class TemperatureSheetGridSlotCellDTO : public oatpp::DTO
@@ -60,6 +74,8 @@ class TemperatureSheetGridSlotCellDTO : public oatpp::DTO
 		ZH_WORDS_GETTER("temperature.field.timeSlot"), false);
 	API_DTO_FIELD_REQUIRE(String, vitalSignId,
 		ZH_WORDS_GETTER("temperature.field.vitalSignId"), false);
+	API_DTO_FIELD_REQUIRE(Int64, version,
+		ZH_WORDS_GETTER("temperature.field.version"), false);
 };
 
 class TemperatureSheetGridRowDTO : public oatpp::DTO
@@ -90,10 +106,12 @@ class TemperatureSheetDerivedMetaDTO : public oatpp::DTO
 {
 	DTO_INIT(TemperatureSheetDerivedMetaDTO, DTO);
 
-	API_DTO_FIELD_REQUIRE(String, hospitalizationDaysByDate,
+	API_DTO_FIELD_REQUIRE(Fields<Int32>, hospitalizationDaysByDate,
 		ZH_WORDS_GETTER("temperature.field.hospitalizationDaysByDate"), false);
-	API_DTO_FIELD_REQUIRE(String, postoperativeDaysByDate,
+	API_DTO_FIELD_REQUIRE(Fields<Int32>, postoperativeDaysByDate,
 		ZH_WORDS_GETTER("temperature.field.postoperativeDaysByDate"), false);
+	API_DTO_FIELD_REQUIRE(Fields<Int32>, weekNoByDate,
+		ZH_WORDS_GETTER("temperature.field.weekNoByDate"), false);
 };
 
 class TemperatureSheetFillSlotDTO : public oatpp::DTO
@@ -106,6 +124,8 @@ class TemperatureSheetFillSlotDTO : public oatpp::DTO
 		ZH_WORDS_GETTER("temperature.field.timeSlot"), false);
 	API_DTO_FIELD_REQUIRE(String, vitalSignId,
 		ZH_WORDS_GETTER("temperature.field.vitalSignId"), false);
+	API_DTO_FIELD_REQUIRE(Int64, version,
+		ZH_WORDS_GETTER("temperature.field.version"), false);
 };
 
 class TemperatureSheetGetDataRequestDTO : public oatpp::DTO
@@ -124,13 +144,7 @@ class TemperatureSheetGetDataRequestDTO : public oatpp::DTO
 		ZH_WORDS_GETTER("temperature.field.windowRange"), true);
 
 public:
-	TemperatureSheetGetDataRequestDTO()
-	{
-		encounterId = "337907884548657152";
-		patientId = "326940849401761792";
-		windowRange = "7d";
-		pageIndex = 1;
-	}
+	TemperatureSheetGetDataRequestDTO() = default;
 };
 
 class TemperatureSheetGetDataResponseDTO : public oatpp::DTO
@@ -147,6 +161,8 @@ class TemperatureSheetGetDataResponseDTO : public oatpp::DTO
 		ZH_WORDS_GETTER("temperature.field.pagination"), false);
 	API_DTO_FIELD_REQUIRE(List<TemperatureSheetTemperaturePointDTO::Wrapper>, temperaturePoints,
 		ZH_WORDS_GETTER("temperature.field.temperaturePoints"), false);
+	API_DTO_FIELD_REQUIRE(Fields<String>, paperHeader,
+		ZH_WORDS_GETTER("temperature.field.paperHeader"), false);
 
 public:
 	TemperatureSheetGetDataResponseDTO()
@@ -172,53 +188,13 @@ class TemperatureSheetSaveRequestDTO : public oatpp::DTO
 		ZH_WORDS_GETTER("temperature.field.timeSlot"), true);
 	API_DTO_FIELD_REQUIRE(String, vitalSignId,
 		ZH_WORDS_GETTER("temperature.field.vitalSignId"), false);
+	API_DTO_FIELD_REQUIRE(Int64, expectedVersion,
+		ZH_WORDS_GETTER("temperature.field.expectedVersion"), false);
+	API_DTO_FIELD_REQUIRE(String, idempotencyKey,
+		ZH_WORDS_GETTER("temperature.field.idempotencyKey"), false);
 
 public:
-	TemperatureSheetSaveRequestDTO()
-	{
-		encounterId = "337907884548657152";
-		patientId = "326940849401761792";
-		recordDate = "2026-07-24";
-		timeSlot = "10";
-
-		detailItems = List<TemperatureSheetDetailItemDTO::Wrapper>::createShared();
-		auto add = [this](const char* code, const char* value) {
-			auto item = TemperatureSheetDetailItemDTO::createShared();
-			item->itemCode = code;
-			item->itemValue = value;
-			item->termCode = "vital_signs_code";
-			detailItems->push_back(item);
-		};
-		// Vital signs
-		add("TEMP", "36.5");
-		add("PULSE", "80");
-		add("RESPIRATION", "18");
-		add("HEART_RATE", "80");
-		add("SYSTOLIC_PRESSURE", "120");
-		add("DIASTOLIC_PRESSURE", "80");
-		// Event flags
-		add("PHYSICAL_COOLING", "false");
-		add("TEMP_AFTER_PHYSICAL_COOLING", "");
-		add("DRUG_COOLING", "false");
-		add("TEMP_AFTER_DRUG_COOLING", "");
-		add("TEMP_NOT_RISING", "false");
-		add("DISCHARGE", "false");
-		add("DISCHARGE_TIME", "");
-		// Special event: Transfer/Surgery/Delivery/Death/ExternalExam/Refuse
-		add("SPECIAL_EVENT", "");
-		add("SPECIAL_EVENT_TIME", "");
-		// Supplementary (daily summary below the grid)
-		add("WEIGHT", "65");
-		add("WAIST", "80");
-		add("HEIGHT", "170");
-		add("SKIN_TEST_POSITIVE", "");
-		// Previous-day summary (saved on date X, displayed on date X-1)
-		add("STOOL", "1");
-		add("URINE_FREQ", "6");
-		add("INTAKE", "1500");
-		add("URINE", "1200");
-		add("OTHER", "100");
-	}
+	TemperatureSheetSaveRequestDTO() = default;
 };
 
 class TemperatureSheetSaveResponseDTO : public oatpp::DTO
@@ -231,12 +207,145 @@ class TemperatureSheetSaveResponseDTO : public oatpp::DTO
 		ZH_WORDS_GETTER("temperature.field.nextTimeSlot"), false);
 	API_DTO_FIELD_REQUIRE(String, vitalSignId,
 		ZH_WORDS_GETTER("temperature.field.vitalSignId"), false);
+	API_DTO_FIELD_REQUIRE(Int64, version,
+		ZH_WORDS_GETTER("temperature.field.version"), false);
+	API_DTO_FIELD_REQUIRE(String, errorCode,
+		ZH_WORDS_GETTER("temperature.field.errorCode"), false);
 
 public:
 	TemperatureSheetSaveResponseDTO()
 	{
-		busNo = "T20260724001";
-		vitalSignId = "338131147144708100";
+		version = static_cast<v_int64>(0);
+	}
+};
+
+class TemperatureInitOptionDTO : public oatpp::DTO
+{
+	DTO_INIT(TemperatureInitOptionDTO, DTO);
+
+	API_DTO_FIELD_REQUIRE(String, code,
+		ZH_WORDS_GETTER("temperature.field.code"), true);
+	API_DTO_FIELD_REQUIRE(String, name,
+		ZH_WORDS_GETTER("temperature.field.name"), true);
+	API_DTO_FIELD_REQUIRE(String, unit,
+		ZH_WORDS_GETTER("temperature.field.unit"), false);
+	API_DTO_FIELD_REQUIRE(String, valueFormat,
+		ZH_WORDS_GETTER("temperature.field.valueFormat"), false);
+	API_DTO_FIELD_REQUIRE(String, reasonableRange,
+		ZH_WORDS_GETTER("temperature.field.reasonableRange"), false);
+	API_DTO_FIELD_REQUIRE(Boolean, eventTimeRequired,
+		ZH_WORDS_GETTER("temperature.field.eventTimeRequired"), false);
+	API_DTO_FIELD_REQUIRE(Boolean, verticalDisplay,
+		ZH_WORDS_GETTER("temperature.field.verticalDisplay"), false);
+	API_DTO_FIELD_REQUIRE(Boolean, cooledTemperatureRequired,
+		ZH_WORDS_GETTER("temperature.field.cooledTemperatureRequired"), false);
+	API_DTO_FIELD_REQUIRE(Int32, displayOrder,
+		ZH_WORDS_GETTER("temperature.field.displayOrder"), false);
+};
+
+class TemperatureInitResponseDTO : public oatpp::DTO
+{
+	DTO_INIT(TemperatureInitResponseDTO, DTO);
+
+	API_DTO_FIELD_REQUIRE(String, defaultWindowRange,
+		ZH_WORDS_GETTER("temperature.field.defaultWindowRange"), true);
+	API_DTO_FIELD_REQUIRE(List<String>, windowRanges,
+		ZH_WORDS_GETTER("temperature.field.windowRanges"), true);
+	API_DTO_FIELD_REQUIRE(List<TemperatureInitOptionDTO::Wrapper>, timeSlots,
+		ZH_WORDS_GETTER("temperature.field.timeSlots"), true);
+	API_DTO_FIELD_REQUIRE(List<TemperatureInitOptionDTO::Wrapper>, specialEvents,
+		ZH_WORDS_GETTER("temperature.field.specialEvents"), true);
+	API_DTO_FIELD_REQUIRE(List<TemperatureInitOptionDTO::Wrapper>, vitalSignItems,
+		ZH_WORDS_GETTER("temperature.field.vitalSignItems"), true);
+
+public:
+	TemperatureInitResponseDTO()
+	{
+		defaultWindowRange = "7d";
+		windowRanges = List<String>::createShared();
+		timeSlots = List<TemperatureInitOptionDTO::Wrapper>::createShared();
+		specialEvents = List<TemperatureInitOptionDTO::Wrapper>::createShared();
+		vitalSignItems = List<TemperatureInitOptionDTO::Wrapper>::createShared();
+	}
+};
+
+class TemperatureSheetBatchSaveSlotDTO : public oatpp::DTO
+{
+	DTO_INIT(TemperatureSheetBatchSaveSlotDTO, DTO);
+
+	API_DTO_FIELD_REQUIRE(List<TemperatureSheetDetailItemDTO::Wrapper>, detailItems,
+		ZH_WORDS_GETTER("temperature.field.detailItems"), true);
+	API_DTO_FIELD_REQUIRE(String, timeSlot,
+		ZH_WORDS_GETTER("temperature.field.timeSlot"), true);
+	API_DTO_FIELD_REQUIRE(String, vitalSignId,
+		ZH_WORDS_GETTER("temperature.field.vitalSignId"), false);
+	API_DTO_FIELD_REQUIRE(Int64, expectedVersion,
+		ZH_WORDS_GETTER("temperature.field.expectedVersion"), false);
+};
+
+class TemperatureSheetBatchSaveRequestDTO : public oatpp::DTO
+{
+	DTO_INIT(TemperatureSheetBatchSaveRequestDTO, DTO);
+
+public:
+
+	API_DTO_FIELD_REQUIRE(String, idempotencyKey,
+		ZH_WORDS_GETTER("temperature.field.idempotencyKey"), true);
+	API_DTO_FIELD_REQUIRE(String, encounterId,
+		ZH_WORDS_GETTER("temperature.field.encounterId"), true);
+	API_DTO_FIELD_REQUIRE(String, patientId,
+		ZH_WORDS_GETTER("temperature.field.patientId"), true);
+	API_DTO_FIELD_REQUIRE(String, recordDate,
+		ZH_WORDS_GETTER("temperature.field.recordDate"), true);
+	API_DTO_FIELD_REQUIRE(List<TemperatureSheetBatchSaveSlotDTO::Wrapper>, slots,
+		ZH_WORDS_GETTER("temperature.field.slots"), true);
+	API_DTO_FIELD_REQUIRE(List<TemperatureSheetDetailItemDTO::Wrapper>, dailySupplement,
+		ZH_WORDS_GETTER("temperature.field.dailySupplement"), false);
+};
+
+class TemperatureSheetBatchSaveItemResultDTO : public oatpp::DTO
+{
+	DTO_INIT(TemperatureSheetBatchSaveItemResultDTO, DTO);
+
+	API_DTO_FIELD_REQUIRE(String, timeSlot,
+		ZH_WORDS_GETTER("temperature.field.timeSlot"), true);
+	API_DTO_FIELD_REQUIRE(String, vitalSignId,
+		ZH_WORDS_GETTER("temperature.field.vitalSignId"), false);
+	API_DTO_FIELD_REQUIRE(Int64, version,
+		ZH_WORDS_GETTER("temperature.field.version"), false);
+	API_DTO_FIELD_REQUIRE(String, nextTimeSlot,
+		ZH_WORDS_GETTER("temperature.field.nextTimeSlot"), false);
+	API_DTO_FIELD_REQUIRE(Boolean, success,
+		ZH_WORDS_GETTER("temperature.field.success"), true);
+	API_DTO_FIELD_REQUIRE(String, errorCode,
+		ZH_WORDS_GETTER("temperature.field.errorCode"), false);
+	API_DTO_FIELD_REQUIRE(String, message,
+		ZH_WORDS_GETTER("temperature.field.resultMessage"), false);
+	API_DTO_FIELD_REQUIRE(TemperatureSheetGridSlotCellDTO::Wrapper, savedCell,
+		ZH_WORDS_GETTER("temperature.field.savedCell"), false);
+
+public:
+	TemperatureSheetBatchSaveItemResultDTO()
+	{
+		version = static_cast<v_int64>(0);
+		success = false;
+	}
+};
+
+class TemperatureSheetBatchSaveResponseDTO : public oatpp::DTO
+{
+	DTO_INIT(TemperatureSheetBatchSaveResponseDTO, DTO);
+
+	API_DTO_FIELD_REQUIRE(Int32, savedCount,
+		ZH_WORDS_GETTER("temperature.field.savedCount"), true);
+	API_DTO_FIELD_REQUIRE(List<TemperatureSheetBatchSaveItemResultDTO::Wrapper>, results,
+		ZH_WORDS_GETTER("temperature.field.results"), true);
+
+public:
+	TemperatureSheetBatchSaveResponseDTO()
+	{
+		savedCount = 0;
+		results = List<TemperatureSheetBatchSaveItemResultDTO::Wrapper>::createShared();
 	}
 };
 

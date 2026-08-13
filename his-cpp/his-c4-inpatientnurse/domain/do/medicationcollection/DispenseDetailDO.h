@@ -29,12 +29,17 @@ class DispenseDetailDO
 {
 	// detail id
 	MYSQL_SYNTHESIZE(string, id, Id);
+	MYSQL_SYNTHESIZE(string, medicationId, MedicationId);
 	// medication name (from med_medication_definition)
 	MYSQL_SYNTHESIZE(string, name, Name);
 	// requested quantity
 	MYSQL_SYNTHESIZE(double, quantity, Quantity);
 	// unit code (specification)
 	MYSQL_SYNTHESIZE(string, unitCode, UnitCode);
+	MYSQL_SYNTHESIZE(string, specification, Specification);
+	MYSQL_SYNTHESIZE(string, packageDisplay, PackageDisplay);
+	MYSQL_SYNTHESIZE(double, unitPrice, UnitPrice);
+	MYSQL_SYNTHESIZE(double, totalPrice, TotalPrice);
 };
 
 #endif // !_DISPENSEDETAIL_DO_

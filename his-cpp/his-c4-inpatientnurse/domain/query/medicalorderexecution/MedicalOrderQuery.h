@@ -40,7 +40,8 @@ class MedicalOrderQuery : public PageQuery
     API_DTO_FIELD_REQUIRE(String, patientId, "patient identifier, e.g. P-20240101-0001", false);
 
     // Encounter (visit) ID filter
-    API_DTO_FIELD_REQUIRE(String, encounterId, "encounter (visit) identifier, e.g. ENC-001", false);
+    API_DTO_FIELD_REQUIRE(String, encounterId,
+		ZH_WORDS_GETTER("medical-order-execution.field.encounterId"), true);
 
     // Start date filter (authored_time >= startDate)
     API_DTO_FIELD_REQUIRE(String, startDate, "order authored start date, format: yyyy-MM-dd HH:mm:ss", false);
@@ -60,19 +61,9 @@ class MedicalOrderQuery : public PageQuery
     // Order type filter (long_term / temporary)
     API_DTO_FIELD_REQUIRE(String, intentEnum, "order type filter: long_term | temporary", false);
 
-public:
-    MedicalOrderQuery()
-    {
-        statusEnum = "verified";
-        patientId = "326940849401761792";
-        encounterId = "337907884548657152";
-        startDate = "2026-07-24 00:00:00";
-        endDate = "2026-07-24 23:59:59";
-        locationId = "334526752078102528";
-        categoryEnum = "medication";
-        priorityEnum = "routine";
-        intentEnum = "temporary";
-    }
+	API_DTO_FIELD_REQUIRE(String, therapyEnum,
+		ZH_WORDS_GETTER("medical-order-execution.field.therapyEnum"), false);
+
 };
 
 #include OATPP_CODEGEN_END(DTO)

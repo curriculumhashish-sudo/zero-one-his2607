@@ -8,7 +8,6 @@
 
 #include OATPP_CODEGEN_BEGIN(DTO)
 
-/*取消执行返回结果VO对象*/
 class CancelExecutionJsonVO : public JsonVO<CancelExecutionResultDTO::Wrapper>
 {
 	DTO_INIT(CancelExecutionJsonVO, JsonVO<CancelExecutionResultDTO::Wrapper>);

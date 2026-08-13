@@ -27,11 +27,17 @@ class TemperatureDAO;
 class TemperatureService
 {
 public:
+	TemperatureInitResponseDTO::Wrapper getInitConfig();
+
     TemperatureSheetGetDataResponseDTO::Wrapper getTemperatureData(
         const TemperatureSheetGetDataRequestDTO::Wrapper& query);
 
     TemperatureSheetSaveResponseDTO::Wrapper saveTemperatureRecord(
-        const TemperatureSheetSaveRequestDTO::Wrapper& dto);
+        const TemperatureSheetSaveRequestDTO::Wrapper& dto, const std::string& operatorId);
+
+	TemperatureSheetBatchSaveResponseDTO::Wrapper saveTemperatureRecords(
+		const TemperatureSheetBatchSaveRequestDTO::Wrapper& dto,
+		const std::string& operatorId);
 
 private:
     std::string generateBusNo(TemperatureDAO& dao);

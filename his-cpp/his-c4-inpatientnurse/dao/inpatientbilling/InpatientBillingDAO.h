@@ -5,41 +5,100 @@
 #include "BaseDAO.h"
 #include "domain/do/inpatientbilling/AutoGenRuleDO.h"
 #include "domain/do/chargedetails/ChargeItemDO.h"
+#include "domain/dto/inpatientbilling/InpatientBillingDTO.h"
 
 class InpatientBillingDAO : public BaseDAO
 {
 public:
-	// 按就诊查询自动计费规则列表，按优先级和ID排序
 	std::list<AutoGenRuleDO> selectRulesByEncounterId(const std::string& encounterId);
-	// 统计就诊下的自动计费规则数量（排除已删除）
 	uint64_t countRulesByEncounterId(const std::string& encounterId);
+	bool isValidEncounterPatient(
+		const std::string& encounterId, const std::string& patientId);
+	bool isValidAutoRuleReferences(
+		const std::string& activityId, const std::string& chargeDefinitionId);
+	bool isActiveActivity(const std::string& activityId);
+	bool isActiveChargeDefinition(const std::string& chargeDefinitionId);
+	int updateAutoGenRule(const UpdateAutoGenRuleDTO::Wrapper& dto);
+	int softDeleteAutoGenRule(const std::string& ruleId, const std::string& encounterId,
+		int64_t expectedVersion);
+	int setAutoGenRuleStatus(
+		const std::string& ruleId, const std::string& encounterId, const std::string& status,
+		int64_t expectedVersion);
 
-    // 根据项目编码查询收费项目信息（补费时查询用）
+	uint64_t countPricingCatalog(const PagePricingCatalogQuery::Wrapper& query);
+	std::list<NurseStationPricingCatalogRowDTO::Wrapper> selectPricingCatalog(
+		const PagePricingCatalogQuery::Wrapper& query);
+	std::list<PricedOrderGroupDTO::Wrapper> selectPricedOrders(
+		const ListPricedOrdersQuery::Wrapper& query);
+	std::list<SupplementParentOrderGroupDTO::Wrapper> selectSupplementParentOrders(
+		const ListSupplementParentOrdersQuery::Wrapper& query);
+	bool prepareNursePricingItem(const ConfirmDirectPricingItemDTO::Wrapper& item);
+	bool isAllowedSupplementParent(
+		const std::string& requestId, const std::string& encounterId,
+		const std::string& orderType);
+	int insertNursePricingServiceRequest(
+		const std::string& requestId,
+		const ConfirmDirectPricingItemDTO::Wrapper& item,
+		const std::string& parentRequestId,
+		const std::string& operatorId,
+		const std::string& now);
+	int insertNursePricingDeviceRequest(
+		const std::string& requestId,
+		const ConfirmDirectPricingItemDTO::Wrapper& item,
+		const std::string& parentRequestId,
+		const std::string& operatorId,
+		const std::string& now);
+	int insertNursePricingDeviceDispense(
+		const std::string& dispenseId,
+		const std::string& requestId,
+		const ConfirmDirectPricingItemDTO::Wrapper& item,
+		const std::string& parentRequestId,
+		const std::string& operatorId,
+		const std::string& now);
+	int insertNursePricingChargeItem(
+		const std::string& chargeItemId,
+		const std::string& requestId,
+		const std::string& dispenseId,
+		const ConfirmDirectPricingItemDTO::Wrapper& item,
+		const std::string& operatorId,
+		const std::string& now);
+	int softDeleteNursePricingRequest(
+		const std::string& orderType,
+		const std::string& requestId,
+		const std::string& encounterId,
+		const std::string& operatorId,
+		const std::string& now);
+	int softDeletePendingChargeItems(
+		const std::string& requestId,
+		const std::string& encounterId,
+		const std::string& operatorId,
+		const std::string& now);
+	std::list<std::string> selectIdempotencyResult(
+		const std::string& operation, const std::string& idempotencyKey);
+	int insertIdempotencyResult(
+		const std::string& auditId, const std::string& operation,
+		const std::string& idempotencyKey, const std::string& operatorId,
+		const std::string& fingerprint, const std::string& resultData);
+
     std::unique_ptr<ChargeItemDO> selectChargeItemByCode(const std::string& itemCode);
 
-    // 插入计费记录
     int insertChargeItem(const ChargeItemDO& chargeItem);
 
-    // 根据患者ID和就诊ID查询费用明细
     std::list<ChargeItemDO> selectChargeItemsByPatientAndEncounter(
         const std::string& patientId,
         const std::string& encounterId
     );
 
-    // 根据患者ID分页查询费用明细
     std::list<ChargeItemDO> selectChargeItemsByPatientId(
         const std::string& patientId,
         int offset,
         int limit
     );
 
-    // 统计患者费用记录数量
     uint64_t countChargeItemsByPatientId(const std::string& patientId);
 
-    // 根据医嘱ID查询是否已补费
     std::unique_ptr<ChargeItemDO> selectChargeItemByServiceId(const std::string& serviceId);
 
-    // 更新费用记录状态
     int updateChargeItemStatus(const std::string& id, const std::string& status);
 };
 

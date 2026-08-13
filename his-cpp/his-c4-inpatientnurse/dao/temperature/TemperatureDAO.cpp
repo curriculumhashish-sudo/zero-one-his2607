@@ -186,6 +186,85 @@ std::list<VitalSignDetailDO> TemperatureDAO::selectByVitalSignIds(const std::lis
 // ---------------------------------------------------------------------------
 int TemperatureDAO::deleteByVitalSignId(const std::string& vitalSignId)
 {
-    std::string sql = "DELETE FROM dia_vital_sign_detail WHERE vital_sign_id = ?";
-    return sqlSession->executeUpdate(sql, "%s", vitalSignId);
+	SqlParams params;
+	SQLPARAMS_PUSH(params, "s", std::string, vitalSignId);
+	return sqlSession->executeUpdate(
+		"UPDATE dia_vital_sign_detail SET is_deleted=1,deleted_at=NOW(6),"
+		"updated_at=NOW(6),version=version+1 WHERE vital_sign_id=? AND is_deleted=0",
+		params);
+}
+
+int TemperatureDAO::updateMainRecord(const VitalSignDO& data, int64_t expectedVersion)
+{
+	SqlParams params;
+	SQLPARAMS_PUSH(params, "dt", std::string, data.getRecordedAt());
+	SQLPARAMS_PUSH(params, "s", std::string, data.getRecorderId());
+	SQLPARAMS_PUSH(params, "s", std::string, data.getUpdatedBy());
+	SQLPARAMS_PUSH(params, "s", std::string, data.getRemark());
+	SQLPARAMS_PUSH(params, "s", std::string, data.getId());
+	SQLPARAMS_PUSH(params, "s", std::string, data.getEncounterId());
+	SQLPARAMS_PUSH(params, "s", std::string, data.getPatientId());
+	SQLPARAMS_PUSH(params, "ll", int64_t, expectedVersion);
+	return sqlSession->executeUpdate(
+		"UPDATE dia_vital_sign SET recorded_at=?,recorder_id=?,updated_by=?,"
+		"remark=?,updated_at=NOW(6),version=version+1 WHERE id=? AND encounter_id=? AND patient_id=? "
+		"AND type_enum='TEMPERATURE_SHEET' AND version=? AND is_deleted=0",
+		params);
+}
+
+std::shared_ptr<TemperaturePaperHeaderData> TemperatureDAO::selectPaperHeader(
+	const std::string& encounterId, const std::string& patientId)
+{
+	SqlParams params;
+	SQLPARAMS_PUSH(params, "s", std::string, encounterId);
+	SQLPARAMS_PUSH(params, "s", std::string, patientId);
+	const std::string sql =
+		"SELECT p.bus_no inpatient_no,p.name patient_name,p.gender_enum gender,"
+		"CAST(TIMESTAMPDIFF(YEAR,p.birth_date,CURDATE()) AS CHAR) age,e.start_time admit_at,"
+		"e.end_time discharge_at,ward.name ward_name,bed.name bed_no "
+		"FROM adm_encounter e JOIN adm_patient p ON p.id=e.patient_id AND p.is_deleted=0 "
+		"LEFT JOIN adm_encounter_location bed_rel ON bed_rel.encounter_id=e.id "
+		"AND bed_rel.form_enum='BED' AND bed_rel.status_enum='ACTIVE' AND bed_rel.is_deleted=0 "
+		"LEFT JOIN adm_location bed ON bed.id=bed_rel.location_id AND bed.is_deleted=0 "
+		"LEFT JOIN adm_location house ON house.id=bed.parent_id AND house.is_deleted=0 "
+		"LEFT JOIN adm_location ward ON ward.id=house.parent_id AND ward.is_deleted=0 "
+		"WHERE e.id=? AND e.patient_id=? AND e.is_deleted=0 LIMIT 1";
+	auto rows = sqlSession->executeQuery<std::shared_ptr<TemperaturePaperHeaderData>>(
+		sql, TemperaturePaperHeaderMapper(), params);
+	return rows.empty() ? std::make_shared<TemperaturePaperHeaderData>() : rows.front();
+}
+
+std::list<std::string> TemperatureDAO::selectSurgeryDates(const std::string& encounterId)
+{
+	SqlParams params;
+	SQLPARAMS_PUSH(params, "s", std::string, encounterId);
+	return sqlSession->executeQuery<std::string>(
+		"SELECT DISTINCT DATE(occurrence_time) FROM cln_procedure "
+		"WHERE encounter_id=? AND occurrence_time IS NOT NULL AND is_deleted=0 "
+		"AND status_enum NOT IN ('CANCELLED','STOPPED') ORDER BY DATE(occurrence_time)",
+		TemperatureStringMapper(), params);
+}
+
+std::list<std::string> TemperatureDAO::selectIdempotencyResult(
+	const std::string& operation, const std::string& idempotencyKey)
+{
+	return sqlSession->executeQuery<std::string>(R"SQL(
+		SELECT changes FROM whale_audit_logs
+		WHERE entity_type='NURSE_STATION_TEMPERATURE_SHEET'
+			AND entity_id=? AND operation_type=?
+		ORDER BY created_at DESC LIMIT 1
+	)SQL", TemperatureStringMapper(), "%s%s", idempotencyKey, operation);
+}
+
+int TemperatureDAO::insertIdempotencyResult(
+	const std::string& auditId, const std::string& operation,
+	const std::string& idempotencyKey, const std::string& operatorId,
+	const std::string& fingerprint, const std::string& resultData)
+{
+	return sqlSession->executeUpdate(R"SQL(
+		INSERT INTO whale_audit_logs(
+			id,entity_type,entity_id,operation_type,user_id,changes,created_at)
+		VALUES(?,'NURSE_STATION_TEMPERATURE_SHEET',?,?,?,?,NOW())
+	)SQL", "%s%s%s%s%s", auditId, idempotencyKey, operation, operatorId,
+		fingerprint + "\n--RESULT--\n" + resultData);
 }

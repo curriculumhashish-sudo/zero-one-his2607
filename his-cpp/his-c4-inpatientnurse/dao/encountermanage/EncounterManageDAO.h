@@ -24,15 +24,19 @@
 #include "domain/query/encountermanage/PagePatientQueueQuery.h"
 #include "domain/query/encountermanage/PatientStatisticsQuery.h"
 #include "domain/dto/encountermanage/PagePatientQueueDTO.h"
+#include "domain/dto/encountermanage/WardTreeDTO.h"
 
 class EncounterManageDAO : public BaseDAO
 {
 public:
-	uint64_t countPatients(const PagePatientQueueQuery::Wrapper& query);
-	std::list<PatientQueueItemDTO::Wrapper> selectPatients(const PagePatientQueueQuery::Wrapper& query);
-	uint64_t countPatients(const PatientStatisticsQuery::Wrapper& query);
-	uint64_t countPendingAudit(const PatientStatisticsQuery::Wrapper& query);
-	uint64_t countPendingExecute(const PatientStatisticsQuery::Wrapper& query);
+	uint64_t countPatients(const PagePatientQueueQuery::Wrapper& query, const std::string& userId);
+	std::list<PatientQueueItemDTO::Wrapper> selectPatients(
+		const PagePatientQueueQuery::Wrapper& query, const std::string& userId);
+	uint64_t countPatients(const PatientStatisticsQuery::Wrapper& query, const std::string& userId);
+	uint64_t countPendingAudit(const PatientStatisticsQuery::Wrapper& query, const std::string& userId);
+	uint64_t countPendingExecute(const PatientStatisticsQuery::Wrapper& query, const std::string& userId);
+	std::list<WardNodeDTO::Wrapper> selectWards(const std::string& userId);
+	std::list<HouseNodeDTO::Wrapper> selectHouses(const std::string& wardId, const std::string& userId);
 };
 
 #endif // !_ENCOUNTER_MANAGE_DAO_H_

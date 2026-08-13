@@ -22,6 +22,7 @@
 
 #include "domain/dto/temperature/TemperatureRecordDTO.h"
 #include "domain/vo/temperature/TemperatureRecordVO.h"
+#include "controller/RequestValidation.h"
 
 using namespace oatpp;
 
@@ -34,6 +35,20 @@ class TemperatureController : public oatpp::web::server::api::ApiController
 	API_ACCESS_DECLARE(TemperatureController);
 
 public:
+	API_DEF_ENDPOINT_INFO_AUTH(
+		ZH_WORDS_GETTER("temperature.init.summary"),
+		getTemperatureInit,
+		TemperatureInitJsonVO::Wrapper,
+		API_TAG,
+		info->responses[Status::CODE_200].addExample(
+			"success", TemperatureInitJsonVO::createShared());
+	);
+	API_HANDLER_ENDPOINT_NOPARAM_AUTH(
+		API_M_GET,
+		"/temperature/init",
+		getTemperatureInit,
+		execGetTemperatureInit());
+
 	// Get temperature sheet data
 	API_DEF_ENDPOINT_INFO_AUTH(
 		ZH_WORDS_GETTER("temperature.query-by-date.summary"),
@@ -49,7 +64,7 @@ public:
 		API_DEF_ADD_QUERY_PARAMS(String, "focusRecordDate",
 			ZH_WORDS_GETTER("temperature.field.focusRecordDate"), "2026-07-24", false);
 		API_DEF_ADD_QUERY_PARAMS(Int32, "pageIndex",
-			ZH_WORDS_GETTER("temperature.field.pageIndex"), 1, false);
+			ZH_WORDS_GETTER("temperature.field.pageIndex"), 0, false);
 		info->responses[Status::CODE_200].addExample(
 			"success", TemperatureSheetDataJsonVO::createShared());
 	);
@@ -58,7 +73,7 @@ public:
 		"/temperature/get-data",
 		getTemperatureData,
 		TemperatureSheetGetDataRequestDTO,
-		execGetTemperatureData(query));
+		execGetTemperatureData(query, authObject->getPayload()));
 
 	// Save temperature sheet data at a recorded time
 	API_DEF_ENDPOINT_INFO_AUTH(
@@ -66,7 +81,18 @@ public:
 		saveTemperatureRecord,
 		TemperatureSheetSaveJsonVO::Wrapper,
 		API_TAG,
-		info->body.addExample("default", TemperatureSheetSaveRequestDTO::createShared());
+		auto example = TemperatureSheetSaveRequestDTO::createShared();
+		example->encounterId = "337907884548657152";
+		example->patientId = "326940849401761792";
+		example->recordDate = "2026-07-24";
+		example->timeSlot = "10";
+		example->detailItems = List<TemperatureSheetDetailItemDTO::Wrapper>::createShared();
+		auto temperature = TemperatureSheetDetailItemDTO::createShared();
+		temperature->itemCode = "TEMP";
+		temperature->itemValue = "36.5";
+		temperature->termCode = "vital_signs_code";
+		example->detailItems->push_back(temperature);
+		info->body.addExample("default", example);
 		info->responses[Status::CODE_200].addExample(
 			"success", TemperatureSheetSaveJsonVO::createShared());
 	);
@@ -74,14 +100,50 @@ public:
 		API_M_POST,
 		"/temperature/save-record",
 		saveTemperatureRecord,
-		BODY_DTO(TemperatureSheetSaveRequestDTO::Wrapper, dto),
-		execSaveTemperatureRecord(dto));
+		C4_REQUIRED_BODY_DTO(TemperatureSheetSaveRequestDTO::Wrapper, dto),
+		execSaveTemperatureRecord(dto, authObject->getPayload()));
+
+	API_DEF_ENDPOINT_INFO_AUTH(
+		ZH_WORDS_GETTER("temperature.save-records.summary"),
+		saveTemperatureRecords,
+		TemperatureSheetBatchSaveJsonVO::Wrapper,
+		API_TAG,
+		auto example = TemperatureSheetBatchSaveRequestDTO::createShared();
+		example->idempotencyKey = "TEMPERATURE-20260724-001";
+		example->encounterId = "337907884548657152";
+		example->patientId = "326940849401761792";
+		example->recordDate = "2026-07-24";
+		example->slots = List<TemperatureSheetBatchSaveSlotDTO::Wrapper>::createShared();
+		auto slot = TemperatureSheetBatchSaveSlotDTO::createShared();
+		slot->timeSlot = "10";
+		slot->detailItems = List<TemperatureSheetDetailItemDTO::Wrapper>::createShared();
+		auto detail = TemperatureSheetDetailItemDTO::createShared();
+		detail->termCode = "vital_signs_code";
+		detail->itemCode = "TEMP";
+		detail->itemValue = "36.5";
+		slot->detailItems->push_back(detail);
+		example->slots->push_back(slot);
+		info->body.addExample("default", example);
+		info->responses[Status::CODE_200].addExample(
+			"success", TemperatureSheetBatchSaveJsonVO::createShared());
+	);
+	API_HANDLER_ENDPOINT_AUTH(
+		API_M_POST,
+		"/temperature/save-records",
+		saveTemperatureRecords,
+		C4_REQUIRED_BODY_DTO(TemperatureSheetBatchSaveRequestDTO::Wrapper, dto),
+		execSaveTemperatureRecords(dto, authObject->getPayload()));
 
 private:
+	TemperatureInitJsonVO::Wrapper execGetTemperatureInit();
 	TemperatureSheetDataJsonVO::Wrapper execGetTemperatureData(
-		const TemperatureSheetGetDataRequestDTO::Wrapper& query);
+		const TemperatureSheetGetDataRequestDTO::Wrapper& query,
+		const PayloadDTO& payload);
 	TemperatureSheetSaveJsonVO::Wrapper execSaveTemperatureRecord(
-		const TemperatureSheetSaveRequestDTO::Wrapper& dto);
+		const TemperatureSheetSaveRequestDTO::Wrapper& dto, const PayloadDTO& payload);
+	TemperatureSheetBatchSaveJsonVO::Wrapper execSaveTemperatureRecords(
+		const TemperatureSheetBatchSaveRequestDTO::Wrapper& dto,
+		const PayloadDTO& payload);
 };
 
 #undef API_TAG

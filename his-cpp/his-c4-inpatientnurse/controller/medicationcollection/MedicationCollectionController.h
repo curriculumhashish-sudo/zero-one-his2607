@@ -26,6 +26,7 @@
 #include "domain/vo/medicationcollection/CreateMedicationSummaryVO.h"
 #include "domain/vo/medicationcollection/PagePendingDispenseSummaryLinesVO.h"
 #include "domain/vo/medicationcollection/SummarySlipVO.h"
+#include "controller/RequestValidation.h"
 
 using namespace oatpp;
 
@@ -76,7 +77,23 @@ public:
 		"/medicationcollection/query-summary-order-items",
 		querySummaryOrderItems,
 		PagePendingDispenseSummaryLinesQuery,
-		execQuerySummaryOrderItems(query));
+		execQuerySummaryOrderItems(query, authObject->getPayload()));
+
+	API_DEF_ENDPOINT_INFO_AUTH(
+		ZH_WORDS_GETTER("medicationcollection.query-summary-order-items.summary"),
+		querySummaryOrderItemsByBody,
+		PagePendingDispenseSummaryLinesJsonVO::Wrapper,
+		API_TAG,
+		info->body.addExample("default", MedicationSummaryWorkbenchQueryDTO::createExample());
+		info->responses[Status::CODE_200].addExample(
+			"success", PagePendingDispenseSummaryLinesJsonVO::createShared());
+	);
+	API_HANDLER_ENDPOINT_AUTH(
+		API_M_POST,
+		"/medicationcollection/query-summary-order-items",
+		querySummaryOrderItemsByBody,
+		C4_REQUIRED_BODY_DTO(MedicationSummaryWorkbenchQueryDTO::Wrapper, dto),
+		execQuerySummaryOrderItemsByBody(dto, authObject->getPayload()));
 
 	// Create medication summary slips from the selected dispense items.
 	API_DEF_ENDPOINT_INFO_AUTH(
@@ -84,7 +101,7 @@ public:
 		summaryMedication,
 		CreateMedicationSummaryJsonVO::Wrapper,
 		API_TAG,
-		info->body.addExample("default", CreateMedicationSummaryDTO::createShared());
+		info->body.addExample("default", CreateMedicationSummaryDTO::createExample());
 		info->responses[Status::CODE_200].addExample(
 			"success", CreateMedicationSummaryJsonVO::createShared());
 	);
@@ -92,7 +109,7 @@ public:
 		API_M_POST,
 		"/medicationcollection/summary-medication",
 		summaryMedication,
-		BODY_DTO(CreateMedicationSummaryDTO::Wrapper, dto),
+		C4_REQUIRED_BODY_DTO(CreateMedicationSummaryDTO::Wrapper, dto),
 		execSummaryMedication(dto, authObject->getPayload()));
 
 	// Submit summary slips to pharmacy (batch)
@@ -101,7 +118,7 @@ public:
 		submitSummary,
 		SubmitSummaryJsonVO::Wrapper,
 		API_TAG,
-		info->body.addExample("default", SubmitSummaryRequestDTO::createShared());
+		info->body.addExample("default", SubmitSummaryRequestDTO::createExample());
 		info->responses[Status::CODE_200].addExample(
 			"success", SubmitSummaryJsonVO::createShared());
 	);
@@ -109,7 +126,7 @@ public:
 		API_M_POST,
 		"/medicationcollection/submit-summary",
 		submitSummary,
-		BODY_DTO(SubmitSummaryRequestDTO::Wrapper, dto),
+		C4_REQUIRED_BODY_DTO(SubmitSummaryRequestDTO::Wrapper, dto),
 		execSubmitSummary(dto, authObject->getPayload()));
 
 	// Cancel summary slips (batch revoke)
@@ -118,7 +135,7 @@ public:
 		cancelSummary,
 		CancelSummaryJsonVO::Wrapper,
 		API_TAG,
-		info->body.addExample("default", CancelSummaryRequestDTO::createShared());
+		info->body.addExample("default", CancelSummaryRequestDTO::createExample());
 		info->responses[Status::CODE_200].addExample(
 			"success", CancelSummaryJsonVO::createShared());
 	);
@@ -126,12 +143,16 @@ public:
 		API_M_POST,
 		"/medicationcollection/cancel-summary",
 		cancelSummary,
-		BODY_DTO(CancelSummaryRequestDTO::Wrapper, dto),
+		C4_REQUIRED_BODY_DTO(CancelSummaryRequestDTO::Wrapper, dto),
 		execCancelSummary(dto, authObject->getPayload()));
 
 private:
 	PagePendingDispenseSummaryLinesJsonVO::Wrapper execQuerySummaryOrderItems(
-		const PagePendingDispenseSummaryLinesQuery::Wrapper& query);
+		const PagePendingDispenseSummaryLinesQuery::Wrapper& query,
+		const PayloadDTO& payload);
+	PagePendingDispenseSummaryLinesJsonVO::Wrapper execQuerySummaryOrderItemsByBody(
+		const MedicationSummaryWorkbenchQueryDTO::Wrapper& dto,
+		const PayloadDTO& payload);
 	CreateMedicationSummaryJsonVO::Wrapper execSummaryMedication(
 		const CreateMedicationSummaryDTO::Wrapper& dto,const PayloadDTO& payload);
 	SubmitSummaryJsonVO::Wrapper execSubmitSummary(

@@ -2,7 +2,7 @@
 /*
  Copyright Zero One Star. All rights reserved.
 
- @Author: fanpai
+ @Author: Swan_Woo
  @Date: 2026/07/20 16:00:00
 
  Licensed under the Apache License, Version 2.0 (the "License");
@@ -23,6 +23,49 @@
 #include "BaseDAO.h"
 #include "domain/do/medicalorderexecution/ServiceRequestDO.h"
 #include "domain/query/medicalorderexecution/MedicalOrderQuery.h"
+#include "domain/dto/medicalorderexecution/MedicalOrderExecutionDTO.h"
+
+struct MedicalOrderExecutionRow
+{
+    PtrWkfServiceRequestDO order;
+    std::string orderType;
+	std::string procedureId;
+	std::string recordedTime;
+	std::string specificationText;
+	std::string dosageDisplay;
+	std::string usageDisplay;
+	std::string frequencyDisplay;
+	std::string stopTime;
+	std::string requesterName;
+	std::string locationName;
+	bool tcmFlag = false;
+	double chineseHerbsDoseQuantity = 0;
+};
+
+using PtrMedicalOrderExecutionRow = std::shared_ptr<MedicalOrderExecutionRow>;
+
+struct ExecutionWriteContext
+{
+	std::string orderType;
+	std::string requestTable;
+	std::string requestId;
+	std::string prescriptionNo;
+	std::string patientId;
+	std::string encounterId;
+	std::string therapyEnum;
+	std::string productTable;
+	std::string productId;
+	std::string chargeItemDefinitionId;
+	std::string locationId;
+	std::string destinationLocationId;
+	std::string orgId;
+	std::string unitCode;
+	std::string dosageInstruction;
+	std::string methodCode;
+	std::string frequencyCode;
+	double quantity = 0;
+	double unitPrice = 0;
+};
 
 /**
  * DAO for medical order execution and verification.
@@ -39,7 +82,7 @@ public:
      * @param query filter conditions + pagination
      * @return list of orders awaiting verification
      */
-    std::list<PtrWkfServiceRequestDO> queryVerificationItems(const MedicalOrderQuery::Wrapper& query);
+    std::list<PtrMedicalOrderExecutionRow> queryVerificationItems(const MedicalOrderQuery::Wrapper& query);
 
     /**
      * Count verification items matching filter.
@@ -53,7 +96,38 @@ public:
      * @param query filter conditions + pagination
      * @return list of orders ready for execution
      */
-    std::list<PtrWkfServiceRequestDO> queryExecutionItems(const MedicalOrderQuery::Wrapper& query);
+    std::list<PtrMedicalOrderExecutionRow> queryExecutionItems(const MedicalOrderQuery::Wrapper& query);
+	std::list<PtrMedicalOrderExecutionRow> queryExecutionWorkbenchItems(
+		const OrderExecutionWorkbenchQueryDTO::Wrapper& query);
+	bool validExecutionAccount(const std::string& accountId,
+		const std::string& encounterId);
+	std::list<OrderExecutionChargeBindingDTO::Wrapper> selectExecutionBindings(
+		const std::string& orderType, const std::string& requestId);
+	bool loadExecutionWriteContext(const std::string& orderType,
+		const std::string& requestId, const std::string& encounterId,
+		const std::string& accountId, ExecutionWriteContext& context);
+	bool canReserveMedication(const ExecutionWriteContext& context);
+	bool canCoverExecutionAmount(const std::string& accountId, double amount);
+	int insertProcedurePerformer(const std::string& id,
+		const std::string& procedureId, const std::string& performerId,
+		const std::string& actualTime);
+	int insertExecutionDispense(const std::string& id,
+		const std::string& procedureId, const ExecutionWriteContext& context,
+		const std::string& planTime, const std::string& operatorId);
+	int insertExecutionCharge(const std::string& id,
+		const std::string& procedureId, const std::string& dispenseId,
+		const ExecutionWriteContext& context, const std::string& accountId,
+		const std::string& occurrenceTime, const std::string& operatorId);
+	int insertExecutionBindingCharge(const std::string& id,
+		const std::string& procedureId, const ExecutionWriteContext& context,
+		const OrderExecutionChargeBindingDTO::Wrapper& binding,
+		const std::string& accountId, const std::string& occurrenceTime,
+		const std::string& operatorId);
+	std::list<std::string> selectExecutionIdempotencySlots(
+		const std::string& idempotencyKey);
+	int insertExecutionIdempotency(const std::string& auditId,
+		const std::string& idempotencyKey, const std::string& operatorId,
+		const std::string& requestFingerprint, const std::string& slotMappings);
 
     /**
      * Count execution items matching filter.
@@ -86,6 +160,27 @@ public:
      * @return rows affected (1=success, 0=not found/wrong status)
      */
     int startExecution(const std::string& serviceRequestId, const std::string& performerId);
+
+    int insertCompletedProcedure(
+        const std::string& procedureId,
+        const std::string& orderType,
+        const std::string& requestId,
+		const std::string& encounterId,
+		const std::string& planTime,
+		const std::string& performerId,
+		const std::string& recordedTime = "");
+
+	std::string selectActiveCompletedProcedureId(
+		const std::string& orderType,
+		const std::string& requestId,
+		const std::string& encounterId,
+		const std::string& planTime);
+
+    int completeOrder(
+        const std::string& orderType,
+        const std::string& requestId,
+		const std::string& encounterId,
+        const std::string& performerId);
 
     /**
      * Complete execution (requirement 6): update status to 'completed'.

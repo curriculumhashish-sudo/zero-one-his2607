@@ -10,27 +10,24 @@ class BedAssignAddDTO : public oatpp::DTO
 {
 	DTO_INIT(BedAssignAddDTO, DTO);
 
-	// 病人id
 	API_DTO_FIELD_REQUIRE(String, patient_id, ZH_WORDS_GETTER("bedassign.field.patientid"), true);
-	// 床位id
 	API_DTO_FIELD_REQUIRE(String, location_id, ZH_WORDS_GETTER("bedassign.field.locationid"), true);
-	// 预约id
 	API_DTO_FIELD_REQUIRE(String, appointment_id, ZH_WORDS_GETTER("bedassign.field.appointmentid"), true);
-	// 预期入院时间
 	API_DTO_FIELD_REQUIRE(String, intended_admission_date, ZH_WORDS_GETTER("bedassign.field.intended_admission_date"), true);
 
 	CC_SYNTHESIZE(const PayloadDTO*, _payload, Payload);
 
 public:
-	BedAssignAddDTO()
+	static Wrapper createExample()
 	{
-		patient_id = "326940849401761792";
-		location_id = "BED30101";
-		appointment_id = "APT202607240001";
-		intended_admission_date = "2026-07-24";
+		auto dto = createShared();
+		dto->patient_id = "326940849401761792";
+		dto->location_id = "BED30101";
+		dto->appointment_id = "APT202607240001";
+		dto->intended_admission_date = "2026-07-24";
+		return dto;
 	}
 
-	//数据校验
 	std::string validate()  {
 		if (!patient_id || patient_id->empty()) return "patient_id invalidate";
 		else if (!location_id || location_id->empty()) return "location_id invalidate";

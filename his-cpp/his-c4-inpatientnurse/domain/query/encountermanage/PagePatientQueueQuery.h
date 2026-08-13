@@ -33,8 +33,12 @@ class PagePatientQueueQuery : public PageQuery
 		ZH_WORDS_GETTER("encountermanage.field.keyword"), false);
 	API_DTO_FIELD_REQUIRE(String, wardId,
 		ZH_WORDS_GETTER("encountermanage.field.wardId"), false);
+	API_DTO_FIELD_REQUIRE(String, wardIds,
+		ZH_WORDS_GETTER("encountermanage.field.wardIds"), false);
 	API_DTO_FIELD_REQUIRE(String, houseId,
 		ZH_WORDS_GETTER("encountermanage.field.houseId"), false);
+	API_DTO_FIELD_REQUIRE(String, houseIds,
+		ZH_WORDS_GETTER("encountermanage.field.houseIds"), false);
 	API_DTO_FIELD_REQUIRE(String, nurseStationExecutionDate,
 		ZH_WORDS_GETTER("encountermanage.field.nurseStationExecutionDate"), false);
 	API_DTO_FIELD_REQUIRE(String, nurseStationTaskFilter,

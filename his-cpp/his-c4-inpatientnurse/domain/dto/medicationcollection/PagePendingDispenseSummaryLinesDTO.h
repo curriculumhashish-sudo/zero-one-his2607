@@ -22,8 +22,51 @@
 
 #include "../../GlobalInclude.h"
 #include "domain/dto/PageDTO.h"
+#include "domain/query/PageQuery.h"
 
 #include OATPP_CODEGEN_BEGIN(DTO)
+
+class MedicationSummaryWorkbenchQueryDTO : public PageQuery
+{
+	DTO_INIT(MedicationSummaryWorkbenchQueryDTO, PageQuery);
+
+	API_DTO_FIELD_REQUIRE(List<String>, encounterIds,
+		ZH_WORDS_GETTER("medicationcollection.field.encounterIds"), true);
+	API_DTO_FIELD_REQUIRE(String, medicineCategoryTab,
+		ZH_WORDS_GETTER("medicationcollection.field.medicineCategoryTab"), true);
+	API_DTO_FIELD_REQUIRE(String, therapyFilter,
+		ZH_WORDS_GETTER("medicationcollection.field.therapyFilter"), true);
+	API_DTO_FIELD_REQUIRE(String, queryDeadline,
+		ZH_WORDS_GETTER("medicationcollection.field.queryDeadline"), false);
+	API_DTO_FIELD_REQUIRE(String, keyword,
+		ZH_WORDS_GETTER("medicationcollection.field.keyword"), false);
+	API_DTO_FIELD_REQUIRE(String, startDate,
+		ZH_WORDS_GETTER("medicationcollection.field.startDate"), false);
+	API_DTO_FIELD_REQUIRE(String, endDate,
+		ZH_WORDS_GETTER("medicationcollection.field.endDate"), false);
+	API_DTO_FIELD_REQUIRE(String, sortBy,
+		ZH_WORDS_GETTER("medicationcollection.field.sortBy"), false);
+	API_DTO_FIELD_REQUIRE(String, sortDirection,
+		ZH_WORDS_GETTER("medicationcollection.field.sortDirection"), false);
+	API_DTO_FIELD_REQUIRE(String, where,
+		ZH_WORDS_GETTER("medicationcollection.field.where"), false);
+
+public:
+	static Wrapper createExample()
+	{
+		auto dto = createShared();
+		dto->pageIndex = 1;
+		dto->pageSize = 10;
+		dto->encounterIds = List<String>::createShared();
+		dto->encounterIds->push_back("337907884548657152");
+		dto->medicineCategoryTab = "west";
+		dto->therapyFilter = "all";
+		dto->queryDeadline = "2026-08-13 23:59:59";
+		dto->sortBy = "plannedDispenseTime";
+		dto->sortDirection = "DESC";
+		return dto;
+	}
+};
 
 class NurseStationDispenseSummaryTimePointDTO : public oatpp::DTO
 {
@@ -47,13 +90,8 @@ class NurseStationDispenseSummaryTimePointDTO : public oatpp::DTO
 public:
 	NurseStationDispenseSummaryTimePointDTO()
 	{
-		dispenseId = "338131147144708096";
-		procedureId = "338131147144708097";
-		plannedDispenseTime = "2026-07-21 08:00:00";
-		quantity = 1.0;
-		unitCode = ZH_WORDS_GETTER("business-text.sample.tablet-unit");
-		unitCodeText = ZH_WORDS_GETTER("business-text.sample.tablet-unit");
-		chargeUnitPrice = 2.50;
+		quantity = 0.0;
+		chargeUnitPrice = 0.0;
 	}
 };
 
@@ -95,22 +133,7 @@ class NurseStationDispenseSummaryOrderRowDTO : public oatpp::DTO
 public:
 	NurseStationDispenseSummaryOrderRowDTO()
 	{
-		medReqId = "337990013773271040";
-		medicationId = "334568157811871744";
-		medicationName = ZH_WORDS_GETTER("business-text.sample.medication-name");
-		specificationText = ZH_WORDS_GETTER("business-text.sample.medication-specification");
-		groupId = "GRP202607210001";
-		therapyEnum = "TEMPORARY";
-		therapyEnumText = ZH_WORDS_GETTER("business-text.enum.therapy-temporary");
-		dosageInstruction = "40mg";
-		methodCode = "PO";
-		methodCodeText = ZH_WORDS_GETTER("business-text.sample.medication-method");
-		frequencyCode = "QD";
-		frequencyCodeText = ZH_WORDS_GETTER("business-text.sample.medication-frequency");
-		locationId = "334526752078102528";
-		locationName = ZH_WORDS_GETTER("business-text.sample.inpatient-pharmacy");
 		timePoints = List<NurseStationDispenseSummaryTimePointDTO::Wrapper>::createShared();
-		timePoints->push_back(NurseStationDispenseSummaryTimePointDTO::createShared());
 	}
 };
 
@@ -132,12 +155,7 @@ class NurseStationDispenseSummaryPatientGroupDTO : public oatpp::DTO
 public:
 	NurseStationDispenseSummaryPatientGroupDTO()
 	{
-		encounterId = "337907884548657152";
-		patientId = "326940849401761792";
-		patientName = ZH_WORDS_GETTER("business-text.sample.patient-name");
-		bedDisplay = ZH_WORDS_GETTER("business-text.sample.bed-name");
 		orderRows = List<NurseStationDispenseSummaryOrderRowDTO::Wrapper>::createShared();
-		orderRows->push_back(NurseStationDispenseSummaryOrderRowDTO::createShared());
 	}
 };
 
@@ -154,11 +172,10 @@ public:
 	{
 		this->pageIndex = 1;
 		this->pageSize = 10;
-		this->total = 1;
-		this->pages = 1;
+		this->total = static_cast<v_int64>(0);
+		this->pages = static_cast<v_int64>(0);
 		this->rows = List<NurseStationDispenseSummaryPatientGroupDTO::Wrapper>::createShared();
 		patientGroups = List<NurseStationDispenseSummaryPatientGroupDTO::Wrapper>::createShared();
-		patientGroups->push_back(NurseStationDispenseSummaryPatientGroupDTO::createShared());
 	}
 };
 

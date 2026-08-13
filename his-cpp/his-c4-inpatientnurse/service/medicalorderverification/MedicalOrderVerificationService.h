@@ -26,9 +26,15 @@
 class MedicalOrderVerificationService
 {
 public:
-	oatpp::List<MedicalOrderVerificationDetailDTO::Wrapper> list(const MedicalVerificationQuery::Wrapper& query);
-	VerifyPassResponseDTO::Wrapper verify(const VerifyPassRequestDTO::Wrapper& dto,const std::string& operatorId);
-	RejectOrdersResponseDTO::Wrapper reject(const RejectOrdersRequestDTO::Wrapper& dto,const std::string& operatorId);
+	oatpp::List<MedicalOrderVerificationDetailDTO::Wrapper> list(
+		const MedicalVerificationQuery::Wrapper& query, const std::string& userId);
+	MedicalVerificationWorkbenchDTO::Wrapper listWorkbench(
+		const MedicalVerificationWorkbenchQueryDTO::Wrapper& query,
+		const std::string& userId);
+	VerifyPassResponseDTO::Wrapper verify(
+		const VerifyPassRequestDTO::Wrapper& dto,const std::string& userId);
+	RejectOrdersResponseDTO::Wrapper reject(
+		const RejectOrdersRequestDTO::Wrapper& dto,const std::string& userId);
 };
 
 #endif // !_MEDICAL_ORDER_VERIFICATION_SERVICE_H_

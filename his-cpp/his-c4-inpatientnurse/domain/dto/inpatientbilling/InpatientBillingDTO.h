@@ -32,12 +32,12 @@
 
 class PagePricingCatalogQuery : public PageQuery
 {
-    DTO_INIT(PagePricingCatalogQuery, DTO);
+    DTO_INIT(PagePricingCatalogQuery, PageQuery);
 
-    API_DTO_FIELD_REQUIRE(String, encounterId,
-        ZH_WORDS_GETTER("inpatientbilling.field.encounterId"), false);
-    API_DTO_FIELD_REQUIRE(String, patientId,
-        ZH_WORDS_GETTER("inpatientbilling.field.patientId"), false);
+	    API_DTO_FIELD_REQUIRE(String, encounterId,
+	        ZH_WORDS_GETTER("inpatientbilling.field.encounterId"), true);
+	    API_DTO_FIELD_REQUIRE(String, patientId,
+	        ZH_WORDS_GETTER("inpatientbilling.field.patientId"), true);
     API_DTO_FIELD_REQUIRE(String, keyword,
         ZH_WORDS_GETTER("inpatientbilling.field.keyword"), false);
     API_DTO_FIELD_REQUIRE(String, categoryCode,
@@ -52,6 +52,10 @@ class NurseStationPricingCatalogRowDTO : public oatpp::DTO
 
     API_DTO_FIELD_REQUIRE(String, productDefinitionId,
         ZH_WORDS_GETTER("inpatientbilling.field.productDefinitionId"), false);
+    API_DTO_FIELD_REQUIRE(String, productTableName,
+        ZH_WORDS_GETTER("inpatientbilling.field.productTableName"), false);
+    API_DTO_FIELD_REQUIRE(String, chargeItemDefinitionId,
+        ZH_WORDS_GETTER("inpatientbilling.field.chargeItemDefinitionId"), false);
     API_DTO_FIELD_REQUIRE(String, name,
         ZH_WORDS_GETTER("inpatientbilling.field.name"), false);
     API_DTO_FIELD_REQUIRE(Float64, unitPrice,
@@ -70,20 +74,13 @@ class NurseStationPricingCatalogRowDTO : public oatpp::DTO
         ZH_WORDS_GETTER("inpatientbilling.field.organizationUnitId"), false);
     API_DTO_FIELD_REQUIRE(String, organizationUnitName,
         ZH_WORDS_GETTER("inpatientbilling.field.organizationUnitName"), false);
+    API_DTO_FIELD_REQUIRE(String, defaultDispenseLocationId,
+        ZH_WORDS_GETTER("inpatientbilling.field.defaultDispenseLocationId"), false);
 
 public:
     NurseStationPricingCatalogRowDTO()
     {
-        productDefinitionId = "334568157811871744";
-        name = ZH_WORDS_GETTER("business-text.sample.medication-name");
-        unitPrice = 2.50;
-        categoryCode = "DRUG";
-        categoryCodeText = ZH_WORDS_GETTER("business-text.sample.medication-category");
-        unitCode = ZH_WORDS_GETTER("business-text.sample.tablet-unit");
-        unitCodeText = ZH_WORDS_GETTER("business-text.sample.tablet-unit");
-        specificationText = ZH_WORDS_GETTER("business-text.sample.medication-specification");
-        organizationUnitId = "334526752078102528";
-        organizationUnitName = ZH_WORDS_GETTER("business-text.sample.inpatient-pharmacy");
+        unitPrice = 0.0;
     }
 };
 
@@ -96,10 +93,9 @@ public:
     {
         this->pageIndex = 1;
         this->pageSize = 10;
-        this->total = 1;
-        this->pages = 1;
+        this->total = static_cast<v_int64>(0);
+        this->pages = static_cast<v_int64>(0);
         this->rows = List<NurseStationPricingCatalogRowDTO::Wrapper>::createShared();
-        this->rows->push_back(NurseStationPricingCatalogRowDTO::createShared());
     }
 };
 
@@ -116,41 +112,49 @@ class ConfirmDirectPricingItemDTO : public oatpp::DTO
     API_DTO_FIELD_REQUIRE(String, patientId,
         ZH_WORDS_GETTER("inpatientbilling.field.patientId"), true);
     API_DTO_FIELD_REQUIRE(Boolean, enabled,
-        ZH_WORDS_GETTER("inpatientbilling.field.enabled"), true);
+        ZH_WORDS_GETTER("inpatientbilling.field.enabled"), false);
     API_DTO_FIELD_REQUIRE(String, accountId,
         ZH_WORDS_GETTER("inpatientbilling.field.accountId"), true);
     API_DTO_FIELD_REQUIRE(String, productTableName,
-        ZH_WORDS_GETTER("inpatientbilling.field.productTableName"), true);
+        ZH_WORDS_GETTER("inpatientbilling.field.productTableName"), false);
     API_DTO_FIELD_REQUIRE(String, productDefinitionId,
         ZH_WORDS_GETTER("inpatientbilling.field.productDefinitionId"), true);
+    API_DTO_FIELD_REQUIRE(String, chargeItemDefinitionId,
+        ZH_WORDS_GETTER("inpatientbilling.field.chargeItemDefinitionId"), false);
     API_DTO_FIELD_REQUIRE(Float64, quantity,
         ZH_WORDS_GETTER("inpatientbilling.field.quantity"), true);
     API_DTO_FIELD_REQUIRE(String, unitCode,
         ZH_WORDS_GETTER("inpatientbilling.field.unitCode"), true);
-    API_DTO_FIELD_REQUIRE(String, chargeItemDefinitionId,
-        ZH_WORDS_GETTER("inpatientbilling.field.chargeItemDefinitionId"), false);
     API_DTO_FIELD_REQUIRE(Float64, unitPrice,
-        ZH_WORDS_GETTER("inpatientbilling.field.unitPrice"), true);
+        ZH_WORDS_GETTER("inpatientbilling.field.unitPrice"), false);
     API_DTO_FIELD_REQUIRE(Float64, totalPrice,
-        ZH_WORDS_GETTER("inpatientbilling.field.totalPrice"), true);
+        ZH_WORDS_GETTER("inpatientbilling.field.totalPrice"), false);
     API_DTO_FIELD_REQUIRE(String, remark,
         ZH_WORDS_GETTER("inpatientbilling.field.remark"), false);
+    API_DTO_FIELD_REQUIRE(String, performLocation,
+        ZH_WORDS_GETTER("inpatientbilling.field.performLocation"), false);
+	API_DTO_FIELD_REQUIRE(String, clientRowId,
+		ZH_WORDS_GETTER("inpatientbilling.field.clientRowId"), false);
 
 public:
-    ConfirmDirectPricingItemDTO()
+    static Wrapper createExample()
     {
-        encounterId = "337907884548657152";
-        patientId = "326940849401761792";
-        enabled = true;
-        accountId = "337907884548657153";
-        productTableName = "product_table";
-        productDefinitionId = "334568157811871744";
-        quantity = 2.0;
-        unitCode = ZH_WORDS_GETTER("business-text.sample.tablet-unit");
-        chargeItemDefinitionId = "334568157811871745";
-        unitPrice = 2.50;
-        totalPrice = 5.00;
-        remark = "Direct charge item";
+        auto dto = createShared();
+        dto->encounterId = "337907884548657152";
+        dto->patientId = "326940849401761792";
+        dto->enabled = true;
+        dto->accountId = "337907884548657153";
+        dto->productTableName = "wkf_activity_definition";
+        dto->productDefinitionId = "334568157811871744";
+        dto->quantity = 2.0;
+        dto->unitCode = ZH_WORDS_GETTER("business-text.sample.tablet-unit");
+        dto->chargeItemDefinitionId = "334568157811871745";
+        dto->unitPrice = 2.50;
+        dto->totalPrice = 5.00;
+        dto->remark = "Direct charge item";
+        dto->performLocation = "";
+		dto->clientRowId = "DIRECT-ROW-001";
+        return dto;
     }
 };
 
@@ -158,15 +162,46 @@ class ConfirmDirectPricingDTO : public oatpp::DTO
 {
     DTO_INIT(ConfirmDirectPricingDTO, DTO);
 
-    API_DTO_FIELD_REQUIRE(List<ConfirmDirectPricingItemDTO::Wrapper>, items,
+	API_DTO_FIELD_REQUIRE(String, idempotencyKey,
+		ZH_WORDS_GETTER("inpatientbilling.field.idempotencyKey"), true);
+	API_DTO_FIELD_REQUIRE(List<ConfirmDirectPricingItemDTO::Wrapper>, items,
         ZH_WORDS_GETTER("inpatientbilling.field.items"), true);
 
 public:
-    ConfirmDirectPricingDTO()
+    static Wrapper createExample()
     {
-        items = List<ConfirmDirectPricingItemDTO::Wrapper>::createShared();
-        items->push_back(ConfirmDirectPricingItemDTO::createShared());
+        auto dto = createShared();
+		dto->idempotencyKey = "DIRECT-PRICING-20260813-0001";
+        dto->items = List<ConfirmDirectPricingItemDTO::Wrapper>::createShared();
+        dto->items->push_back(ConfirmDirectPricingItemDTO::createExample());
+        return dto;
     }
+};
+
+class PricingWriteResultDTO : public oatpp::DTO
+{
+	DTO_INIT(PricingWriteResultDTO, DTO);
+
+	API_DTO_FIELD_REQUIRE(String, clientRowId,
+		ZH_WORDS_GETTER("inpatientbilling.field.clientRowId"), false);
+	API_DTO_FIELD_REQUIRE(Boolean, success,
+		ZH_WORDS_GETTER("inpatientbilling.field.success"), true);
+	API_DTO_FIELD_REQUIRE(String, requestId,
+		ZH_WORDS_GETTER("inpatientbilling.field.requestId"), false);
+	API_DTO_FIELD_REQUIRE(Float64, finalUnitPrice,
+		ZH_WORDS_GETTER("inpatientbilling.field.finalUnitPrice"), false);
+	API_DTO_FIELD_REQUIRE(Float64, finalTotalPrice,
+		ZH_WORDS_GETTER("inpatientbilling.field.finalTotalPrice"), false);
+	API_DTO_FIELD_REQUIRE(String, message,
+		ZH_WORDS_GETTER("inpatientbilling.field.message"), false);
+
+public:
+	PricingWriteResultDTO()
+	{
+		success = false;
+		finalUnitPrice = 0.0;
+		finalTotalPrice = 0.0;
+	}
 };
 
 class ConfirmDirectPricingResponseDTO : public oatpp::DTO
@@ -179,14 +214,19 @@ class ConfirmDirectPricingResponseDTO : public oatpp::DTO
         ZH_WORDS_GETTER("inpatientbilling.field.processedCount"), true);
     API_DTO_FIELD_REQUIRE(List<String>, createdServiceRequestIds,
         ZH_WORDS_GETTER("inpatientbilling.field.createdServiceRequestIds"), false);
+    API_DTO_FIELD_REQUIRE(List<String>, createdDeviceRequestIds,
+        ZH_WORDS_GETTER("inpatientbilling.field.createdDeviceRequestIds"), false);
+	API_DTO_FIELD_REQUIRE(List<PricingWriteResultDTO::Wrapper>, results,
+		ZH_WORDS_GETTER("inpatientbilling.field.results"), true);
 
 public:
     ConfirmDirectPricingResponseDTO()
     {
-        success = true;
-        processedCount = 1;
+        success = false;
+        processedCount = 0;
         createdServiceRequestIds = List<String>::createShared();
-        createdServiceRequestIds->push_back("SR202607240001");
+        createdDeviceRequestIds = List<String>::createShared();
+		results = List<PricingWriteResultDTO::Wrapper>::createShared();
     }
 };
 
@@ -198,21 +238,17 @@ class ListPricedOrdersQuery : public oatpp::DTO
 {
     DTO_INIT(ListPricedOrdersQuery, DTO);
 
-    API_DTO_FIELD_REQUIRE(List<String>, encounterIds,
-        ZH_WORDS_GETTER("inpatientbilling.field.encounterIds"), true);
+	API_DTO_FIELD_REQUIRE(String, encounterId,
+		ZH_WORDS_GETTER("inpatientbilling.field.encounterId"), true);
+	API_DTO_FIELD_REQUIRE(String, encounterIds,
+		ZH_WORDS_GETTER("inpatientbilling.field.encounterIds"), false);
     API_DTO_FIELD_REQUIRE(String, pricedTimeFrom,
         ZH_WORDS_GETTER("inpatientbilling.field.pricedTimeFrom"), false);
     API_DTO_FIELD_REQUIRE(String, pricedTimeTo,
         ZH_WORDS_GETTER("inpatientbilling.field.pricedTimeTo"), false);
 
 public:
-    ListPricedOrdersQuery()
-    {
-        encounterIds = List<String>::createShared();
-        encounterIds->push_back("337907884548657152");
-        pricedTimeFrom = "2026-07-24 00:00:00";
-        pricedTimeTo = "2026-07-24 23:59:59";
-    }
+    ListPricedOrdersQuery() = default;
 };
 
 class PricedOrderItemDTO : public oatpp::DTO
@@ -221,6 +257,10 @@ class PricedOrderItemDTO : public oatpp::DTO
 
     API_DTO_FIELD_REQUIRE(String, serviceRequestId,
         ZH_WORDS_GETTER("inpatientbilling.field.serviceRequestId"), false);
+	API_DTO_FIELD_REQUIRE(String, requestId,
+		ZH_WORDS_GETTER("inpatientbilling.field.requestId"), false);
+    API_DTO_FIELD_REQUIRE(String, orderType,
+        ZH_WORDS_GETTER("inpatientbilling.field.orderType"), false);
     API_DTO_FIELD_REQUIRE(String, productDefinitionId,
         ZH_WORDS_GETTER("inpatientbilling.field.productDefinitionId"), false);
     API_DTO_FIELD_REQUIRE(String, productName,
@@ -235,18 +275,21 @@ class PricedOrderItemDTO : public oatpp::DTO
         ZH_WORDS_GETTER("inpatientbilling.field.totalPrice"), false);
     API_DTO_FIELD_REQUIRE(String, pricedTime,
         ZH_WORDS_GETTER("inpatientbilling.field.pricedTime"), false);
+	API_DTO_FIELD_REQUIRE(String, pricingMode,
+		ZH_WORDS_GETTER("inpatientbilling.field.pricingMode"), false);
+	API_DTO_FIELD_REQUIRE(String, parentRequestId,
+		ZH_WORDS_GETTER("inpatientbilling.field.parentRequestId"), false);
+	API_DTO_FIELD_REQUIRE(String, chargeStatusEnum,
+		ZH_WORDS_GETTER("inpatientbilling.field.chargeStatusEnum"), false);
+	API_DTO_FIELD_REQUIRE(String, dispenseStatusEnum,
+		ZH_WORDS_GETTER("inpatientbilling.field.dispenseStatusEnum"), false);
 
 public:
     PricedOrderItemDTO()
     {
-        serviceRequestId = "SR202607240001";
-        productDefinitionId = "334568157811871744";
-        productName = ZH_WORDS_GETTER("business-text.sample.medication-name");
-        quantity = 2.0;
-        unitCode = ZH_WORDS_GETTER("business-text.sample.tablet-unit");
-        unitPrice = 2.50;
-        totalPrice = 5.00;
-        pricedTime = "2026-07-24 10:00:00";
+        quantity = 0.0;
+        unitPrice = 0.0;
+        totalPrice = 0.0;
     }
 };
 
@@ -262,9 +305,7 @@ class PricedOrderGroupDTO : public oatpp::DTO
 public:
     PricedOrderGroupDTO()
     {
-        encounterId = "337907884548657152";
         pricedOrders = List<PricedOrderItemDTO::Wrapper>::createShared();
-        pricedOrders->push_back(PricedOrderItemDTO::createShared());
     }
 };
 
@@ -279,7 +320,6 @@ public:
     ListPricedOrdersDTO()
     {
         groups = List<PricedOrderGroupDTO::Wrapper>::createShared();
-        groups->push_back(PricedOrderGroupDTO::createShared());
     }
 };
 
@@ -291,8 +331,10 @@ class ListSupplementParentOrdersQuery : public oatpp::DTO
 {
     DTO_INIT(ListSupplementParentOrdersQuery, DTO);
 
-    API_DTO_FIELD_REQUIRE(List<String>, encounterIds,
-        ZH_WORDS_GETTER("inpatientbilling.field.encounterIds"), true);
+	API_DTO_FIELD_REQUIRE(String, encounterId,
+		ZH_WORDS_GETTER("inpatientbilling.field.encounterId"), true);
+	API_DTO_FIELD_REQUIRE(String, encounterIds,
+		ZH_WORDS_GETTER("inpatientbilling.field.encounterIds"), false);
     API_DTO_FIELD_REQUIRE(String, therapyType,
         ZH_WORDS_GETTER("inpatientbilling.field.therapyType"), false);
     API_DTO_FIELD_REQUIRE(String, keyword,
@@ -301,14 +343,7 @@ class ListSupplementParentOrdersQuery : public oatpp::DTO
         ZH_WORDS_GETTER("inpatientbilling.field.orgId"), false);
 
 public:
-    ListSupplementParentOrdersQuery()
-    {
-        encounterIds = List<String>::createShared();
-        encounterIds->push_back("337907884548657152");
-        therapyType = "TEMPORARY";
-        keyword = ZH_WORDS_GETTER("business-text.sample.medication-keyword");
-        orgId = "327170091059744768";
-    }
+    ListSupplementParentOrdersQuery() = default;
 };
 
 class SupplementParentOrderItemDTO : public oatpp::DTO
@@ -317,6 +352,12 @@ class SupplementParentOrderItemDTO : public oatpp::DTO
 
     API_DTO_FIELD_REQUIRE(String, orderId,
         ZH_WORDS_GETTER("inpatientbilling.field.orderId"), false);
+	API_DTO_FIELD_REQUIRE(String, requestId,
+		ZH_WORDS_GETTER("inpatientbilling.field.requestId"), false);
+	API_DTO_FIELD_REQUIRE(String, orderType,
+		ZH_WORDS_GETTER("inpatientbilling.field.orderType"), false);
+	API_DTO_FIELD_REQUIRE(String, statusEnum,
+		ZH_WORDS_GETTER("inpatientbilling.field.statusEnum"), false);
     API_DTO_FIELD_REQUIRE(String, orderName,
         ZH_WORDS_GETTER("inpatientbilling.field.orderName"), false);
     API_DTO_FIELD_REQUIRE(String, therapyType,
@@ -329,17 +370,20 @@ class SupplementParentOrderItemDTO : public oatpp::DTO
         ZH_WORDS_GETTER("inpatientbilling.field.frequencyCode"), false);
     API_DTO_FIELD_REQUIRE(String, frequencyCodeText,
         ZH_WORDS_GETTER("inpatientbilling.field.frequencyCodeText"), false);
+	API_DTO_FIELD_REQUIRE(String, specificationText,
+		ZH_WORDS_GETTER("inpatientbilling.field.specificationText"), false);
+	API_DTO_FIELD_REQUIRE(String, authoredTime,
+		ZH_WORDS_GETTER("inpatientbilling.field.authoredTime"), false);
+	API_DTO_FIELD_REQUIRE(String, stopTime,
+		ZH_WORDS_GETTER("inpatientbilling.field.stopTime"), false);
+	API_DTO_FIELD_REQUIRE(String, requesterName,
+		ZH_WORDS_GETTER("inpatientbilling.field.requesterName"), false);
+	API_DTO_FIELD_REQUIRE(String, performingLocationName,
+		ZH_WORDS_GETTER("inpatientbilling.field.performingLocationName"), false);
 
 public:
     SupplementParentOrderItemDTO()
     {
-        orderId = "337990013773271040";
-        orderName = ZH_WORDS_GETTER("business-text.sample.medication-name");
-        therapyType = "TEMPORARY";
-        therapyTypeText = ZH_WORDS_GETTER("business-text.enum.therapy-temporary");
-        dosageInstruction = "40mg";
-        frequencyCode = "QD";
-        frequencyCodeText = ZH_WORDS_GETTER("business-text.sample.medication-frequency");
     }
 };
 
@@ -355,9 +399,7 @@ class SupplementParentOrderGroupDTO : public oatpp::DTO
 public:
     SupplementParentOrderGroupDTO()
     {
-        encounterId = "337907884548657152";
         orders = List<SupplementParentOrderItemDTO::Wrapper>::createShared();
-        orders->push_back(SupplementParentOrderItemDTO::createShared());
     }
 };
 
@@ -372,7 +414,6 @@ public:
     ListSupplementParentOrdersDTO()
     {
         groups = List<SupplementParentOrderGroupDTO::Wrapper>::createShared();
-        groups->push_back(SupplementParentOrderGroupDTO::createShared());
     }
 };
 
@@ -391,7 +432,7 @@ class ConfirmSupplementPricingItemDTO : public oatpp::DTO
     API_DTO_FIELD_REQUIRE(String, accountId,
         ZH_WORDS_GETTER("inpatientbilling.field.accountId"), true);
     API_DTO_FIELD_REQUIRE(String, productTableName,
-        ZH_WORDS_GETTER("inpatientbilling.field.productTableName"), true);
+		ZH_WORDS_GETTER("inpatientbilling.field.productTableName"), false);
     API_DTO_FIELD_REQUIRE(String, productDefinitionId,
         ZH_WORDS_GETTER("inpatientbilling.field.productDefinitionId"), true);
     API_DTO_FIELD_REQUIRE(Float64, quantity,
@@ -399,31 +440,45 @@ class ConfirmSupplementPricingItemDTO : public oatpp::DTO
     API_DTO_FIELD_REQUIRE(String, unitCode,
         ZH_WORDS_GETTER("inpatientbilling.field.unitCode"), true);
     API_DTO_FIELD_REQUIRE(String, chargeItemDefinitionId,
-        ZH_WORDS_GETTER("inpatientbilling.field.chargeItemDefinitionId"), false);
+		ZH_WORDS_GETTER("inpatientbilling.field.chargeItemDefinitionId"), false);
     API_DTO_FIELD_REQUIRE(Float64, unitPrice,
-        ZH_WORDS_GETTER("inpatientbilling.field.unitPrice"), true);
+		ZH_WORDS_GETTER("inpatientbilling.field.unitPrice"), false);
     API_DTO_FIELD_REQUIRE(Float64, totalPrice,
-        ZH_WORDS_GETTER("inpatientbilling.field.totalPrice"), true);
+		ZH_WORDS_GETTER("inpatientbilling.field.totalPrice"), false);
     API_DTO_FIELD_REQUIRE(String, remark,
         ZH_WORDS_GETTER("inpatientbilling.field.remark"), false);
     API_DTO_FIELD_REQUIRE(String, parentRequestAnchor,
-        ZH_WORDS_GETTER("inpatientbilling.field.parentRequestAnchor"), true);
+		ZH_WORDS_GETTER("inpatientbilling.field.parentRequestAnchor"), false);
+	API_DTO_FIELD_REQUIRE(String, parentOrderType,
+		ZH_WORDS_GETTER("inpatientbilling.field.parentOrderType"), true);
+	API_DTO_FIELD_REQUIRE(String, parentRequestId,
+		ZH_WORDS_GETTER("inpatientbilling.field.parentRequestId"), true);
+    API_DTO_FIELD_REQUIRE(String, performLocation,
+        ZH_WORDS_GETTER("inpatientbilling.field.performLocation"), false);
+	API_DTO_FIELD_REQUIRE(String, clientRowId,
+		ZH_WORDS_GETTER("inpatientbilling.field.clientRowId"), false);
 
 public:
-    ConfirmSupplementPricingItemDTO()
+    static Wrapper createExample()
     {
-        encounterId = "337907884548657152";
-        patientId = "326940849401761792";
-        accountId = "337907884548657153";
-        productTableName = "product_table";
-        productDefinitionId = "334568157811871744";
-        quantity = 2.0;
-        unitCode = ZH_WORDS_GETTER("business-text.sample.tablet-unit");
-        chargeItemDefinitionId = "334568157811871745";
-        unitPrice = 2.50;
-        totalPrice = 5.00;
-        remark = "Supplement charge item";
-        parentRequestAnchor = "ORDER_337990013773271040";
+        auto dto = createShared();
+        dto->encounterId = "337907884548657152";
+        dto->patientId = "326940849401761792";
+        dto->accountId = "337907884548657153";
+        dto->productTableName = "wkf_activity_definition";
+        dto->productDefinitionId = "334568157811871744";
+        dto->quantity = 2.0;
+        dto->unitCode = ZH_WORDS_GETTER("business-text.sample.tablet-unit");
+        dto->chargeItemDefinitionId = "334568157811871745";
+        dto->unitPrice = 2.50;
+        dto->totalPrice = 5.00;
+        dto->remark = "Supplement charge item";
+        dto->parentRequestAnchor = "ORDER_337990013773271040";
+		dto->parentOrderType = "SERVICE_REQUEST";
+		dto->parentRequestId = "337990013773271040";
+        dto->performLocation = "";
+		dto->clientRowId = "SUPPLEMENT-ROW-001";
+        return dto;
     }
 };
 
@@ -431,14 +486,19 @@ class ConfirmSupplementPricingDTO : public oatpp::DTO
 {
     DTO_INIT(ConfirmSupplementPricingDTO, DTO);
 
-    API_DTO_FIELD_REQUIRE(List<ConfirmSupplementPricingItemDTO::Wrapper>, items,
+	API_DTO_FIELD_REQUIRE(String, idempotencyKey,
+		ZH_WORDS_GETTER("inpatientbilling.field.idempotencyKey"), true);
+	API_DTO_FIELD_REQUIRE(List<ConfirmSupplementPricingItemDTO::Wrapper>, items,
         ZH_WORDS_GETTER("inpatientbilling.field.items"), true);
 
 public:
-    ConfirmSupplementPricingDTO()
+    static Wrapper createExample()
     {
-        items = List<ConfirmSupplementPricingItemDTO::Wrapper>::createShared();
-        items->push_back(ConfirmSupplementPricingItemDTO::createShared());
+        auto dto = createShared();
+		dto->idempotencyKey = "SUPPLEMENT-PRICING-20260813-0001";
+        dto->items = List<ConfirmSupplementPricingItemDTO::Wrapper>::createShared();
+        dto->items->push_back(ConfirmSupplementPricingItemDTO::createExample());
+        return dto;
     }
 };
 
@@ -452,14 +512,19 @@ class ConfirmSupplementPricingResponseDTO : public oatpp::DTO
         ZH_WORDS_GETTER("inpatientbilling.field.processedCount"), true);
     API_DTO_FIELD_REQUIRE(List<String>, createdServiceRequestIds,
         ZH_WORDS_GETTER("inpatientbilling.field.createdServiceRequestIds"), false);
+    API_DTO_FIELD_REQUIRE(List<String>, createdDeviceRequestIds,
+        ZH_WORDS_GETTER("inpatientbilling.field.createdDeviceRequestIds"), false);
+	API_DTO_FIELD_REQUIRE(List<PricingWriteResultDTO::Wrapper>, results,
+		ZH_WORDS_GETTER("inpatientbilling.field.results"), true);
 
 public:
     ConfirmSupplementPricingResponseDTO()
     {
-        success = true;
-        processedCount = 1;
+        success = false;
+        processedCount = 0;
         createdServiceRequestIds = List<String>::createShared();
-        createdServiceRequestIds->push_back("SR202607240002");
+        createdDeviceRequestIds = List<String>::createShared();
+		results = List<PricingWriteResultDTO::Wrapper>::createShared();
     }
 };
 
@@ -479,11 +544,13 @@ class CancelPricingItemDTO : public oatpp::DTO
         ZH_WORDS_GETTER("inpatientbilling.field.encounterId"), true);
 
 public:
-    CancelPricingItemDTO()
+    static Wrapper createExample()
     {
-        orderType = "DIRECT";
-        requestId = "SR202607240001";
-        encounterId = "337907884548657152";
+        auto dto = createShared();
+        dto->orderType = "DIRECT";
+        dto->requestId = "SR202607240001";
+        dto->encounterId = "337907884548657152";
+        return dto;
     }
 };
 
@@ -491,14 +558,22 @@ class CancelPricingDTO : public oatpp::DTO
 {
     DTO_INIT(CancelPricingDTO, DTO);
 
-    API_DTO_FIELD_REQUIRE(List<CancelPricingItemDTO::Wrapper>, items,
+	API_DTO_FIELD_REQUIRE(String, idempotencyKey,
+		ZH_WORDS_GETTER("inpatientbilling.field.idempotencyKey"), true);
+	API_DTO_FIELD_REQUIRE(String, reason,
+		ZH_WORDS_GETTER("inpatientbilling.field.reason"), true);
+	API_DTO_FIELD_REQUIRE(List<CancelPricingItemDTO::Wrapper>, items,
         ZH_WORDS_GETTER("inpatientbilling.field.items"), true);
 
 public:
-    CancelPricingDTO()
+    static Wrapper createExample()
     {
-        items = List<CancelPricingItemDTO::Wrapper>::createShared();
-        items->push_back(CancelPricingItemDTO::createShared());
+        auto dto = createShared();
+		dto->idempotencyKey = "CANCEL-PRICING-20260813-0001";
+		dto->reason = ZH_WORDS_GETTER("business-text.billing.cancel-reason");
+        dto->items = List<CancelPricingItemDTO::Wrapper>::createShared();
+        dto->items->push_back(CancelPricingItemDTO::createExample());
+        return dto;
     }
 };
 
@@ -512,14 +587,19 @@ class CancelPricingResponseDTO : public oatpp::DTO
         ZH_WORDS_GETTER("inpatientbilling.field.processedCount"), true);
     API_DTO_FIELD_REQUIRE(List<String>, cancelledServiceRequestIds,
         ZH_WORDS_GETTER("inpatientbilling.field.cancelledServiceRequestIds"), false);
+    API_DTO_FIELD_REQUIRE(List<String>, cancelledDeviceRequestIds,
+        ZH_WORDS_GETTER("inpatientbilling.field.cancelledDeviceRequestIds"), false);
+	API_DTO_FIELD_REQUIRE(List<PricingWriteResultDTO::Wrapper>, results,
+		ZH_WORDS_GETTER("inpatientbilling.field.results"), true);
 
 public:
     CancelPricingResponseDTO()
     {
-        success = true;
-        processedCount = 1;
+        success = false;
+        processedCount = 0;
         cancelledServiceRequestIds = List<String>::createShared();
-        cancelledServiceRequestIds->push_back("SR202607240001");
+        cancelledDeviceRequestIds = List<String>::createShared();
+		results = List<PricingWriteResultDTO::Wrapper>::createShared();
     }
 };
 
@@ -539,12 +619,7 @@ class ListAutoRollConfigsQuery : public oatpp::DTO
         ZH_WORDS_GETTER("inpatientbilling.field.billDate"), false);
 
 public:
-    ListAutoRollConfigsQuery()
-    {
-        encounterId = "337907884548657152";
-        patientId = "326940849401761792";
-        billDate = "2026-07-24";
-    }
+    ListAutoRollConfigsQuery() = default;
 };
 
 class AutoRollConfigDTO : public oatpp::DTO
@@ -565,17 +640,28 @@ class AutoRollConfigDTO : public oatpp::DTO
         ZH_WORDS_GETTER("inpatientbilling.field.quantityValue"), false);
     API_DTO_FIELD_REQUIRE(Boolean, isActive,
         ZH_WORDS_GETTER("inpatientbilling.field.isActive"), false);
+	API_DTO_FIELD_REQUIRE(Int64, version,
+		ZH_WORDS_GETTER("inpatientbilling.field.version"), true);
+	API_DTO_FIELD_REQUIRE(String, statusEnum,
+		ZH_WORDS_GETTER("inpatientbilling.field.statusEnum"), true);
+	API_DTO_FIELD_REQUIRE(String, triggerSourceTable,
+		ZH_WORDS_GETTER("inpatientbilling.field.triggerSourceTable"), false);
+	API_DTO_FIELD_REQUIRE(String, performingOrgId,
+		ZH_WORDS_GETTER("inpatientbilling.field.performingOrgId"), false);
+	API_DTO_FIELD_REQUIRE(Int32, priority,
+		ZH_WORDS_GETTER("inpatientbilling.field.priority"), false);
+	API_DTO_FIELD_REQUIRE(String, remark,
+		ZH_WORDS_GETTER("inpatientbilling.field.remark"), false);
+	API_DTO_FIELD_REQUIRE(String, updatedAt,
+		ZH_WORDS_GETTER("inpatientbilling.field.updatedAt"), false);
 
 public:
     AutoRollConfigDTO()
     {
-        ruleId = "RUL202607240001";
-        ruleName = ZH_WORDS_GETTER("business-text.sample.billing-rule-name");
-        activityId = "ACT_MORNING_ROUTINE";
-        activityName = ZH_WORDS_GETTER("business-text.sample.nursing-activity-name");
-        chargeDefinitionId = "CDEF_NURSING_CARE";
-        quantityValue = 1.0;
-        isActive = true;
+        quantityValue = 0.0;
+        isActive = false;
+		version = static_cast<v_int64>(0);
+		priority = 0;
     }
 };
 
@@ -592,7 +678,6 @@ public:
     ListAutoRollConfigsDTO()
     {
         configs = List<AutoRollConfigDTO::Wrapper>::createShared();
-        configs->push_back(AutoRollConfigDTO::createShared());
         nursingLevelReadonly = false;
     }
 };
@@ -605,7 +690,9 @@ class CreateAutoGenRuleDTO : public oatpp::DTO
 {
     DTO_INIT(CreateAutoGenRuleDTO, DTO);
 
-    API_DTO_FIELD_REQUIRE(String, encounterId,
+	API_DTO_FIELD_REQUIRE(String, idempotencyKey,
+		ZH_WORDS_GETTER("inpatientbilling.field.idempotencyKey"), true);
+	API_DTO_FIELD_REQUIRE(String, encounterId,
         ZH_WORDS_GETTER("inpatientbilling.field.encounterId"), true);
     API_DTO_FIELD_REQUIRE(String, patientId,
         ZH_WORDS_GETTER("inpatientbilling.field.patientId"), true);
@@ -625,17 +712,20 @@ class CreateAutoGenRuleDTO : public oatpp::DTO
         ZH_WORDS_GETTER("inpatientbilling.field.remark"), false);
 
 public:
-    CreateAutoGenRuleDTO()
+    static Wrapper createExample()
     {
-        encounterId = "337907884548657152";
-        patientId = "326940849401761792";
-        ruleName = ZH_WORDS_GETTER("business-text.sample.billing-rule-create-name");
-        activityId = "ACT_MORNING_ROUTINE";
-        chargeDefinitionId = "CDEF_NURSING_CARE";
-        quantityValue = 1.0;
-        performingOrgId = "327170091059744768";
-        priority = "NORMAL";
-        remark = "Auto-generated billing rule";
+        auto dto = createShared();
+		dto->idempotencyKey = "AUTO-RULE-CREATE-20260813-0001";
+        dto->encounterId = "337907884548657152";
+        dto->patientId = "326940849401761792";
+        dto->ruleName = ZH_WORDS_GETTER("business-text.sample.billing-rule-create-name");
+        dto->activityId = "ACT_MORNING_ROUTINE";
+        dto->chargeDefinitionId = "CDEF_NURSING_CARE";
+        dto->quantityValue = 1.0;
+        dto->performingOrgId = "327170091059744768";
+        dto->priority = "NORMAL";
+        dto->remark = "Auto-generated billing rule";
+        return dto;
     }
 };
 
@@ -645,11 +735,13 @@ class CreateAutoGenRuleResponseDTO : public oatpp::DTO
 
     API_DTO_FIELD_REQUIRE(String, ruleId,
         ZH_WORDS_GETTER("inpatientbilling.field.ruleId"), true);
+	API_DTO_FIELD_REQUIRE(Int64, version,
+		ZH_WORDS_GETTER("inpatientbilling.field.version"), true);
 
 public:
     CreateAutoGenRuleResponseDTO()
     {
-        ruleId = "RUL202607240001";
+		version = static_cast<v_int64>(0);
     }
 };
 
@@ -661,7 +753,11 @@ class UpdateAutoGenRuleDTO : public oatpp::DTO
 {
     DTO_INIT(UpdateAutoGenRuleDTO, DTO);
 
-    API_DTO_FIELD_REQUIRE(String, ruleId,
+	API_DTO_FIELD_REQUIRE(String, idempotencyKey,
+		ZH_WORDS_GETTER("inpatientbilling.field.idempotencyKey"), true);
+	API_DTO_FIELD_REQUIRE(Int64, expectedVersion,
+		ZH_WORDS_GETTER("inpatientbilling.field.expectedVersion"), true);
+	API_DTO_FIELD_REQUIRE(String, ruleId,
         ZH_WORDS_GETTER("inpatientbilling.field.ruleId"), true);
     API_DTO_FIELD_REQUIRE(String, encounterId,
         ZH_WORDS_GETTER("inpatientbilling.field.encounterId"), true);
@@ -683,19 +779,7 @@ class UpdateAutoGenRuleDTO : public oatpp::DTO
         ZH_WORDS_GETTER("inpatientbilling.field.remark"), false);
 
 public:
-    UpdateAutoGenRuleDTO()
-    {
-        ruleId = "RUL202607240001";
-        encounterId = "337907884548657152";
-        patientId = "326940849401761792";
-        ruleName = ZH_WORDS_GETTER("business-text.sample.billing-rule-update-name");
-        activityId = "ACT_MORNING_ROUTINE";
-        chargeDefinitionId = "CDEF_NURSING_CARE";
-        quantityValue = 2.0;
-        performingOrgId = "327170091059744768";
-        priority = "NORMAL";
-        remark = "Updated billing rule";
-    }
+	UpdateAutoGenRuleDTO() = default;
 };
 
 class UpdateAutoGenRuleResponseDTO : public oatpp::DTO
@@ -704,11 +788,13 @@ class UpdateAutoGenRuleResponseDTO : public oatpp::DTO
 
     API_DTO_FIELD_REQUIRE(Boolean, success,
         ZH_WORDS_GETTER("inpatientbilling.field.success"), true);
+	API_DTO_FIELD_REQUIRE(Int64, version,
+		ZH_WORDS_GETTER("inpatientbilling.field.version"), false);
 
 public:
     UpdateAutoGenRuleResponseDTO()
     {
-        success = true;
+        success = false;
     }
 };
 
@@ -720,7 +806,11 @@ class DeleteAutoGenRuleDTO : public oatpp::DTO
 {
     DTO_INIT(DeleteAutoGenRuleDTO, DTO);
 
-    API_DTO_FIELD_REQUIRE(String, ruleId,
+	API_DTO_FIELD_REQUIRE(String, idempotencyKey,
+		ZH_WORDS_GETTER("inpatientbilling.field.idempotencyKey"), true);
+	API_DTO_FIELD_REQUIRE(Int64, expectedVersion,
+		ZH_WORDS_GETTER("inpatientbilling.field.expectedVersion"), true);
+	API_DTO_FIELD_REQUIRE(String, ruleId,
         ZH_WORDS_GETTER("inpatientbilling.field.ruleId"), true);
     API_DTO_FIELD_REQUIRE(String, encounterId,
         ZH_WORDS_GETTER("inpatientbilling.field.encounterId"), true);
@@ -728,11 +818,15 @@ class DeleteAutoGenRuleDTO : public oatpp::DTO
         ZH_WORDS_GETTER("inpatientbilling.field.patientId"), true);
 
 public:
-    DeleteAutoGenRuleDTO()
+    static Wrapper createExample()
     {
-        ruleId = "RUL202607240001";
-        encounterId = "337907884548657152";
-        patientId = "326940849401761792";
+        auto dto = createShared();
+		dto->idempotencyKey = "AUTO-RULE-DELETE-20260813-0001";
+		dto->expectedVersion = static_cast<v_int64>(0);
+        dto->ruleId = "RUL202607240001";
+        dto->encounterId = "337907884548657152";
+        dto->patientId = "326940849401761792";
+        return dto;
     }
 };
 
@@ -746,7 +840,7 @@ class DeleteAutoGenRuleResponseDTO : public oatpp::DTO
 public:
     DeleteAutoGenRuleResponseDTO()
     {
-        success = true;
+        success = false;
     }
 };
 
@@ -758,19 +852,33 @@ class ActivateAutoGenRuleDTO : public oatpp::DTO
 {
     DTO_INIT(ActivateAutoGenRuleDTO, DTO);
 
-    API_DTO_FIELD_REQUIRE(String, ruleId,
+	API_DTO_FIELD_REQUIRE(String, idempotencyKey,
+		ZH_WORDS_GETTER("inpatientbilling.field.idempotencyKey"), true);
+	API_DTO_FIELD_REQUIRE(Int64, expectedVersion,
+		ZH_WORDS_GETTER("inpatientbilling.field.expectedVersion"), true);
+	API_DTO_FIELD_REQUIRE(String, ruleId,
         ZH_WORDS_GETTER("inpatientbilling.field.ruleId"), true);
     API_DTO_FIELD_REQUIRE(String, encounterId,
         ZH_WORDS_GETTER("inpatientbilling.field.encounterId"), true);
     API_DTO_FIELD_REQUIRE(String, patientId,
         ZH_WORDS_GETTER("inpatientbilling.field.patientId"), true);
+    API_DTO_FIELD_REQUIRE(Boolean, enabled,
+		ZH_WORDS_GETTER("inpatientbilling.field.enabled"), false);
+	API_DTO_FIELD_REQUIRE(String, targetStatus,
+		ZH_WORDS_GETTER("inpatientbilling.field.targetStatus"), true);
 
 public:
-    ActivateAutoGenRuleDTO()
+    static Wrapper createExample()
     {
-        ruleId = "RUL202607240001";
-        encounterId = "337907884548657152";
-        patientId = "326940849401761792";
+        auto dto = createShared();
+		dto->idempotencyKey = "AUTO-RULE-STATUS-20260813-0001";
+		dto->expectedVersion = static_cast<v_int64>(0);
+        dto->ruleId = "RUL202607240001";
+        dto->encounterId = "337907884548657152";
+        dto->patientId = "326940849401761792";
+        dto->enabled = true;
+		dto->targetStatus = "ACTIVE";
+        return dto;
     }
 };
 
@@ -780,11 +888,15 @@ class ActivateAutoGenRuleResponseDTO : public oatpp::DTO
 
     API_DTO_FIELD_REQUIRE(Boolean, success,
         ZH_WORDS_GETTER("inpatientbilling.field.success"), true);
+	API_DTO_FIELD_REQUIRE(Int64, version,
+		ZH_WORDS_GETTER("inpatientbilling.field.version"), false);
+	API_DTO_FIELD_REQUIRE(String, statusEnum,
+		ZH_WORDS_GETTER("inpatientbilling.field.statusEnum"), false);
 
 public:
     ActivateAutoGenRuleResponseDTO()
     {
-        success = true;
+        success = false;
     }
 };
 

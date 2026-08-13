@@ -20,16 +20,54 @@
 #include "EncounterManageController.h"
 #include "service/encountermanage/EncounterManageService.h"
 
-PatientStatisticsJsonVO::Wrapper EncounterManageController::execQueryPatientStatistics(
-	const PatientStatisticsQuery::Wrapper& query)
+WardTreeJsonVO::Wrapper EncounterManageController::execQueryWardTree(const PayloadDTO& payload)
 {
-	auto vo=PatientStatisticsJsonVO::createShared(); vo->success(EncounterManageService().getStatistics(query)); return vo;
+	auto vo = WardTreeJsonVO::createShared();
+	vo->success(EncounterManageService().getWardTree(payload.getId()));
+	return vo;
+}
+
+PatientStatisticsJsonVO::Wrapper EncounterManageController::execQueryPatientStatistics(
+const PatientStatisticsQuery::Wrapper& query, const PayloadDTO& payload)
+{
+	auto vo=PatientStatisticsJsonVO::createShared();
+	if (!query
+		|| !inpatientnurse::validation::validCsv(query->wardIds, 50)
+		|| !inpatientnurse::validation::validCsv(query->houseIds, 50)
+		|| !inpatientnurse::validation::validDate(query->nurseStationExecutionDate)
+		|| !inpatientnurse::validation::validDateRange(query->startDate, query->endDate)
+		|| !inpatientnurse::validation::oneOf(query->nurseStationTaskFilter,
+			{"pending-audit", "pending-execute"})
+		|| !inpatientnurse::validation::oneOf(query->nurseStationStatusFilter,
+			{"REGISTERED", "IN_PROGRESS", "ON_HOLD", "PENDING", "COMPLETED",
+			 "DISCHARGED", "SETTLED_DISCHARGED"}))
+	{
+		vo->init(nullptr, RS_PARAMS_INVALID);
+		return vo;
+	}
+	vo->success(EncounterManageService().getStatistics(query, payload.getId()));
+	return vo;
 }
 
 PagePatientQueueJsonVO::Wrapper EncounterManageController::execQueryPatientQueue(
-	const PagePatientQueueQuery::Wrapper& query)
+	const PagePatientQueueQuery::Wrapper& query, const PayloadDTO& payload)
 {
 	auto vo=PagePatientQueueJsonVO::createShared();
-	if (!query || query->pageIndex.getValue(0)<1 || query->pageSize.getValue(0)<1) { vo->init(nullptr,RS_PARAMS_INVALID); return vo; }
-	vo->success(EncounterManageService().listPatients(query)); return vo;
+	if (!query || !inpatientnurse::validation::validPage(query->pageIndex, query->pageSize)
+		|| !inpatientnurse::validation::validCsv(query->wardIds, 50)
+		|| !inpatientnurse::validation::validCsv(query->houseIds, 50)
+		|| !inpatientnurse::validation::validDate(query->nurseStationExecutionDate)
+		|| !inpatientnurse::validation::validDateRange(query->startDate, query->endDate)
+		|| !inpatientnurse::validation::oneOf(query->nurseStationTaskFilter,
+			{"pending-audit", "pending-execute"})
+		|| !inpatientnurse::validation::oneOf(query->nurseStationStatusFilter,
+			{"REGISTERED", "IN_PROGRESS", "ON_HOLD", "PENDING", "COMPLETED",
+			 "DISCHARGED", "SETTLED_DISCHARGED"})
+		|| !inpatientnurse::validation::oneOf(query->sortBy, {"startTime", "patientName", "bedName"})
+		|| !inpatientnurse::validation::oneOf(query->sortDirection, {"ASC", "DESC"}))
+	{
+		vo->init(nullptr,RS_PARAMS_INVALID);
+		return vo;
+	}
+	vo->success(EncounterManageService().listPatients(query, payload.getId())); return vo;
 }

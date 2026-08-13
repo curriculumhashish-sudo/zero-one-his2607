@@ -28,35 +28,45 @@ class CostDetailDTO : public oatpp::DTO {
 	DTO_INIT(CostDetailDTO, DTO);
 
 	// id
-	API_DTO_FIELD(String, id, ZH_WORDS_GETTER("chargedetails.field.id"), true, "");
+	API_DTO_FIELD_REQUIRE(String, id, ZH_WORDS_GETTER("chargedetails.field.id"), true);
 	// patient id
-	API_DTO_FIELD(String, patientId, ZH_WORDS_GETTER("chargedetails.field.patientId"), true, "");
+	API_DTO_FIELD_REQUIRE(String, patientId, ZH_WORDS_GETTER("chargedetails.field.patientId"), true);
 	// encounter id
-	API_DTO_FIELD(String, encounterId, ZH_WORDS_GETTER("chargedetails.field.encounterId"), true, "");
+	API_DTO_FIELD_REQUIRE(String, encounterId, ZH_WORDS_GETTER("chargedetails.field.encounterId"), true);
 	// charge name (from definition)
-	API_DTO_FIELD(String, chargeName, ZH_WORDS_GETTER("chargedetails.field.chargeName"), true, "");
+	API_DTO_FIELD_REQUIRE(String, chargeName, ZH_WORDS_GETTER("chargedetails.field.chargeName"), true);
 	// type code
-	API_DTO_FIELD(String, typeCode, ZH_WORDS_GETTER("chargedetails.field.typeCode"), true, "");
+	API_DTO_FIELD_REQUIRE(String, typeCode, ZH_WORDS_GETTER("chargedetails.field.typeCode"), true);
 	// unit price
-	API_DTO_FIELD(Float64, unitPrice, ZH_WORDS_GETTER("chargedetails.field.unitPrice"), true, 0.0);
+	API_DTO_FIELD_REQUIRE(Float64, unitPrice, ZH_WORDS_GETTER("chargedetails.field.unitPrice"), true);
 	// quantity value
-	API_DTO_FIELD(Float64, quantityValue, ZH_WORDS_GETTER("chargedetails.field.quantityValue"), true, 0.0);
+	API_DTO_FIELD_REQUIRE(Float64, quantityValue, ZH_WORDS_GETTER("chargedetails.field.quantityValue"), true);
 	// quantity unit
-	API_DTO_FIELD(String, quantityUnit, ZH_WORDS_GETTER("chargedetails.field.quantityUnit"), true, "");
+	API_DTO_FIELD_REQUIRE(String, quantityUnit, ZH_WORDS_GETTER("chargedetails.field.quantityUnit"), true);
 	// total price
-	API_DTO_FIELD(Float64, totalPrice, ZH_WORDS_GETTER("chargedetails.field.totalPrice"), true, 0.0);
+	API_DTO_FIELD_REQUIRE(Float64, totalPrice, ZH_WORDS_GETTER("chargedetails.field.totalPrice"), true);
 	// base amount
-	API_DTO_FIELD(Float64, baseAmount, ZH_WORDS_GETTER("chargedetails.field.baseAmount"), true, 0.0);
+	API_DTO_FIELD_REQUIRE(Float64, baseAmount, ZH_WORDS_GETTER("chargedetails.field.baseAmount"), true);
 	// discount amount
-	API_DTO_FIELD(Float64, discountAmount, ZH_WORDS_GETTER("chargedetails.field.discountAmount"), true, 0.0);
+	API_DTO_FIELD_REQUIRE(Float64, discountAmount, ZH_WORDS_GETTER("chargedetails.field.discountAmount"), true);
 	// occurrence time
-	API_DTO_FIELD(String, occurrenceTime, ZH_WORDS_GETTER("chargedetails.field.occurrenceTime"), true, "");
+	API_DTO_FIELD_REQUIRE(String, occurrenceTime, ZH_WORDS_GETTER("chargedetails.field.occurrenceTime"), true);
 	// performing org id
-	API_DTO_FIELD(String, performingOrgId, ZH_WORDS_GETTER("chargedetails.field.performingOrgId"), true, "");
+	API_DTO_FIELD_REQUIRE(String, performingOrgId, ZH_WORDS_GETTER("chargedetails.field.performingOrgId"), true);
 	// status enum
-	API_DTO_FIELD(String, statusEnum, ZH_WORDS_GETTER("chargedetails.field.statusEnum"), true, "");
+	API_DTO_FIELD_REQUIRE(String, statusEnum, ZH_WORDS_GETTER("chargedetails.field.statusEnum"), true);
 	// bus no
-	API_DTO_FIELD(String, busNo, ZH_WORDS_GETTER("chargedetails.field.busNo"), true, "");
+	API_DTO_FIELD_REQUIRE(String, busNo, ZH_WORDS_GETTER("chargedetails.field.busNo"), true);
+
+public:
+	CostDetailDTO()
+	{
+		unitPrice = 0.0;
+		quantityValue = 0.0;
+		totalPrice = 0.0;
+		baseAmount = 0.0;
+		discountAmount = 0.0;
+	}
 };
 
 #include OATPP_CODEGEN_END(DTO)

@@ -70,7 +70,9 @@ namespace
 		cancelProcedure.setCategoryEnum(completedProcedure->getCategoryEnum());
 		cancelProcedure.setEncounterId(completedProcedure->getEncounterId());
 		cancelProcedure.setPatientId(completedProcedure->getPatientId());
-		if (completedProcedure->getOccurrenceTimePtr()) cancelProcedure.setOccurrenceTime(completedProcedure->getOccurrenceTime());
+		// The original procedure keeps the occupied occurrence slot. The cancellation
+		// row points to it through refund_id and intentionally leaves occurrence_time
+		// null so it does not violate the request/table/occurrence unique key.
 		cancelProcedure.setRecordedTime(nowTime);
 		cancelProcedure.setRecorderId(operatorId);
 		if (completedProcedure->getOrgIdPtr()) cancelProcedure.setOrgId(completedProcedure->getOrgId());
@@ -174,10 +176,8 @@ namespace
 	}
 }
 
-//已加当前操作者权限范围校验，为了避免"越权登记别的病区医嘱为“不执行”"
 std::string OrderExecuteControlService::skipOrderExecution(const oatpp::List<OrderNotExecuteDTO::Wrapper>& dtolist, const PayloadDTO& payload)
 {
-	//基础校验，service可能被其他模块直接调用
 	if (!dtolist || dtolist->empty() || dtolist->size() > 50)
 		return "ORDER_NOT_EXECUTE_LIST_INVALID";
 	for (auto& dto : *dtolist){
@@ -185,7 +185,6 @@ std::string OrderExecuteControlService::skipOrderExecution(const oatpp::List<Ord
 		if (!checkinfo.empty())
 			return checkinfo;
 	}
-	//检查是否存在重复请求
 	std::unordered_set<std::string> requestKeys;
 	for (auto& dto : *dtolist){
 		if (!requestKeys.insert(buildNotExecuteRequestKey(dto)).second)
@@ -222,7 +221,7 @@ std::string OrderExecuteControlService::skipOrderExecution(const oatpp::List<Ord
 			requestTable,
 			occurrenceTime);
 		if (!slotKeys.insert(slotKey).second)
-			return "ORDER_NOT_EXECUTE_DUPLICATE_ITEM";//重复请求校验，存在重复请求直接决绝
+			return "ORDER_NOT_EXECUTE_DUPLICATE_ITEM";
 
 		slots.emplace_back(
 			*dto->advice_id.getPtr(),
@@ -231,19 +230,17 @@ std::string OrderExecuteControlService::skipOrderExecution(const oatpp::List<Ord
 	}
 
 	OrderExecuteControlDAO dao;
-	auto operableEncounterIds = listOperableEncounterIds(payload); //查询当前护士可操作的encounter_id集合，后续进行权限校验
+	auto operableEncounterIds = listOperableEncounterIds(payload);
 	if (operableEncounterIds.empty())
 		return "ORDER_NOT_EXECUTE_OPERATOR_SCOPE_EMPTY";
 
-	//开启事务，只允许批量成功/失败
 	dao.getSqlSession()->beginTransaction();
 	try
 	{
 		std::unordered_map<std::string, PtrOriginalOrderRequestDO> originalOrderMap;
-		//批量查询原始医嘱，因为来源表有两张，所以下面调用了两次查询函数
 		for (const auto& item : dao.queryOriginalOrderRequestById(medOrderIds, "MED_REQUEST"))
 		{
-			originalOrderMap[buildOriginalOrderMapKey("MED_REQUEST", item.first)] = item.second; //构建 "[原始医嘱表, 医嘱id] -> 后续关键业务字段的映射"
+			originalOrderMap[buildOriginalOrderMapKey("MED_REQUEST", item.first)] = item.second;
 		}
 		for (const auto& item : dao.queryOriginalOrderRequestById(serviceOrderIds, "SERVICE_REQUEST"))
 		{
@@ -259,19 +256,18 @@ std::string OrderExecuteControlService::skipOrderExecution(const oatpp::List<Ord
 				requestTable = "wkf_service_request";
 
 			auto originalOrderIt = originalOrderMap.find(buildOriginalOrderMapKey(*dto->advice_type.getPtr(), *dto->advice_id.getPtr()));
-			if (originalOrderIt == originalOrderMap.end() || !originalOrderIt->second) { //这条不执行请求没有查询对应医嘱(map里找到dto中的key)
+			if (originalOrderIt == originalOrderMap.end() || !originalOrderIt->second) {
 				dao.getSqlSession()->rollbackTransaction();
 				return "ORDER_NOT_EXECUTE_ORIGINAL_ORDER_NOT_FOUND";
 			}
 			auto originalOrder = originalOrderIt->second;
-			if (!canOperateEncounter(operableEncounterIds, originalOrder->getEncounterId())) //权限校验：如果根据原医嘱查询出来的encounter_id不在可操作encounter_id中，拒绝
+			if (!canOperateEncounter(operableEncounterIds, originalOrder->getEncounterId()))
 			{
 				dao.getSqlSession()->rollbackTransaction();
 				return "ORDER_NOT_EXECUTE_ENCOUNTER_NOT_OPERABLE";
 			}
 		}
 
-		/*pending净态校验，查询执行记录表是否存在同id已执行或者不执行*/
 		if (dao.existsActiveTerminalProcedureBySlot(slots))
 		{
 			dao.getSqlSession()->rollbackTransaction();
@@ -287,7 +283,6 @@ std::string OrderExecuteControlService::skipOrderExecution(const oatpp::List<Ord
 				requestTable = "wkf_service_request";
 
 			auto originalOrder = originalOrderMap.find(buildOriginalOrderMapKey(*dto->advice_type.getPtr(), *dto->advice_id.getPtr()))->second;
-			/*生成雪花id*/
 			string procedureId = std::to_string(SnowFlake::getInstance()->nextId());
 			if (procedureId == "0")
 			{
@@ -298,7 +293,6 @@ std::string OrderExecuteControlService::skipOrderExecution(const oatpp::List<Ord
 			string nowTime = SimpleDateTimeFormat::format();
 			const auto occurrenceTime = normalizeOccurrenceTimeToSecond(*dto->plan_time.getPtr());
 			
-			/*设置要插入的一行的关键字段*/
 			ClnProcedureDO procedure;
 			procedure.setNotExecuteInsertFields(
 				procedureId,
@@ -311,7 +305,6 @@ std::string OrderExecuteControlService::skipOrderExecution(const oatpp::List<Ord
 				originalOrder->getPatientId(),
 				occurrenceTime);
 
-			/*一条插入失败就整批事务回滚*/
 			if (dao.insert(procedure) != 1)
 			{
 				dao.getSqlSession()->rollbackTransaction();
@@ -319,16 +312,67 @@ std::string OrderExecuteControlService::skipOrderExecution(const oatpp::List<Ord
 			}
 		}
 
-		/*提交事务*/
 		dao.getSqlSession()->commitTransaction();
 	}
 	catch (...)
 	{
-		/*捕获异常后先回滚事务*/
 		dao.getSqlSession()->rollbackTransaction();
 		return "ORDER_NOT_EXECUTE_DATABASE_ERROR";
 	}
-	return ""; //成功返回空字符串
+	return "";
+}
+
+BatchOrderExecutionResponseDTO::Wrapper OrderExecuteControlService::skipBatch(
+	const BatchSkipOrderRequestDTO::Wrapper& dto, const PayloadDTO& payload)
+{
+	auto response = BatchOrderExecutionResponseDTO::createShared();
+	if (!dto || !dto->items) return response;
+	auto legacy = oatpp::List<OrderNotExecuteDTO::Wrapper>::createShared();
+	for (const auto& item : *dto->items) {
+		auto converted = OrderNotExecuteDTO::createShared();
+		converted->advice_id = item->orderId;
+		converted->advice_type = item->orderType;
+		converted->plan_time = item->planTime;
+		legacy->push_back(converted);
+	}
+	const auto error = skipOrderExecution(legacy, payload);
+	response->success = error.empty();
+	response->processedCount = error.empty() ? static_cast<v_int32>(legacy->size()) : 0;
+	for (const auto& item : *dto->items) {
+		auto result = BatchOrderExecutionResultItemDTO::createShared();
+		result->itemKey = item->orderType.getValue("") + ":"
+			+ item->orderId.getValue("") + ":" + item->planTime.getValue("");
+		result->success = error.empty();
+		result->message = error.empty()
+			? ZH_WORDS_GETTER("business-text.execution.skip-success") : error.c_str();
+		response->results->push_back(result);
+	}
+	return response;
+}
+
+BatchOrderExecutionResponseDTO::Wrapper OrderExecuteControlService::cancelBatch(
+	const BatchCancelExecutionRequestDTO::Wrapper& dto, const PayloadDTO& payload)
+{
+	auto response = BatchOrderExecutionResponseDTO::createShared();
+	if (!dto || !dto->items) return response;
+	auto legacy = CancelExecutionRequestDTO::createShared();
+	legacy->items = dto->items;
+	legacy->statusReasonText = dto->reason;
+	auto cancelled = cancelOrderExecution(legacy, payload);
+	response->success = cancelled->success;
+	response->processedCount = cancelled->success
+		? static_cast<v_int32>(dto->items->size()) : 0;
+	response->rebuiltSummaryNos = cancelled->rebuiltSummaryNos;
+	for (const auto& item : *dto->items) {
+		auto row = BatchOrderExecutionResultItemDTO::createShared();
+		row->itemKey = item->procedureId;
+		row->procedureId = item->procedureId;
+		row->success = cancelled->success;
+		row->message = cancelled->message;
+		response->results->push_back(row);
+		if (cancelled->success) response->cancelledProcedureIds->push_back(item->procedureId);
+	}
+	return response;
 }
 
 
@@ -345,7 +389,6 @@ CancelExecutionResultDTO::Wrapper OrderExecuteControlService::cancelOrderExecuti
 	auto result = CancelExecutionResultDTO::createShared();
 	result->rebuiltSummaryNos = oatpp::List<oatpp::String>::createShared();
 
-	//基础参数校验
 	if (!dto)
 	{
 		result->success = false;
@@ -360,7 +403,6 @@ CancelExecutionResultDTO::Wrapper OrderExecuteControlService::cancelOrderExecuti
 		return result;
 	}
 
-	//校验不存在重复请求
 	std::list<std::string> procedureIdList;
 	std::unordered_set<std::string> procedureIds;
 	for (auto& item : *dto->items)
@@ -374,7 +416,6 @@ CancelExecutionResultDTO::Wrapper OrderExecuteControlService::cancelOrderExecuti
 		procedureIdList.push_back(*item->procedureId.getPtr());
 	}
 
-	//获取当前护士可操作encounterids集合，以便后续权限校验
 	auto operableEncounterIds = listOperableEncounterIds(payload);
 	if (operableEncounterIds.empty())
 	{
@@ -383,7 +424,6 @@ CancelExecutionResultDTO::Wrapper OrderExecuteControlService::cancelOrderExecuti
 		return result;
 	}
 
-	//校验不存在 "已指向待取消的已执行记录" 的重复取消记录(防止重复取消)
 	OrderExecuteControlDAO dao;
 	if (dao.existsCancelProcedureByRefundIds(procedureIdList))
 	{
@@ -401,20 +441,20 @@ CancelExecutionResultDTO::Wrapper OrderExecuteControlService::cancelOrderExecuti
 		const std::string procedureId = *item->procedureId.getPtr();
 		const std::string requestEncounterId = *item->encounterId.getPtr();
 		auto procedureIt = procedureMap.find(procedureId);
-		if (procedureIt == procedureMap.end()) //如果没查到原已执行记录，拒绝
+		if (procedureIt == procedureMap.end())
 		{
 			result->success = false;
 			result->message = "CANCEL_EXECUTION_PROCEDURE_NOT_FOUND";
 			return result;
 		}
 		auto procedure = procedureIt->second;
-		if (procedure->getEncounterId() != requestEncounterId) //如果查询出的encounterid不等于前端传过来的encounterid(可见encounterid操作不可见procedure)，拒绝
+		if (procedure->getEncounterId() != requestEncounterId)
 		{
 			result->success = false;
 			result->message = "CANCEL_EXECUTION_ENCOUNTER_MISMATCH";
 			return result;
 		}
-		if (!canOperateEncounter(operableEncounterIds, requestEncounterId)) //校验当前护士是否能操作当前患者
+		if (!canOperateEncounter(operableEncounterIds, requestEncounterId))
 		{
 			result->success = false;
 			result->message = "CANCEL_EXECUTION_ENCOUNTER_NOT_OPERABLE";
@@ -520,20 +560,26 @@ CancelExecutionResultDTO::Wrapper OrderExecuteControlService::cancelOrderExecuti
 			payload.getId()));
 	}
 
-	dao.getSqlSession()->beginTransaction(); //开启事务，按数据库更改动作类别批量执行更改
+	dao.getSqlSession()->beginTransaction();
 	try
 	{
-		// 先批量置0原先已执行记录占用计划点标志
-		if (dao.releaseCompletedProcedureSlotsNoTransaction(allProcedureIdList) != static_cast<int>(allProcedureIdList.size()))
+			if (dao.releaseCompletedProcedureSlotsNoTransaction(allProcedureIdList) != static_cast<int>(allProcedureIdList.size()))
 		{
 			dao.getSqlSession()->rollbackTransaction();
 			result->success = false;
 			result->message = "CANCEL_EXECUTION_RELEASE_SLOT_FAILED";
 			return result;
-		}
+			}
+			std::list<PtrClnProcedureDO> completedProcedures;
+			for (const auto& procedureId : allProcedureIdList)
+			{
+				auto found = procedureMap.find(procedureId);
+				if (found != procedureMap.end()) completedProcedures.push_back(found->second);
+			}
+			dao.rollbackOriginalOrderExecutionsNoTransaction(
+				completedProcedures, payload.getId());
 
-		// 再批量插入取消执行对冲cancel行
-		if (dao.insertCancelProceduresNoTransaction(cancelProcedures) != static_cast<int>(cancelProcedures.size()))
+			if (dao.insertCancelProceduresNoTransaction(cancelProcedures) != static_cast<int>(cancelProcedures.size()))
 		{
 			dao.getSqlSession()->rollbackTransaction();
 			result->success = false;
@@ -620,7 +666,7 @@ CancelExecutionResultDTO::Wrapper OrderExecuteControlService::cancelOrderExecuti
 
 
 std::unordered_set<std::string> OrderExecuteControlService::listOperableEncounterIds(const PayloadDTO& payload) const
-{ //以unordered_set的方式返回所有可操作encounter_id
+{
 	std::unordered_set<std::string> result;
 	if (payload.getId().empty())
 		return result;
@@ -639,9 +685,9 @@ bool OrderExecuteControlService::canOperateEncounter(
 	const std::unordered_set<std::string>& operableEncounterIds,
 	const std::string& encounterId) const
 {
-	if (encounterId.empty()) //如果没有可操作encounter_id
+	if (encounterId.empty())
 		return false;
-	return operableEncounterIds.find(encounterId) != operableEncounterIds.end(); //返回是否能在可操作住院记录集合中找到对应encounter_id
+	return operableEncounterIds.find(encounterId) != operableEncounterIds.end();
 }
 
 std::string OrderExecuteControlService::buildNotExecuteRequestKey(const OrderNotExecuteDTO::Wrapper& dto) const

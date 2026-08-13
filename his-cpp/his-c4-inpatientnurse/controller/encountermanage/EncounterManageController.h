@@ -26,6 +26,8 @@
 #include "domain/query/encountermanage/PatientStatisticsQuery.h"
 #include "domain/vo/encountermanage/PagePatientQueueVO.h"
 #include "domain/vo/encountermanage/PatientStatisticsVO.h"
+#include "domain/vo/encountermanage/WardTreeVO.h"
+#include "controller/RequestValidation.h"
 
 using namespace oatpp;
 
@@ -38,6 +40,16 @@ class EncounterManageController : public oatpp::web::server::api::ApiController
 	API_ACCESS_DECLARE(EncounterManageController);
 
 public:
+	API_DEF_ENDPOINT_INFO_AUTH(
+		ZH_WORDS_GETTER("encountermanage.query-ward-tree.summary"),
+		queryWardTree,
+		WardTreeJsonVO::Wrapper,
+		API_TAG,
+		info->responses[Status::CODE_200].addExample("success", WardTreeJsonVO::createShared());
+	);
+	API_HANDLER_ENDPOINT_NOPARAM_AUTH(API_M_GET, "/encountermanage/query-ward-tree", queryWardTree,
+		execQueryWardTree(authObject->getPayload()));
+
 	// Query aggregate counts displayed above the patient queue.
 	API_DEF_ENDPOINT_INFO_AUTH(
 		ZH_WORDS_GETTER("encountermanage.query-patient-statistics.summary"),
@@ -48,14 +60,22 @@ public:
 			ZH_WORDS_GETTER("encountermanage.field.keyword"), ZH_WORDS_GETTER("business-text.sample.patient-name"), false);
 		API_DEF_ADD_QUERY_PARAMS(String, "wardId",
 			ZH_WORDS_GETTER("encountermanage.field.wardId"), "334526584536674304", false);
+		API_DEF_ADD_QUERY_PARAMS(String, "wardIds",
+			ZH_WORDS_GETTER("encountermanage.field.wardIds"), "334526584536674304,334526584536674305", false);
 		API_DEF_ADD_QUERY_PARAMS(String, "houseId",
 			ZH_WORDS_GETTER("encountermanage.field.houseId"), "334526625720438784", false);
+		API_DEF_ADD_QUERY_PARAMS(String, "houseIds",
+			ZH_WORDS_GETTER("encountermanage.field.houseIds"), "334526625720438784,334526640208363520", false);
 		API_DEF_ADD_QUERY_PARAMS(String, "nurseStationExecutionDate",
 			ZH_WORDS_GETTER("encountermanage.field.nurseStationExecutionDate"), "2026-07-21", false);
 		API_DEF_ADD_QUERY_PARAMS(String, "nurseStationTaskFilter",
 			ZH_WORDS_GETTER("encountermanage.field.nurseStationTaskFilter"), "pending-audit", false);
 		API_DEF_ADD_QUERY_PARAMS(String, "nurseStationStatusFilter",
 			ZH_WORDS_GETTER("encountermanage.field.nurseStationStatusFilter"), "SETTLED_DISCHARGED", false);
+		API_DEF_ADD_QUERY_PARAMS(String, "startDate",
+			ZH_WORDS_GETTER("encountermanage.field.startDate"), "2026-07-21 00:00:00", false);
+		API_DEF_ADD_QUERY_PARAMS(String, "endDate",
+			ZH_WORDS_GETTER("encountermanage.field.endDate"), "2026-07-21 23:59:59", false);
 		info->responses[Status::CODE_200].addExample(
 			"success", PatientStatisticsJsonVO::createShared());
 	);
@@ -64,7 +84,7 @@ public:
 		"/encountermanage/query-patient-statistics",
 		queryPatientStatistics,
 		PatientStatisticsQuery,
-		execQueryPatientStatistics(query));
+		execQueryPatientStatistics(query, authObject->getPayload()));
 
 	// Query the inpatient nurse-station patient queue.
 	API_DEF_ENDPOINT_INFO_AUTH(
@@ -79,8 +99,12 @@ public:
 			ZH_WORDS_GETTER("encountermanage.field.keyword"), ZH_WORDS_GETTER("business-text.sample.patient-name"), false);
 		API_DEF_ADD_QUERY_PARAMS(String, "wardId",
 			ZH_WORDS_GETTER("encountermanage.field.wardId"), "334526584536674304", false);
+		API_DEF_ADD_QUERY_PARAMS(String, "wardIds",
+			ZH_WORDS_GETTER("encountermanage.field.wardIds"), "334526584536674304,334526584536674305", false);
 		API_DEF_ADD_QUERY_PARAMS(String, "houseId",
 			ZH_WORDS_GETTER("encountermanage.field.houseId"), "334526625720438784", false);
+		API_DEF_ADD_QUERY_PARAMS(String, "houseIds",
+			ZH_WORDS_GETTER("encountermanage.field.houseIds"), "334526625720438784,334526640208363520", false);
 		API_DEF_ADD_QUERY_PARAMS(String, "nurseStationExecutionDate",
 			ZH_WORDS_GETTER("encountermanage.field.nurseStationExecutionDate"), "2026-07-21", false);
 		API_DEF_ADD_QUERY_PARAMS(String, "nurseStationTaskFilter",
@@ -105,13 +129,14 @@ public:
 		"/encountermanage/query-patient-queue",
 		queryPatientQueue,
 		PagePatientQueueQuery,
-		execQueryPatientQueue(query));
+		execQueryPatientQueue(query, authObject->getPayload()));
 
 private:
+	WardTreeJsonVO::Wrapper execQueryWardTree(const PayloadDTO& payload);
 	PatientStatisticsJsonVO::Wrapper execQueryPatientStatistics(
-		const PatientStatisticsQuery::Wrapper& query);
+		const PatientStatisticsQuery::Wrapper& query, const PayloadDTO& payload);
 	PagePatientQueueJsonVO::Wrapper execQueryPatientQueue(
-		const PagePatientQueueQuery::Wrapper& query);
+		const PagePatientQueueQuery::Wrapper& query, const PayloadDTO& payload);
 };
 
 #undef API_TAG

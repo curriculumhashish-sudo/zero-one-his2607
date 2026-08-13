@@ -24,12 +24,16 @@
 #include "domain/query/encountermanage/PatientStatisticsQuery.h"
 #include "domain/dto/encountermanage/PagePatientQueueDTO.h"
 #include "domain/dto/encountermanage/PatientStatisticsDTO.h"
+#include "domain/dto/encountermanage/WardTreeDTO.h"
 
 class EncounterManageService
 {
 public:
-	PagePatientQueueDTO::Wrapper listPatients(const PagePatientQueueQuery::Wrapper& query);
-	PatientStatisticsDTO::Wrapper getStatistics(const PatientStatisticsQuery::Wrapper& query);
+	PagePatientQueueDTO::Wrapper listPatients(
+		const PagePatientQueueQuery::Wrapper& query, const std::string& userId);
+	PatientStatisticsDTO::Wrapper getStatistics(
+		const PatientStatisticsQuery::Wrapper& query, const std::string& userId);
+	WardTreeDTO::Wrapper getWardTree(const std::string& userId);
 };
 
 #endif // !_ENCOUNTER_MANAGE_SERVICE_H_

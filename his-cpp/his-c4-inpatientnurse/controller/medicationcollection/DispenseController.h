@@ -24,6 +24,7 @@
 #include "domain/query/medicationcollection/DispenseSummaryQuery.h"
 #include "domain/dto/medicationcollection/DispenseDTO.h"
 #include "domain/vo/medicationcollection/DispenseVO.h"
+#include "controller/RequestValidation.h"
 
 #include OATPP_CODEGEN_BEGIN(ApiController) //<- Begin Codegen
 
@@ -48,8 +49,12 @@ public:
 		API_DEF_ADD_PAGE_PARAMS();
 		info->queryParams["pageIndex"].required = true;
 		info->queryParams["pageSize"].required = true;
-		API_DEF_ADD_QUERY_PARAMS(String, "statusEnum", ZH_WORDS_GETTER("dispense.field.status-enum"), "WAIT_REVIEW", false);
+		API_DEF_ADD_QUERY_PARAMS(String, "statusEnum", ZH_WORDS_GETTER("dispense.field.status-enum"), "PENDING_SUBMIT", false);
 		API_DEF_ADD_QUERY_PARAMS(String, "dispenseDate", ZH_WORDS_GETTER("dispense.field.dispense-date"), "2026-07-19", false);
+		API_DEF_ADD_QUERY_PARAMS(String, "destinationLocationId", ZH_WORDS_GETTER("dispense.field.des-location-id"), "322955479021522944", false);
+		API_DEF_ADD_QUERY_PARAMS(String, "startDate", ZH_WORDS_GETTER("dispense.field.start-date"), "2026-07-01", false);
+		API_DEF_ADD_QUERY_PARAMS(String, "endDate", ZH_WORDS_GETTER("dispense.field.end-date"), "2026-07-31", false);
+		API_DEF_ADD_QUERY_PARAMS(String, "keyword", ZH_WORDS_GETTER("dispense.field.keyword"), "MS202607", false);
 		info->responses[Status::CODE_200].addExample(
 			"success", DispenseSummaryPageJsonVO::createShared());
 	);
@@ -58,7 +63,7 @@ public:
 		"/medicationcollection/summary",
 		querySummaryList,
 		DispenseSummaryQuery,
-		execQuerySummaryList(query));
+		execQuerySummaryList(query, authObject->getPayload()));
 
 	// Define the dispense detail query.
 	API_DEF_ENDPOINT_INFO_AUTH(
@@ -75,12 +80,14 @@ public:
 		"/medicationcollection/detail",
 		queryDetail,
 		DispenseDetailQuery,
-		execQueryDetail(query));
+		execQueryDetail(query, authObject->getPayload()));
 private:
 	// Execute the summary bill list query.
-	DispenseSummaryPageJsonVO::Wrapper execQuerySummaryList(const DispenseSummaryQuery::Wrapper& query);
+	DispenseSummaryPageJsonVO::Wrapper execQuerySummaryList(
+		const DispenseSummaryQuery::Wrapper& query, const PayloadDTO& payload);
 	// Execute the dispense detail query.
-	DispenseDetailListJsonVO::Wrapper execQueryDetail(const DispenseDetailQuery::Wrapper& query);
+	DispenseDetailListJsonVO::Wrapper execQueryDetail(
+		const DispenseDetailQuery::Wrapper& query, const PayloadDTO& payload);
 };
 
 #undef API_TAG

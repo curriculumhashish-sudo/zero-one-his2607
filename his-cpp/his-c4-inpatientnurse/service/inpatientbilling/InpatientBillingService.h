@@ -7,18 +7,34 @@
 class InpatientBillingService
 {
 public:
-	// 查询自动计费配置列表
+	PagePricingCatalogDTO::Wrapper pagePricingCatalog(const PagePricingCatalogQuery::Wrapper& query);
+	ConfirmDirectPricingResponseDTO::Wrapper confirmDirectPricing(
+		const ConfirmDirectPricingDTO::Wrapper& dto, const std::string& operatorId);
+	ListPricedOrdersDTO::Wrapper listPricedOrders(const ListPricedOrdersQuery::Wrapper& query);
+	ListSupplementParentOrdersDTO::Wrapper listSupplementParentOrders(
+		const ListSupplementParentOrdersQuery::Wrapper& query);
+	ConfirmSupplementPricingResponseDTO::Wrapper confirmSupplementPricing(
+		const ConfirmSupplementPricingDTO::Wrapper& dto, const std::string& operatorId);
+	CancelPricingResponseDTO::Wrapper cancelPricing(
+		const CancelPricingDTO::Wrapper& dto, const std::string& operatorId);
+
+	// Query automatic billing configurations.
 	ListAutoRollConfigsDTO::Wrapper listAutoRollConfigs(const ListAutoRollConfigsQuery::Wrapper& query);
-	// 新增自动计费规则
-	CreateAutoGenRuleResponseDTO::Wrapper createAutoGenRule(const CreateAutoGenRuleDTO::Wrapper& dto);
-	// 修改自动计费规则（仅覆盖非空字段）
-	UpdateAutoGenRuleResponseDTO::Wrapper updateAutoGenRule(const UpdateAutoGenRuleDTO::Wrapper& dto);
-	// 软删除自动计费规则
-	DeleteAutoGenRuleResponseDTO::Wrapper deleteAutoGenRule(const DeleteAutoGenRuleDTO::Wrapper& dto);
-	// 启用自动计费规则
-	ActivateAutoGenRuleResponseDTO::Wrapper activateAutoGenRule(const ActivateAutoGenRuleDTO::Wrapper& dto);
-	// 停用自动计费规则
-	ActivateAutoGenRuleResponseDTO::Wrapper suspendAutoGenRule(const ActivateAutoGenRuleDTO::Wrapper& dto);
+	// Create an automatic billing rule.
+	CreateAutoGenRuleResponseDTO::Wrapper createAutoGenRule(
+		const CreateAutoGenRuleDTO::Wrapper& dto, const std::string& operatorId);
+	// Update non-null automatic billing rule fields.
+	UpdateAutoGenRuleResponseDTO::Wrapper updateAutoGenRule(
+		const UpdateAutoGenRuleDTO::Wrapper& dto, const std::string& operatorId);
+	// Soft-delete an automatic billing rule.
+	DeleteAutoGenRuleResponseDTO::Wrapper deleteAutoGenRule(
+		const DeleteAutoGenRuleDTO::Wrapper& dto, const std::string& operatorId);
+	// Activate an automatic billing rule.
+	ActivateAutoGenRuleResponseDTO::Wrapper activateAutoGenRule(
+		const ActivateAutoGenRuleDTO::Wrapper& dto, const std::string& operatorId);
+	// Suspend an automatic billing rule.
+	ActivateAutoGenRuleResponseDTO::Wrapper suspendAutoGenRule(
+		const ActivateAutoGenRuleDTO::Wrapper& dto, const std::string& operatorId);
 };
 
 #endif // !_INPATIENT_BILLING_SERVICE_H_

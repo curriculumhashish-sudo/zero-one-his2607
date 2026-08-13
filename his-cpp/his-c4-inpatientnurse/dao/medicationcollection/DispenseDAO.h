@@ -2,7 +2,7 @@
 /*
  Copyright Zero One Star. All rights reserved.
 
- @Author: his-c4
+ @Author: Swan_Woo
  @Date: 2026/07/18 22:40:00
 
  Licensed under the Apache License, Version 2.0 (the "License");
@@ -35,9 +35,11 @@ private:
 	inline std::string queryConditionBuilder(const DispenseSummaryQuery::Wrapper& query, SqlParams& params);
 public:
 	// count distinct summary bills by condition
-	uint64_t countSummary(const DispenseSummaryQuery::Wrapper& query);
+	uint64_t countSummary(const DispenseSummaryQuery::Wrapper& query,
+		const std::string& userId);
 	// query summary bill list with pagination (aggregated by summary_no)
-	std::list<DispenseSummaryDO> selectSummaryWithPage(const DispenseSummaryQuery::Wrapper& query);
+	std::list<DispenseSummaryDO> selectSummaryWithPage(
+		const DispenseSummaryQuery::Wrapper& query, const std::string& userId);
 	// query dispense details by summary bill no (join medication definition)
 	std::list<DispenseDetailDO> selectDetailBySummaryNo(const std::string& summaryNo);
 };

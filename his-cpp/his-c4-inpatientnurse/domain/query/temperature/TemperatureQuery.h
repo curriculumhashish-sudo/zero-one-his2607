@@ -2,7 +2,7 @@
 /*
  Copyright Zero One Star. All rights reserved.
 
- @Author: awei
+ @Author: Swan_Woo
  @Date: 2026/07/20 10:00:00
 
  Licensed under the Apache License, Version 2.0 (the "License");
@@ -24,18 +24,12 @@
     #include OATPP_CODEGEN_BEGIN(DTO)
 
 /**
- * 体温单按日期查询参数。
- * 查询单个患者在单一日期的所有时间段数据。
- * 直接继承 oatpp::DTO（无分页——每次请求返回一张体温单）。
  */
 class TemperatureQuery : public oatpp::DTO
 {
     DTO_INIT(TemperatureQuery, DTO);
-    // 患者ID
     API_DTO_FIELD_REQUIRE(String, patientId, ZH_WORDS_GETTER("temperature.field.patientId"), false);
-    // 就诊ID
     API_DTO_FIELD_REQUIRE(String, encounterId, ZH_WORDS_GETTER("temperature.field.encounterId"), false);
-    // 记录日期（yyyy-MM-dd）
     API_DTO_FIELD_REQUIRE(String, recordedDate, ZH_WORDS_GETTER("temperature.field.recordedDate"), false);
 };
 

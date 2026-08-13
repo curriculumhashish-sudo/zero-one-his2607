@@ -2,7 +2,7 @@
 /*
  Copyright Zero One Star. All rights reserved.
 
- @Author: his-c4
+ @Author: Swan_Woo
  @Date: 2026/07/18 22:00:00
 
  Licensed under the Apache License, Version 2.0 (the "License");
@@ -50,7 +50,6 @@ public:
 	DispenseDetailListJsonVO()
 	{
 		this->data = List<DispenseDetailDTO::Wrapper>::createShared();
-		this->data->push_back(DispenseDetailDTO::createShared());
 	}
 };
 
