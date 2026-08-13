@@ -26,7 +26,7 @@ public:
 
     API_HANDLER_ENDPOINT_AUTH(
         API_M_POST,
-        "/tcm-prescription/page-herb-catalog",
+        "/c2-opdoctor/tcm-prescription/page-herb-catalog",
         pageTcmHerbCatalog,
         BODY_DTO(PageTcmHerbCatalogQuery::Wrapper, query),
         execPageTcmHerbCatalog(query, authObject->getPayload())

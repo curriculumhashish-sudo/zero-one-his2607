@@ -20,7 +20,7 @@ public:
 	// Endpoint binding
 	// Path:    /opnurse/query-act/{encounterId}
 	// Header:  Authorization
-	ENDPOINT(API_M_GET, "/opnurse/query-act/{encounterId}", actPatient,
+	ENDPOINT(API_M_GET, "/c2-opnurse/query-act/{encounterId}", actPatient,
 		PATH(String, encounterId),
 		API_HANDLER_AUTH_PARAME) {
 		std::string eid = encounterId ? encounterId.getValue("") : std::string("");
