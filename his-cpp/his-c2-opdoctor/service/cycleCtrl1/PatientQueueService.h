@@ -24,14 +24,11 @@ public:
 
     static int calcAge(const std::string& birthDate);
 
-    PatientQueueService()
-        : m_mongoClient(make_shared<MongoClient>("mongodb://994xyQ10gK1h:2rNNkUEG8C8syEOmJBK66WUnh24g4BKS@47.113.229.85:41242/hisDb"))
-    {
-        m_mongoClient = ClientManager::getMongoClient();
-    }
+    PatientQueueService() = default; // 默认构造，去掉m_mongoClient赋值
 
 private:
     PatientQueueDAO m_patientQueueDAO;
+    // 保留成员也可以，但不再构造函数赋值
     std::shared_ptr<MongoClient> m_mongoClient;
 };
 

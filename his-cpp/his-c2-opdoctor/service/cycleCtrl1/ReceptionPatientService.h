@@ -26,7 +26,6 @@ public:
 	static int calcAge(const std::string& birthDate);
 
 	ReceptionPatientService()
-		: m_mongoClient(make_shared<MongoClient>("mongodb://994xyQ10gK1h:2rNNkUEG8C8syEOmJBK66WUnh24g4BKS@47.113.229.85:41242/hisDb"))
 	{
 		m_mongoClient = ClientManager::getMongoClient();
 	}

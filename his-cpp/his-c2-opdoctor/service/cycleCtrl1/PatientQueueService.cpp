@@ -11,9 +11,11 @@ oatpp::Vector<PatientQueueDTO::Wrapper> PatientQueueService::getPatientQueueList
     const std::string& practitionerId)
 {
     std::unordered_map<std::string, std::string> statusDict;
-    if (m_mongoClient)
+    // ✅每次调用接口实时获取最新mongo客户端，不在构造函数缓存
+    auto mongoCli = ClientManager::getMongoClient();
+    if (mongoCli)
     {
-        statusDict = EnumDictUtil::loadEnumDict(*m_mongoClient, tenantId, "visit_status");
+        statusDict = EnumDictUtil::loadEnumDict(*mongoCli, tenantId, "visit_status");
     }
 
     std::list<PtrPatientQueueCombineDO> dataList = m_patientQueueDAO.queryPatientQueue(query, tenantId, practitionerId);

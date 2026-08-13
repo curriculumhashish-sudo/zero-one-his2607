@@ -7,6 +7,13 @@
 #include "../dao/order/OrderAuditDAO1.h"
 #include <NacosClient.h>
 
+#ifdef USE_MONGO
+#include <mongocxx/instance.hpp>
+#include <memory>
+// 在此文件范围内持有唯一的 mongocxx::instance
+static std::unique_ptr<mongocxx::instance> s_mongo_instance;
+#endif
+
 // 静态成员定义
 std::shared_ptr<RedisClient> ClientManager::m_redisClient = nullptr;
 std::shared_ptr<MongoClient> ClientManager::m_mongoClient = nullptr;
@@ -37,6 +44,19 @@ void ClientManager::init() {
 #endif
 
         YamlHelper yaml;
+
+#ifdef USE_MONGO
+        // 在创建任何 MongoClient 之前，确保在此处创建唯一的 mongocxx::instance
+        if (!s_mongo_instance) {
+            try {
+                s_mongo_instance = std::make_unique<mongocxx::instance>();
+            }
+            catch (const std::exception& e) {
+                // 如果别处已创建 instance，这里会抛出，记录但继续（不会影响后续使用）
+                std::cerr << "[ClientManager] mongocxx::instance init warning: " << e.what() << std::endl;
+            }
+        }
+#endif
 
         // ===== 初始化 Redis =====
         try {
@@ -95,6 +115,9 @@ void ClientManager::init() {
 void ClientManager::destroy() {
     m_redisClient = nullptr;
     m_mongoClient = nullptr;
+#ifdef USE_MONGO
+    s_mongo_instance.reset();
+#endif
     m_initialized = false;
     std::cout << "[ClientManager] Destroyed." << std::endl;
 }

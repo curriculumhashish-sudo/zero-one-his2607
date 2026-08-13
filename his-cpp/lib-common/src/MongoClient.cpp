@@ -1,4 +1,4 @@
-/*
+ï»¿/*
  Copyright Zero One Star. All rights reserved.
 
  @Author: awei
@@ -24,30 +24,28 @@
 #include "StringUtil.h"
 #include <iostream>
 #include <mongocxx/exception/bulk_write_exception.hpp>
+#include <mongocxx/exception/exception.hpp>
 
-// ¶¨ÒåÒ»¸ö·ÃÎÊ¼¯ºÏµÄºê¶¨Òå
+// å®šä¹‰ä¸€ä¸ªè®¿é—®é›†åˆçš„å®å®šä¹‰
 #define MONGO_COLLECTION_ACCESS(__CN__, __VAR__) \
 if (!initPool()) return {}; \
 auto client = m_pool->acquire(); \
 auto __VAR__ = client->database(m_db); 
 
-// É¾³ıÎÄ¼ş¼¶¾²Ì¬ÊµÀı¶¨Òå£¬¸ÄÎªÔÚ initPool() ÄÚÑÓ³Ù¹¹Ôì
-// mongocxx::instance MongoClient::m_inst;
-
 bool MongoClient::initPool()
 {
-	// È·±£ mongocxx ÔÚÊ×´ÎĞèÒªÊ±³õÊ¼»¯£¨C++11 ÆğÏß³Ì°²È«£©
-	static mongocxx::instance inst;
+	// è¿™é‡Œä¸å†æ„é€  mongocxx::instanceï¼›å‡å®šç¨‹åºå…¥å£æˆ– ClientManager å·²åˆ›å»ºå”¯ä¸€å®ä¾‹ã€‚
+	// åªè´Ÿè´£åˆ›å»ºè¿æ¥æ± æœ¬èº«ã€‚
 
-	// ÅĞ¶ÏÊÇ·ñÒÑ¾­³õÊ¼»¯
+	// åˆ¤æ–­æ˜¯å¦å·²ç»åˆå§‹åŒ–è¿æ¥æ± 
 	if (isInit) return true;
-	// ¹¹Ôì³õÊ¼»¯´íÎó°²È«´¦Àí
+	// æ„é€ åˆå§‹åŒ–é”™è¯¯å®‰å…¨å¤„ç†
 	if (m_username == "")
 	{
 		cerr << "db connection info error" << endl;
 		return false;
 	}
-	// ³õÊ¼»¯Á¬½Ó³Ø
+	// åˆå§‹åŒ–è¿æ¥æ± 
 	stringstream ss;
 	ss << "mongodb://";
 	ss << m_username << ":" << m_password;
@@ -97,10 +95,10 @@ void MongoClient::setMin(int min)
 
 bool MongoClient::execute(const string& collectionName, std::function<void(mongocxx::collection*)> callfun)
 {
-	// ·ÃÎÊ¼¯ºÏ
+	// è®¿é—®é›†åˆ
 	MONGO_COLLECTION_ACCESS(collectionName, db);
 	mongocxx::collection collection = db[collectionName];
-	// ºô½Ğº¯Êı
+	// å‘¼å«å‡½æ•°
 	try
 	{
 		callfun(&collection);
@@ -119,10 +117,10 @@ bool MongoClient::execute(const string& collectionName, std::function<void(mongo
 
 bsoncxx::types::bson_value::view MongoClient::addOne(const string& collectionName, const bsoncxx::document::view& document)
 {
-	// ·ÃÎÊ¼¯ºÏ
+	// è®¿é—®é›†åˆ
 	MONGO_COLLECTION_ACCESS(collectionName, db);
 	mongocxx::collection collection = db[collectionName];
-	// Ö´ĞĞÌí¼Ó²¢·µ»Ø²åÈëID
+	// æ‰§è¡Œæ·»åŠ å¹¶è¿”å›æ’å…¥ID
 	try
 	{
 		return collection.insert_one(document)->inserted_id();
@@ -140,10 +138,10 @@ bsoncxx::types::bson_value::view MongoClient::addOne(const string& collectionNam
 
 int32_t MongoClient::addMultiple(const string& collectionName, const std::vector<bsoncxx::document::value>& documents)
 {
-	// ·ÃÎÊ¼¯ºÏ
+	// è®¿é—®é›†åˆ
 	MONGO_COLLECTION_ACCESS(collectionName, db);
 	mongocxx::collection collection = db[collectionName];
-	// Ö´ĞĞÌí¼Ó
+	// æ‰§è¡Œæ·»åŠ 
 	try
 	{
 		return collection.insert_many(documents)->inserted_count();
