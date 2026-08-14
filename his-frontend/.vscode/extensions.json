@@ -1,0 +1,12 @@
+{
+  "recommendations": [
+    "Vue.volar",
+    "vitest.explorer",
+    "dbaeumer.vscode-eslint",
+    "EditorConfig.EditorConfig",
+    "oxc.oxc-vscode",
+    "esbenp.prettier-vscode",
+    "gruntfuggly.todo-tree",
+    "wayou.vscode-todo-highlight"
+  ]
+}

@@ -1,0 +1,52 @@
+export interface UserQuery {
+  keyword?: string
+  enabled?: boolean | null
+  locked?: boolean | null
+  page: number
+  pageSize: number
+}
+
+export interface UserRecord {
+  id: string
+  username: string
+  realName: string
+  phone: string
+  email: string
+  roleIds: string[]
+  roleNames: string[]
+  enabled: boolean
+  locked: boolean
+  accessFailedCount: number
+  lockoutEnd: string
+  createdAt: string
+  updatedAt: string
+  genderEnum?: number
+}
+
+export interface UserSavePayload {
+  username: string
+  realName: string
+  phone: string
+  email: string
+  roleIds: string[]
+  enabled: boolean
+  password?: string
+  genderEnum?: number
+}
+
+export interface RoleOption extends Record<string, unknown> {
+  id: string
+  name: string
+}
+
+export interface UserSelectOption {
+  id: string
+  username: string
+  realName: string
+  label: string
+}
+
+export interface UserPageResult {
+  rows: UserRecord[]
+  total: number
+}

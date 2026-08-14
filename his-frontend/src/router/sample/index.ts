@@ -1,0 +1,117 @@
+const routes = [
+  {
+    path: '/sample',
+    name: 'Sample',
+    redirect: { path: '/sample/file' },
+    component: () => import('@/views/sample/SampleView.vue'),
+    children: [
+      {
+        name: 'sfile',
+        path: '/sample/file',
+        component: () => import('@/views/sample/file/FileUpload.vue')
+      },
+      {
+        name: 'sexcel',
+        path: '/sample/excel',
+        component: () => import('@/views/sample/excel/Excel.vue')
+      },
+      {
+        name: 'sprint',
+        path: '/sample/print',
+        component: () => import('@/views/sample/print/Print.vue')
+      },
+      {
+        name: 'seditor',
+        path: '/sample/editor',
+        component: () => import('@/views/sample/editor/Editor.vue')
+      },
+      {
+        name: 'spdf',
+        path: '/sample/pdfobject',
+        component: () => import('@/views/sample/pdfobject/PdfObject.vue')
+      },
+      {
+        name: 'secharts',
+        path: '/sample/echarts',
+        component: () => import('@/views/sample/echarts/Echarts.vue')
+      },
+      {
+        name: 'sformcreate',
+        path: '/sample/formcreate',
+        component: () => import('@/views/sample/formcreate/FormCreate.vue')
+      },
+      {
+        name: 'sflow',
+        path: '/sample/flow',
+        component: () => import('@/views/sample/flow/Flow.vue')
+      },
+      {
+        name: 'sflowm',
+        path: '/sample/flowm',
+        component: () => import('@/views/sample/flow/FlowManage.vue')
+      },
+      {
+        name: 'smytable',
+        path: '/sample/mytable',
+        component: () => import('@/views/sample/mytable/Index.vue')
+      },
+      {
+        name: 'smyform',
+        path: '/sample/myform',
+        component: () => import('@/views/sample/myform/Index.vue')
+      },
+      {
+        name: 'smysearch',
+        path: '/sample/mysearch',
+        component: () => import('@/views/sample/mysearch/Index.vue')
+      },
+      {
+        name: 'smydialog',
+        path: '/sample/mydialog',
+        component: () => import('@/views/sample/mydialog/Index.vue')
+      },
+      {
+        name: 'smedicaltemplate',
+        path: '/sample/medicaltemplate',
+        component: () => import('@/views/sample/medical-template/MedicalTemplate.vue')
+      },
+      {
+        name: 'smedicaltemplaterender',
+        path: '/sample/medicaltemplaterender',
+        component: () => import('@/views/sample/medical-template/MedicalTemplateRender.vue')
+      },
+      {
+        name: 'scommon',
+        path: '/sample/common',
+        component: () => import('@/views/sample/common/Index.vue')
+      },
+      {
+        name: 'scommonfoundation',
+        path: '/sample/common/foundation',
+        component: () => import('@/views/sample/common/foundation/Index.vue')
+      },
+      {
+        name: 'scommondocument',
+        path: '/sample/common/document',
+        component: () => import('@/views/sample/common/document/Index.vue')
+      },
+      {
+        name: 'scommonschedulemedical',
+        path: '/sample/common/schedule-medical',
+        component: () => import('@/views/sample/common/schedule-medical/Index.vue')
+      },
+      {
+        name: 'swarehouse',
+        path: '/sample/warehouse',
+        component: () => import('@/views/sample/common/warehouse/Index.vue')
+      },
+      {
+        name: 'spatientcomponents',
+        path: '/sample/patient-components',
+        component: () => import('@/views/sample/patient/Index.vue')
+      }
+    ]
+  }
+]
+
+export default routes

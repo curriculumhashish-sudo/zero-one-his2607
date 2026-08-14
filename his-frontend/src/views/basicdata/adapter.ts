@@ -1,0 +1,75 @@
+import type { MedicationCatalogDetail } from '@/apis/basicdata'
+import type { MedicationCatalogFormModel } from './type'
+
+export function createEmptyMedicationCatalogForm(): MedicationCatalogFormModel {
+  return {
+    id: '',
+    name: '',
+    merchandiseName: '',
+    categoryCode: '',
+    manufacturerText: '',
+    manufacturerId: '',
+    supplyId: '',
+    approvalNumber: '',
+    nationalDrugCode: '',
+    ybNo: '',
+    ybMatchFlag: false,
+    financialTypeCode: '',
+    chrgitmLv: '',
+    settlementType: '',
+    ybCategory: '',
+    characteristic: '',
+    totalVolume: '',
+    doseUnitCode: 'mg',
+    doseUnitRatio: 1,
+    doseFormCode: '',
+    skinTestFlag: false,
+    injectFlag: false,
+    usageLimit: '',
+    methodCode: '',
+    rateCode: '',
+    dose: undefined,
+    maxUnit: '',
+    usageInstruction: '',
+    restrictedScope: '',
+    medicationDefinition: '',
+    dddCode: '',
+    dddUnitCode: '',
+    purchaseUnitCode: 'BOX',
+    purchaseUnitRatio: 1,
+    purchasePrice: 0,
+    partAttributeEnum: 'SPLITTABLE',
+    stockUnitCode: 'BOX',
+    stockUnitRatio: 1,
+    retailPrice: 0,
+    thoPartAttributeEnum: 'SPLITTABLE',
+    packageUnitCode: 'BOX',
+    packageUnitRatio: 1,
+    maxRetailPrice: undefined,
+    splitUnitCode: 'TAB',
+    itemMaxQuantity: undefined,
+    itemMinQuantity: undefined,
+    pyStr: '',
+    wbStr: '',
+    merchandisePyStr: '',
+    merchandiseWbStr: '',
+    drug69Code: '',
+    statusEnum: 'DRAFT',
+    domainEnum: 'BOTH',
+    basicFlag: false,
+    childrenFlag: false,
+    selfFlag: false,
+    activeFlag: true,
+    restrictedFlag: false,
+    antibioticFlag: false,
+    rxFlag: false
+  }
+}
+
+export function toMedicationCatalogForm(detail: MedicationCatalogDetail): MedicationCatalogFormModel {
+  return {
+    ...createEmptyMedicationCatalogForm(),
+    ...detail,
+    id: detail.id ?? ''
+  }
+}

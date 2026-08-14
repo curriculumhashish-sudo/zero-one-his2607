@@ -1,0 +1,6 @@
+allowBuilds:
+  '@carbon/icons': true
+  '@parcel/watcher': false
+  core-js: true
+  core-js-pure: true
+  es5-ext: true

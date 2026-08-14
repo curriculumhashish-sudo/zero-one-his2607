@@ -1,0 +1,730 @@
+// @vitest-environment jsdom
+
+import { defineComponent, nextTick } from 'vue'
+import { flushPromises, shallowMount } from '@vue/test-utils'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { ElMessage, ElMessageBox } from 'element-plus'
+
+import OutpatientSchedulePage from './outpatient-schedule/Index.vue'
+import ScheduleDetailPanelComponent from './outpatient-schedule/components/ScheduleDetailPanel.vue'
+import SlotCalendarPage from './slot-calendar/Index.vue'
+import SlotDetailDialogComponent from './slot-calendar/components/SlotDetailDialog.vue'
+
+const scheduleApi = vi.hoisted(() => ({
+  loadScheduleInit: vi.fn<(...args: unknown[]) => unknown>(),
+  pageSchedulesByRange: vi.fn<(...args: unknown[]) => unknown>(),
+  getScheduleDetail: vi.fn<(...args: unknown[]) => unknown>(),
+  createSchedule: vi.fn<(...args: unknown[]) => unknown>(),
+  updateSchedule: vi.fn<(...args: unknown[]) => unknown>(),
+  publishSchedule: vi.fn<(...args: unknown[]) => unknown>(),
+  stopSchedule: vi.fn<(...args: unknown[]) => unknown>(),
+  loadDepartmentOptions: vi.fn<(...args: unknown[]) => unknown>(),
+  loadDoctorOptions: vi.fn<(...args: unknown[]) => unknown>(),
+  loadScheduleGenerationOptions: vi.fn<(...args: unknown[]) => unknown>(),
+  generateFormalSchedules: vi.fn<(...args: unknown[]) => unknown>(),
+  clearScheduleSubstitution: vi.fn<(...args: unknown[]) => unknown>(),
+  deleteReleasedSlots: vi.fn<(...args: unknown[]) => unknown>(),
+  listReleasedSlots: vi.fn<(...args: unknown[]) => unknown>(),
+  partialStopSchedule: vi.fn<(...args: unknown[]) => unknown>(),
+  previewScheduleImpact: vi.fn<(...args: unknown[]) => unknown>(),
+  provisionScheduleSlots: vi.fn<(...args: unknown[]) => unknown>(),
+  resumeSchedule: vi.fn<(...args: unknown[]) => unknown>(),
+  setScheduleSubstitution: vi.fn<(...args: unknown[]) => unknown>(),
+  unlockPartialStop: vi.fn<(...args: unknown[]) => unknown>(),
+  voidSchedule: vi.fn<(...args: unknown[]) => unknown>()
+}))
+
+const slotApi = vi.hoisted(() => ({
+  loadSlotInit: vi.fn<(...args: unknown[]) => unknown>(),
+  pageSlotsByDate: vi.fn<(...args: unknown[]) => unknown>(),
+  getSlotDetail: vi.fn<(...args: unknown[]) => unknown>(),
+  loadDepartmentOptions: vi.fn<(...args: unknown[]) => unknown>(),
+  loadDoctorOptions: vi.fn<(...args: unknown[]) => unknown>(),
+  batchBlockSlots: vi.fn<(...args: unknown[]) => unknown>(),
+  batchUnblockSlots: vi.fn<(...args: unknown[]) => unknown>(),
+  markSlotOverbooked: vi.fn<(...args: unknown[]) => unknown>()
+}))
+
+vi.mock('@/apis/booking/outpatient-schedule', () => scheduleApi)
+vi.mock('@/apis/booking/slot-calendar', () => slotApi)
+
+const CalendarStub = defineComponent({
+  name: 'CalendarSchedule',
+  props: ['modelValue', 'view', 'events'],
+  emits: ['rangeChange', 'dateClick', 'slotClick', 'eventClick'],
+  template: '<div class="calendar-stub" />'
+})
+
+const TimeSlotGridStub = defineComponent({
+  name: 'TimeSlotGrid',
+  props: ['modelValue', 'slots'],
+  emits: ['update:modelValue', 'select', 'disabledClick'],
+  template: '<div class="slot-grid-stub" />'
+})
+
+const SearchPanelStub = defineComponent({
+  name: 'SearchPanel',
+  emits: ['search', 'reset'],
+  template: '<div class="search-stub"><slot name="header" /></div>'
+})
+
+const AlertStub = defineComponent({
+  props: ['title'],
+  template: '<div class="alert-stub"><span>{{ title }}</span><slot /></div>'
+})
+
+const DescriptionListStub = defineComponent({
+  name: 'DescriptionList',
+  props: ['data', 'items', 'column'],
+  template: '<div class="description-list-stub"><slot name="value-status" /></div>'
+})
+
+const DrawerStub = defineComponent({
+  name: 'ElDrawer',
+  props: ['modelValue', 'title'],
+  emits: ['update:modelValue'],
+  template: '<section><slot /><slot name="footer" /></section>'
+})
+
+const ButtonStub = defineComponent({
+  emits: ['click'],
+  template: '<button type="button" @click="$emit(\'click\')"><slot /></button>'
+})
+
+const ActionToolbarStub = defineComponent({
+  name: 'ActionToolbar',
+  props: ['actions'],
+  emits: ['action'],
+  template:
+    '<div class="toolbar-stub"><button v-for="action in actions" :key="action.key" :class="`action-${action.key}`" @click="$emit(\'action\', action)">{{ action.label }}</button></div>'
+})
+
+const PaginationBarStub = defineComponent({
+  name: 'PaginationBar',
+  props: ['page', 'pageSize', 'total', 'disabled'],
+  emits: ['change'],
+  template: '<div class="pagination-stub" />'
+})
+
+const SelectStub = defineComponent({
+  name: 'ElSelect',
+  props: ['modelValue', 'disabled'],
+  emits: ['update:modelValue'],
+  template: '<div class="select-stub" />'
+})
+
+const editOpen = vi.fn<(...args: unknown[]) => unknown>()
+const generateOpen = vi.fn<(...args: unknown[]) => unknown>()
+const generateClose = vi.fn<(...args: unknown[]) => unknown>()
+const slotDetailOpen = vi.fn<(...args: unknown[]) => unknown>()
+const slotDetailClose = vi.fn<(...args: unknown[]) => unknown>()
+
+function createDeferred<T>() {
+  let resolve!: (value: T) => void
+  const promise = new Promise<T>((done) => {
+    resolve = done
+  })
+  return { promise, resolve }
+}
+
+const ScheduleEditDialogStub = defineComponent({
+  name: 'ScheduleEditDialog',
+  setup(_, { expose }) {
+    expose({ open: editOpen, close: vi.fn<() => void>() })
+    return () => null
+  }
+})
+
+const ScheduleGenerateDialogStub = defineComponent({
+  name: 'ScheduleGenerateDialog',
+  props: ['dailyTemplates', 'weeklyTemplates', 'submitting'],
+  emits: ['submit'],
+  setup(_, { expose }) {
+    expose({ open: generateOpen, close: generateClose })
+    return () => null
+  }
+})
+
+const SlotDetailDialogStub = defineComponent({
+  name: 'SlotDetailDialog',
+  props: ['data', 'loading'],
+  setup(_, { expose }) {
+    expose({ open: slotDetailOpen, close: slotDetailClose })
+    return () => null
+  }
+})
+
+const commonStubs = {
+  SearchPanel: SearchPanelStub,
+  RemoteSelectField: true,
+  ActionToolbar: ActionToolbarStub,
+  PaginationBar: PaginationBarStub,
+  ScheduleDetailPanel: true,
+  ScheduleEditDialog: ScheduleEditDialogStub,
+  ScheduleGenerateDialog: ScheduleGenerateDialogStub,
+  SlotDetailDialog: SlotDetailDialogStub,
+  ElAlert: AlertStub,
+  ElButton: ButtonStub,
+  ElSelect: SelectStub,
+  ElOption: true,
+  ElDatePicker: true,
+  ElTag: true
+}
+
+function mountSchedulePage() {
+  return shallowMount(OutpatientSchedulePage, {
+    global: {
+      stubs: { ...commonStubs, CalendarSchedule: CalendarStub },
+      directives: { loading: () => undefined }
+    }
+  })
+}
+
+function mountSlotPage() {
+  return shallowMount(SlotCalendarPage, {
+    global: {
+      stubs: { ...commonStubs, TimeSlotGrid: TimeSlotGridStub },
+      directives: { loading: () => undefined }
+    }
+  })
+}
+
+beforeEach(() => {
+  vi.clearAllMocks()
+  editOpen.mockClear()
+  generateOpen.mockClear()
+  generateClose.mockClear()
+  slotDetailOpen.mockClear()
+  slotDetailClose.mockClear()
+  scheduleApi.loadScheduleInit.mockResolvedValue({
+    organizationId: 'org-main',
+    departments: [],
+    doctors: [],
+    rooms: []
+  })
+  scheduleApi.pageSchedulesByRange.mockResolvedValue({ records: [], days: [], summary: {} })
+  scheduleApi.getScheduleDetail.mockResolvedValue({ id: 'schedule-1' })
+  scheduleApi.listReleasedSlots.mockResolvedValue({
+    content: [],
+    totalCount: 0,
+    pageIndex: 1,
+    pageSize: 500
+  })
+  scheduleApi.loadDepartmentOptions.mockResolvedValue([])
+  scheduleApi.loadDoctorOptions.mockResolvedValue([])
+  scheduleApi.loadScheduleGenerationOptions.mockResolvedValue({
+    dailyTemplates: [{ value: 'daily-1', label: '心内科工作日' }],
+    weeklyTemplates: [{ value: 'weekly-1', label: '内科默认周排班' }]
+  })
+  scheduleApi.generateFormalSchedules.mockResolvedValue({
+    scheduleIds: ['generated-1'],
+    generatedCount: 1,
+    skippedCount: 0,
+    provisionedSlotCount: 0
+  })
+  slotApi.loadSlotInit.mockResolvedValue({
+    organizationId: 'dept-internal',
+    departments: [{ value: 'dept-internal', label: '心血管内科' }],
+    doctors: [{ value: 'doctor-wang', label: '王建国', departmentId: 'dept-internal' }]
+  })
+  slotApi.pageSlotsByDate.mockResolvedValue({
+    content: [],
+    totalCount: 0,
+    pageNo: 1,
+    pageSize: 100
+  })
+  slotApi.getSlotDetail.mockResolvedValue({ id: 'slot-1' })
+  slotApi.loadDepartmentOptions.mockResolvedValue([])
+  slotApi.loadDoctorOptions.mockResolvedValue([])
+  slotApi.batchBlockSlots.mockResolvedValue(undefined)
+  slotApi.batchUnblockSlots.mockResolvedValue(undefined)
+  slotApi.markSlotOverbooked.mockResolvedValue(undefined)
+})
+
+describe('B组页面事件连接', () => {
+  it('范围变化重新查询，点击空日期区域打开新增排班', async () => {
+    const wrapper = mountSchedulePage()
+    await flushPromises()
+    const calendar = wrapper.findComponent(CalendarStub)
+
+    calendar.vm.$emit('rangeChange', { start: '2026-07-20', end: '2026-07-26' })
+    await flushPromises()
+    expect(scheduleApi.pageSchedulesByRange).toHaveBeenCalledWith(
+      expect.objectContaining({
+        organizationId: 'org-main',
+        rangeStart: '2026-07-20',
+        rangeEnd: '2026-07-26'
+      }),
+      expect.objectContaining({ signal: expect.any(AbortSignal) })
+    )
+
+    calendar.vm.$emit('dateClick', '2026-07-24', { events: [] })
+    await nextTick()
+    expect(editOpen).toHaveBeenCalledWith(undefined, '2026-07-24')
+
+    calendar.vm.$emit('dateClick', '2026-07-25', { events: [{ key: 'existing' }] })
+    await nextTick()
+    expect(editOpen).toHaveBeenCalledTimes(1)
+
+    calendar.vm.$emit('slotClick', '2026-07-26', { events: [] })
+    await nextTick()
+    expect(editOpen).toHaveBeenLastCalledWith(undefined, '2026-07-26')
+
+    calendar.vm.$emit('eventClick', { key: 'schedule-1', raw: { id: 'schedule-1' } })
+    await flushPromises()
+    expect(scheduleApi.getScheduleDetail).toHaveBeenCalledWith('schedule-1')
+  })
+
+  it('按排班日期查询真实号源并在日历事件中汇总数量', async () => {
+    scheduleApi.pageSchedulesByRange.mockResolvedValue({
+      records: [
+        {
+          id: 'schedule-counts',
+          scheduleId: 'schedule-counts',
+          departmentId: 'healthcare-service-1',
+          departmentName: '门诊内科',
+          doctorId: 'doctor-1',
+          doctorName: '门诊医生',
+          roomId: '',
+          roomName: '',
+          date: '2026-08-12',
+          startTime: '00:00',
+          endTime: '12:00',
+          capacity: 0,
+          status: 'published',
+          updatedAt: ''
+        }
+      ],
+      days: [],
+      summary: {}
+    })
+    scheduleApi.listReleasedSlots.mockResolvedValue({
+      content: [
+        { capacity: 20, bookedCount: 5, remainingCount: 15 },
+        { capacity: 10, bookedCount: 2, remainingCount: 8 }
+      ],
+      totalCount: 2,
+      pageIndex: 1,
+      pageSize: 500
+    })
+    const wrapper = mountSchedulePage()
+    await flushPromises()
+    const calendar = wrapper.findComponent(CalendarStub)
+
+    calendar.vm.$emit('rangeChange', { start: '2026-08-10', end: '2026-08-16' })
+    await flushPromises()
+
+    expect(scheduleApi.listReleasedSlots).toHaveBeenCalledWith(
+      expect.objectContaining({
+        scheduleId: 'schedule-counts',
+        organizationId: 'org-main',
+        date: '2026-08-12'
+      }),
+      expect.objectContaining({ signal: expect.any(AbortSignal) })
+    )
+    expect(calendar.props('events')[0].raw).toEqual(
+      expect.objectContaining({
+        capacity: 30,
+        bookedCount: 7,
+        remainingCount: 23,
+        slotCount: 2,
+        slotCountsLoaded: true
+      })
+    )
+  })
+
+  it('切换科室查询时用该科室医生下拉映射排班中的医生编号', async () => {
+    scheduleApi.loadDoctorOptions.mockResolvedValue([
+      {
+        value: '308791351298756608',
+        label: '张医生',
+        departmentId: 'department-2'
+      }
+    ])
+    scheduleApi.pageSchedulesByRange.mockResolvedValue({
+      records: [
+        {
+          id: 'schedule-department-2',
+          scheduleId: 'schedule-department-2',
+          organizationId: 'department-2',
+          departmentId: 'department-2',
+          departmentName: '第二科室',
+          practitionerId: '308791351298756608',
+          doctorId: '308791351298756608',
+          doctorName: '308791351298756608',
+          roomId: '',
+          roomName: '',
+          date: '2026-08-12',
+          startTime: '00:00',
+          endTime: '12:00',
+          capacity: 0,
+          status: 'published',
+          updatedAt: ''
+        }
+      ],
+      days: [],
+      summary: {}
+    })
+    const wrapper = mountSchedulePage()
+    await flushPromises()
+    const calendar = wrapper.findComponent(CalendarStub)
+    ;(wrapper.vm as unknown as { query: { departmentId: string } }).query.departmentId =
+      'department-2'
+
+    calendar.vm.$emit('rangeChange', { start: '2026-08-10', end: '2026-08-16' })
+    await flushPromises()
+
+    expect(scheduleApi.loadDoctorOptions).toHaveBeenCalledWith(
+      '',
+      'department-2',
+      expect.objectContaining({ signal: expect.any(AbortSignal) })
+    )
+    expect(calendar.props('events')[0].raw).toEqual(
+      expect.objectContaining({
+        doctorId: '308791351298756608',
+        doctorName: '张医生',
+        practitionerName: '张医生'
+      })
+    )
+  })
+
+  it('排班初始化失败后重新加载筛选选项', async () => {
+    scheduleApi.loadScheduleInit
+      .mockRejectedValueOnce(new Error('初始化失败'))
+      .mockResolvedValueOnce({ departments: [], doctors: [], rooms: [] })
+    const wrapper = mountSchedulePage()
+    await flushPromises()
+
+    expect(wrapper.text()).toContain('初始化失败')
+    await wrapper.get('.alert-stub button').trigger('click')
+    await flushPromises()
+    expect(scheduleApi.loadScheduleInit).toHaveBeenCalledTimes(2)
+  })
+
+  it('生成正式排班从模板列表选择并按原型字段提交，不输入裸模板 ID', async () => {
+    const wrapper = mountSchedulePage()
+    await flushPromises()
+    const calendar = wrapper.findComponent(CalendarStub)
+    calendar.vm.$emit('rangeChange', { start: '2026-07-20', end: '2026-07-26' })
+    await flushPromises()
+
+    await wrapper.get('.action-generate').trigger('click')
+    await flushPromises()
+    expect(scheduleApi.loadScheduleGenerationOptions).toHaveBeenCalledWith('org-main')
+    expect(generateOpen).toHaveBeenCalledWith({ start: '2026-07-20', end: '2026-07-26' })
+    expect(wrapper.findComponent(ScheduleGenerateDialogStub).props()).toMatchObject({
+      dailyTemplates: [{ value: 'daily-1', label: '心内科工作日' }],
+      weeklyTemplates: [{ value: 'weekly-1', label: '内科默认周排班' }]
+    })
+
+    wrapper.findComponent(ScheduleGenerateDialogStub).vm.$emit('submit', {
+      templateKind: 'DAY',
+      scheduleTemplateId: 'daily-1',
+      weekScheduleTemplateId: undefined,
+      rangeStart: '2026-07-20',
+      rangeEnd: '2026-07-26',
+      autoPublish: true,
+      autoProvision: false
+    })
+    await flushPromises()
+
+    expect(scheduleApi.generateFormalSchedules).toHaveBeenCalledWith({
+      organizationId: 'org-main',
+      templateKind: 'DAY',
+      scheduleTemplateId: 'daily-1',
+      weekScheduleTemplateId: undefined,
+      rangeStart: '2026-07-20',
+      rangeEnd: '2026-07-26',
+      autoPublish: true,
+      autoProvision: false
+    })
+    expect(generateClose).toHaveBeenCalled()
+  })
+
+  it('号源初始化可以重试，重新查询会清空旧选择', async () => {
+    slotApi.loadSlotInit.mockRejectedValueOnce(new Error('号源初始化失败')).mockResolvedValueOnce({
+      organizationId: 'dept-internal',
+      departments: [{ value: 'dept-internal', label: '心血管内科' }],
+      doctors: []
+    })
+    const wrapper = mountSlotPage()
+    await flushPromises()
+
+    await wrapper.get('.alert-stub button').trigger('click')
+    await flushPromises()
+    expect(slotApi.loadSlotInit).toHaveBeenCalledTimes(2)
+
+    const grid = wrapper.findComponent(TimeSlotGridStub)
+    grid.vm.$emit('update:modelValue', 'slot-1')
+    await nextTick()
+    expect(grid.props('modelValue')).toBe('slot-1')
+
+    wrapper.findComponent(SearchPanelStub).vm.$emit('search')
+    await flushPromises()
+    expect(grid.props('modelValue')).toBeNull()
+    expect(slotDetailClose).toHaveBeenCalled()
+  })
+
+  it('号源查询使用所选科室主键，提交新条件时回到第一页', async () => {
+    slotApi.pageSlotsByDate.mockResolvedValue({
+      content: [],
+      totalCount: 250,
+      pageNo: 1,
+      pageSize: 100
+    })
+    const wrapper = mountSlotPage()
+    await flushPromises()
+    const pagination = wrapper.findComponent(PaginationBarStub)
+
+    expect(slotApi.pageSlotsByDate).toHaveBeenLastCalledWith(
+      expect.objectContaining({
+        organizationId: 'dept-internal',
+        pageIndex: 1
+      }),
+      expect.objectContaining({ signal: expect.any(AbortSignal) })
+    )
+
+    pagination.vm.$emit('change', { page: 2, pageSize: 100 })
+    await flushPromises()
+    wrapper.findComponent(SearchPanelStub).vm.$emit('search')
+    await flushPromises()
+
+    expect(slotApi.pageSlotsByDate).toHaveBeenLastCalledWith(
+      expect.objectContaining({ pageIndex: 1 }),
+      expect.objectContaining({ signal: expect.any(AbortSignal) })
+    )
+
+    wrapper.findComponent(SearchPanelStub).vm.$emit('reset')
+    await flushPromises()
+    expect(slotApi.pageSlotsByDate).toHaveBeenLastCalledWith(
+      expect.objectContaining({
+        organizationId: 'dept-internal',
+        pageIndex: 1
+      }),
+      expect.objectContaining({ signal: expect.any(AbortSignal) })
+    )
+  })
+
+  it('号源分页传递正确页码，改变每页条数后回到第一页并清空旧选择', async () => {
+    slotApi.pageSlotsByDate.mockResolvedValue({
+      content: [
+        {
+          slotId: 'slot-1',
+          startTime: '2026-07-30 08:00:00',
+          endTime: '2026-07-30 08:30:00',
+          capacity: 10,
+          remainingCount: 8,
+          status: 'available',
+          group: '上午'
+        }
+      ],
+      totalCount: 250,
+      pageNo: 1,
+      pageSize: 100
+    })
+    const wrapper = mountSlotPage()
+    await flushPromises()
+    const grid = wrapper.findComponent(TimeSlotGridStub)
+    const pagination = wrapper.findComponent(PaginationBarStub)
+
+    grid.vm.$emit('update:modelValue', 'slot-1')
+    await nextTick()
+    pagination.vm.$emit('change', { page: 2, pageSize: 100 })
+    await flushPromises()
+
+    expect(slotApi.pageSlotsByDate).toHaveBeenLastCalledWith(
+      expect.objectContaining({ pageIndex: 2, pageSize: 100 }),
+      expect.objectContaining({ signal: expect.any(AbortSignal) })
+    )
+    expect(grid.props('modelValue')).toBeNull()
+
+    pagination.vm.$emit('change', { page: 2, pageSize: 20 })
+    await flushPromises()
+    expect(slotApi.pageSlotsByDate).toHaveBeenLastCalledWith(
+      expect.objectContaining({ pageIndex: 1, pageSize: 20 }),
+      expect.objectContaining({ signal: expect.any(AbortSignal) })
+    )
+  })
+
+  it('已满、停诊和过期号源点击后显示对应不可用原因', async () => {
+    const warning = vi.spyOn(ElMessage, 'warning').mockImplementation(() => undefined as never)
+    const wrapper = mountSlotPage()
+    await flushPromises()
+    const grid = wrapper.findComponent(TimeSlotGridStub)
+
+    grid.vm.$emit('disabledClick', {
+      key: 'full',
+      raw: { status: 'full', unavailableReason: '该时段号源已满' }
+    })
+    grid.vm.$emit('disabledClick', {
+      key: 'stopped',
+      raw: { status: 'stopped', unavailableReason: '医生临时停诊' }
+    })
+    grid.vm.$emit('disabledClick', {
+      key: 'expired',
+      raw: { status: 'expired', unavailableReason: '该时段已经过期' }
+    })
+
+    expect(warning).toHaveBeenNthCalledWith(1, '该时段号源已满')
+    expect(warning).toHaveBeenNthCalledWith(2, '医生临时停诊')
+    expect(warning).toHaveBeenNthCalledWith(3, '该时段已经过期')
+    warning.mockRestore()
+  })
+
+  it('状态操作从确认阶段开始锁定，快速重复点击只提交一次', async () => {
+    const prompt = createDeferred<{ value: string }>()
+    const promptSpy = vi.spyOn(ElMessageBox, 'prompt').mockReturnValue(prompt.promise as never)
+    const wrapper = mountSlotPage()
+    await flushPromises()
+
+    wrapper.findComponent(SelectStub).vm.$emit('update:modelValue', ['slot-1'])
+    await nextTick()
+    await wrapper.get('.action-block').trigger('click')
+    await wrapper.get('.action-block').trigger('click')
+
+    expect(promptSpy).toHaveBeenCalledTimes(1)
+    prompt.resolve({ value: '接口联调测试' })
+    await flushPromises()
+    expect(slotApi.batchBlockSlots).toHaveBeenCalledTimes(1)
+    expect(slotApi.batchBlockSlots).toHaveBeenCalledWith({
+      slotIds: ['slot-1'],
+      reason: '接口联调测试'
+    })
+    promptSpy.mockRestore()
+  })
+
+  it('号源详情按原型字段展示，且不再提供无效的预约登记入口', async () => {
+    const wrapper = shallowMount(SlotDetailDialogComponent, {
+      props: {
+        data: {
+          slotId: 'slot-1',
+          id: 'slot-1',
+          scheduleId: 'schedule-1',
+          organizationId: 'dept-internal',
+          organizationName: '心血管内科',
+          departmentId: 'dept-internal',
+          departmentName: '心血管内科',
+          practitionerId: 'doctor-wang',
+          practitionerName: '王建国',
+          doctorId: 'doctor-wang',
+          doctorName: '王建国',
+          healthcareServiceId: 'normal',
+          healthcareServiceName: '普通号',
+          roomName: '门诊 101 诊室',
+          date: '2026-07-30',
+          startTime: '2026-07-30 08:00:00',
+          endTime: '2026-07-30 08:30:00',
+          group: '上午',
+          capacity: 10,
+          bookedCount: 2,
+          used: 2,
+          remainingCount: 8,
+          remaining: 8,
+          statusCode: 'FREE',
+          status: 'available',
+          displayStatus: '可约',
+          overbookedFlag: false,
+          commentText: '演示号源'
+        }
+      },
+      global: {
+        stubs: {
+          ElDrawer: DrawerStub,
+          DescriptionList: DescriptionListStub,
+          StatusDisplay: true,
+          ElEmpty: true,
+          ElButton: ButtonStub
+        },
+        directives: { loading: () => undefined }
+      }
+    })
+    const descriptions = wrapper.findComponent(DescriptionListStub)
+
+    expect(descriptions.props('column')).toBe(1)
+    expect(descriptions.props('items').map((item: { label: string }) => item.label)).toEqual([
+      '科室',
+      '医师',
+      '号源类型',
+      '状态',
+      '日期',
+      '时段',
+      '容量',
+      '已约',
+      '剩余',
+      '超售',
+      '停诊/不可用原因',
+      '备注',
+      '号源 ID',
+      '日程 ID'
+    ])
+    expect(descriptions.props('data')).toMatchObject({
+      organizationName: '心血管内科',
+      practitionerName: '王建国',
+      healthcareServiceName: '普通号',
+      timeRange: '08:00 — 08:30',
+      overbookedText: '否',
+      commentText: '演示号源'
+    })
+    expect(wrapper.text()).not.toContain('预约登记')
+    expect(wrapper.findAll('button')).toHaveLength(1)
+    expect(wrapper.find('button').text()).toBe('关闭')
+  })
+
+  it('已有号源的排班详情不再提供重复批量放号入口', async () => {
+    const wrapper = shallowMount(ScheduleDetailPanelComponent, {
+      props: {
+        modelValue: true,
+        data: {
+          id: 'schedule-with-slots',
+          scheduleId: 'schedule-with-slots',
+          date: '2026-08-16',
+          startTime: '00:00',
+          endTime: '23:59',
+          capacity: 30,
+          status: 'published',
+          doctorId: 'doctor-1',
+          doctorName: '门诊医生'
+        } as never
+      },
+      global: {
+        stubs: {
+          ElDrawer: DrawerStub,
+          ElDropdown: { template: '<div><slot /><slot name="dropdown" /></div>' },
+          ElDropdownMenu: { template: '<div><slot /></div>' },
+          ElDropdownItem: { template: '<div><slot /></div>' },
+          ElButton: ButtonStub,
+          DescriptionList: true,
+          StatusDisplay: true
+        },
+        directives: { loading: () => undefined }
+      }
+    })
+
+    expect(wrapper.text()).not.toContain('批量放号')
+    await wrapper.setProps({ data: { ...wrapper.props('data'), capacity: 0 } as never })
+    expect(wrapper.text()).toContain('批量放号')
+  })
+
+  it('快速切换号源详情时旧请求不能覆盖新选择', async () => {
+    const first = createDeferred<{ id: string }>()
+    const second = createDeferred<{ id: string }>()
+    slotApi.getSlotDetail.mockReturnValueOnce(first.promise).mockReturnValueOnce(second.promise)
+    const wrapper = mountSlotPage()
+    await flushPromises()
+    const grid = wrapper.findComponent(TimeSlotGridStub)
+
+    grid.vm.$emit('select', { key: 'slot-1', raw: { id: 'slot-1' } })
+    await nextTick()
+    grid.vm.$emit('select', { key: 'slot-2', raw: { id: 'slot-2' } })
+    await nextTick()
+
+    second.resolve({ id: 'slot-2' })
+    await flushPromises()
+    const dialog = wrapper.findComponent(SlotDetailDialogStub)
+    expect(dialog.props('data')).toEqual({ id: 'slot-2' })
+
+    first.resolve({ id: 'slot-1' })
+    await flushPromises()
+    expect(dialog.props('data')).toEqual({ id: 'slot-2' })
+  })
+})
