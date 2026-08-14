@@ -200,6 +200,30 @@
 | `MongoDB`   | `6.0.26`                                                     | https://www.mongodb.com/try/download/community               |
 | `Jenkins`   | latest                                                       | https://www.jenkins.io/zh/doc/book/installing/               |
 
+## 🖼️ 效果预览
+
+下面是系统运行的部分效果截图
+
+![](./documents/00、preview-pic/p01.png)
+
+![](./documents/00、preview-pic/p02.png)
+
+![](./documents/00、preview-pic/p03.png)
+
+![](./documents/00、preview-pic/p04.png)
+
+![](./documents/00、preview-pic/p05.png)
+
+![](./documents/00、preview-pic/p06.png)
+
+![](./documents/00、preview-pic/p07.png)
+
+![](./documents/00、preview-pic/p08.png)
+
+![](./documents/00、preview-pic/p09.png)
+
+![](./documents/00、preview-pic/p10.png)
+
 ## 🙏 特别鸣谢
 
 `zero-one-his`的诞生离不开开源软件和社区的支持，感谢以下开源项目及项目维护者：
