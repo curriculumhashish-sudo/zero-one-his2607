@@ -40,6 +40,8 @@ class DiagnosisEntryDetailDO : public BaseDO
 	MYSQL_SYNTHESIZE(string, type_name, Type_name);
 	// 主诊标注
 	MYSQL_SYNTHESIZE(string, main_flag, Main_flag);
+	// 主诊标注
+	MYSQL_SYNTHESIZE(string, adm_encounter_diagnosis_id, Adm_encounter_diagnosis_id);
 public:
 	DiagnosisEntryDetailDO() : BaseDO("cln_condition")
 	{
@@ -49,6 +51,7 @@ public:
 		MYSQL_ADD_FIELD("kind_name", "s", kind_name);
 		MYSQL_ADD_FIELD("type_name", "s", type_name);
 		MYSQL_ADD_FIELD("main_flag", "s", main_flag);
+		MYSQL_ADD_FIELD("adm_encounter_diagnosis_id", "s", adm_encounter_diagnosis_id);
 	}
 };
 

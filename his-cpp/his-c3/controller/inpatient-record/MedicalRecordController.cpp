@@ -6,18 +6,6 @@ using namespace std;
 ByTitlePageJsonVO::Wrapper MedicalRecordController::executeQueryByTitle(const MedicalRecordQueryByTitle::Wrapper& query)
 {
 	
-	////响应结果
-	//auto jvo = ByTitlePageJsonVO::createShared();
-	//// 非空校验
-	//if (!(query->title.getValue({})).empty())
-	//{
-	//	jvo->init(nullptr, RS_PARAMS_INVALID);
-	//	return jvo;
-	//}
-	//// 查询数据
-	//auto res = MedicalRecordService().listAll(query);
-	//jvo->success(res);
-	//return jvo;
 
 	//响应结果
 	auto jvo = ByTitlePageJsonVO::createShared();
@@ -75,7 +63,26 @@ StringJsonVO::Wrapper MedicalRecordController::execAddMedicalRecord(const Medica
 	return jvo;
 }
 
-//StringJsonVO::Wrapper MedicalRecordController::execModifyMedicalRecord(const MedicalRecordModifyDTO::Wrapper& dto, const PayloadDTO& payload)
-//{
-//	return {  };
-//}
+StringJsonVO::Wrapper MedicalRecordController::execModifyMedicalRecord(const MedicalRecordAddDTO::Wrapper& dto, const PayloadDTO& payload)
+{
+	// 定义返回数据对象
+	auto jvo = StringJsonVO::createShared();
+	// 参数校验
+	if (!dto->id)
+	{
+		jvo->init(nullptr, RS_PARAMS_INVALID);
+		return jvo;
+	}
+
+	// 执行数据修改
+	dto->setPayload(&payload);
+	if (MedicalRecordService().updateData(dto)) {
+		jvo->success(dto->id);
+	}
+	else
+	{
+		jvo->fail(dto->id);
+	}
+	// 响应结果
+	return jvo;
+}

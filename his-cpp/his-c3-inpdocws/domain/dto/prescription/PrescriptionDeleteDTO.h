@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #ifndef _PRESCRIPTION_DELETE_DTO_
 #define _PRESCRIPTION_DELETE_DTO_
@@ -20,6 +20,8 @@ class PrescriptionDeleteDTO : public oatpp::DTO
 	API_DTO_FIELD_DEFAULT(String, encounterId, ZH_WORDS_GETTER("prescription.field.encounterId"));
 	// 病人id
 	API_DTO_FIELD_DEFAULT(String, patientId, ZH_WORDS_GETTER("prescription.field.patientId"));
+	// 租户id
+	API_DTO_FIELD_DEFAULT(String, tenantId, ZH_WORDS_GETTER("prescription.field.tenantId"));
 	// 行为
 	API_DTO_FIELD_DEFAULT(String, action, ZH_WORDS_GETTER("prescription.field.action"));
 	// 领域
@@ -28,6 +30,20 @@ class PrescriptionDeleteDTO : public oatpp::DTO
 	API_DTO_FIELD_DEFAULT(String, prescriptionGroupKey, ZH_WORDS_GETTER("prescription.field.prescriptionGroupKey"));
 	// 处方组号
 	API_DTO_FIELD_DEFAULT(String, prescriptionNo, ZH_WORDS_GETTER("prescription.field.prescriptionNo"));
+
+public:
+	std::string validate()
+	{
+		if (encounterId.getValue("").empty())
+			return "encounter id invalidate.";
+		if (patientId.getValue("").empty())
+			return "patient id invalidate.";
+		if (tenantId.getValue("").empty())
+			return "tenant id invalidate.";
+		if (!id || id->empty())
+			return "medicationRequestIds invalidate.";
+		return "";
+	}
 };
 
 #include OATPP_CODEGEN_END(DTO)

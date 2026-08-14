@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #ifndef _PRESCRIPTION_NEW_MEDICINE_DTO_
 #define _PRESCRIPTION_NEW_MEDICINE_DTO_

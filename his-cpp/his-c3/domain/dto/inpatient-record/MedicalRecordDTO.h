@@ -28,7 +28,7 @@ class MedicalRecordBriefDTO :public oatpp::DTO
 	//病历状态
 	API_DTO_FIELD_REQUIRE(String, status, ZH_WORDS_GETTER("inpatient-record.status"), true);
 	//病历更新人id
-	API_DTO_FIELD_REQUIRE(String, updated_by, ZH_WORDS_GETTER("inpatient-record.updated_by"), true);
+	API_DTO_FIELD_REQUIRE(String, updated_at, ZH_WORDS_GETTER("inpatient-record.updated_at"), true);
 };
 class MedicalRecordBriefPageDTO : public PageDTO<MedicalRecordBriefDTO::Wrapper>
 {
@@ -71,8 +71,8 @@ class MedicalRecordAddDTO :public oatpp::DTO
 	//API_DTO_FIELD_REQUIRE(String, created_at, ZH_WORDS_GETTER("inpatient-record.created_at"), false);
 	////病历更新时间
 	//API_DTO_FIELD_REQUIRE(String, updated_at, ZH_WORDS_GETTER("inpatient-record.updated_at"), true);
-	////病历创建人id
-	//API_DTO_FIELD_REQUIRE(String, created_by, ZH_WORDS_GETTER("inpatient-record.created_by"), false);
+	//病历创建人id
+	API_DTO_FIELD_REQUIRE(String, created_by, ZH_WORDS_GETTER("inpatient-record.created_by"), false);
 	////病历更新人id
 	//API_DTO_FIELD_REQUIRE(String, updated_by, ZH_WORDS_GETTER("inpatient-record.updated_by"), true);
 	// 关联一个PayloadDTO负载数据对象
@@ -100,6 +100,8 @@ class MedicalRecordAddDTO :public oatpp::DTO
 //	API_DTO_FIELD_REQUIRE(String, update_at, ZH_WORDS_GETTER("inpatient-record.update_at"), true);
 //	//病历更新人id
 //	API_DTO_FIELD_REQUIRE(String, update_by, ZH_WORDS_GETTER("inpatient-record.update_by"), true);
+//	// 关联一个PayloadDTO负载数据对象
+//	CC_SYNTHESIZE(const PayloadDTO*, _payload, Payload);
 //};
 
 #include OATPP_CODEGEN_END(DTO)

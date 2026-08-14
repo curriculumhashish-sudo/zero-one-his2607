@@ -26,23 +26,13 @@
 
 /**
  * 创建出院医嘱请求DTO。
- * 向 wkf_service_request 写入一条 category_enum='DISCHARGE' 的医嘱记录。
+ * 仅需就诊ID即可发起出院。
  */
 class CreateDischargeOrderDTO : public oatpp::DTO
 {
 	DTO_INIT(CreateDischargeOrderDTO, DTO);
 	// 就诊ID（必填）
 	API_DTO_FIELD_REQUIRE(String, encounterId, ZH_WORDS_GETTER("inpdocws.field.encounterId"), true);
-	// 出院方式代码
-	DTO_FIELD(String, dischargeWay);
-	DTO_FIELD_INFO(dischargeWay) {
-		info->description = ZH_WORDS_GETTER("inpdocws.field.dischargeWay");
-	}
-	// 出院时间
-	DTO_FIELD(String, dischargeTime);
-	DTO_FIELD_INFO(dischargeTime) {
-		info->description = ZH_WORDS_GETTER("inpdocws.field.dischargeTime");
-	}
 
 	CC_SYNTHESIZE(const PayloadDTO*, _payload, Payload);
 public:
@@ -74,23 +64,11 @@ class DischargeOrderDetailDTO : public oatpp::DTO
 	DTO_FIELD_INFO(statusEnum) {
 		info->description = ZH_WORDS_GETTER("inpdocws.field.orderStatus");
 	}
-	// 出院方式
-	DTO_FIELD(String, dischargeWay);
-	DTO_FIELD_INFO(dischargeWay) {
-		info->description = ZH_WORDS_GETTER("inpdocws.field.dischargeWay");
-	}
-	// 出院时间
-	DTO_FIELD(String, dischargeTime);
-	DTO_FIELD_INFO(dischargeTime) {
-		info->description = ZH_WORDS_GETTER("inpdocws.field.dischargeTime");
-	}
 	// 就诊新状态（创建出院医嘱后 encounter.status_enum 变为 ON_HOLD）
 	DTO_FIELD(String, encounterNewStatus);
 	DTO_FIELD_INFO(encounterNewStatus) {
 		info->description = ZH_WORDS_GETTER("inpdocws.field.encounterNewStatus");
 	}
-public:
-	DischargeOrderDetailDTO() {}
 };
 
 #include OATPP_CODEGEN_END(DTO)

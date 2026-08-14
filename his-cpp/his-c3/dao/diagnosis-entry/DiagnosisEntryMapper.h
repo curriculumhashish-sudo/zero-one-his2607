@@ -46,6 +46,7 @@ public:
 		data.setKind_name(resultSet->getString(4));
 		data.setType_name(resultSet->getString(5));
 		data.setMain_flag(resultSet->getString(6));
+		data.setAdm_encounter_diagnosis_id(resultSet->getString(7));
 		return data;
 	}
 };

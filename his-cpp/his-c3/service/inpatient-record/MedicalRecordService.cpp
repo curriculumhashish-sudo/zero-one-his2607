@@ -25,7 +25,7 @@ MedicalRecordBriefPageDTO::Wrapper MedicalRecordService::listAll(const MedicalRe
 	for (MedicalRecordByTitleDO& sub : result)
 	{
 		auto dto = MedicalRecordBriefDTO::createShared();
-		ZO_STAR_DOMAIN_DO_TO_DTO(dto, sub, id, Id, document_type_name, Document_type_name, title, Title, status, Status, updated_by, Updated_by);
+		ZO_STAR_DOMAIN_DO_TO_DTO(dto, sub, id, Id, document_type_name, Document_type_name, title, Title, status, Status, updated_at, Updated_at);
 		pages->addData(dto);
 	}
 	return pages;
@@ -55,17 +55,27 @@ std::string  MedicalRecordService::saveData(const MedicalRecordAddDTO::Wrapper& 
 	// 组装DO数据
 	MedicalRecordAddDO data;
 	//ZO_STAR_DOMAIN_DTO_TO_DO(data, dto, Id, id, Patient_id, patient_id, Encounter_id, encounter_id,Document_type_code, document_type_code, Document_type_name, document_type_name, Title, title, Status, status, Content, content, Create_at, create_at, Update_at, update_at, Create_by, create_by, Update_by, update_by);
-	ZO_STAR_DOMAIN_DTO_TO_DO(data, dto,Patient_id, patient_id, Encounter_id, encounter_id,Document_type_code, document_type_code, Title, title, Status, status, Content, content);
+	ZO_STAR_DOMAIN_DTO_TO_DO(data, dto,Patient_id, patient_id, Encounter_id, encounter_id,Document_type_code, document_type_code, Title, title, Status, status, Content, content, Created_by, created_by);
 	// 生成ID
 	UuidFacade uf;
 	data.setId(uf.genUuid());
-	// 设置创建人
-	data.setCreated_by(dto->getPayload()->getUsername());
 	// 设置创建时间
 	data.setCreated_at(SimpleDateTimeFormat::format());
 	// 执行数据添加
 	MedicalRecordDAO dao;
 	return dao.insert(data) == 1 ? data.getId() : "";
+}
+
+bool MedicalRecordService::updateData(const MedicalRecordAddDTO::Wrapper& dto)
+{
+	// 组装DO数据
+	MedicalRecordAddDO data;
+	ZO_STAR_DOMAIN_DTO_TO_DO(data, dto, Title, title, Status, status, Content, content, Created_by, created_by);
+	// 设置创建时间
+	data.setCreated_at(SimpleDateTimeFormat::format());
+	// 执行数据修改
+	MedicalRecordDAO dao;
+	return dao.update(data) == 1;
 }
 
 

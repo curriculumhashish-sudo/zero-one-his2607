@@ -23,14 +23,32 @@
 PatientQueuePageVO::Wrapper CycleControlController::execQueryPatientQueue(const PatientQueueQuery::Wrapper& query)
 {
 	auto jvo = PatientQueuePageVO::createShared();
+
+	// 分页参数校验
+	if (!query->pageIndex || query->pageIndex.getValue(1) < 1
+		|| !query->pageSize || query->pageSize.getValue(10) < 1 || query->pageSize.getValue(10) > 100)
+	{
+		jvo->init(nullptr, RS_PARAMS_INVALID);
+		return jvo;
+	}
+
 	auto data = CycleControlService().queryPatientQueue(query);
 	jvo->success(data);
 	return jvo;
 }
 
-DischargeOrderVO::Wrapper CycleControlController::execCreateDischargeOrder(const CreateDischargeOrderDTO::Wrapper& dto)
+DischargeOrderVO::Wrapper CycleControlController::execCreateDischargeOrder(const CreateDischargeOrderDTO::Wrapper& dto, const PayloadDTO& payload)
 {
 	auto jvo = DischargeOrderVO::createShared();
+
+	string errmsg = dto->validate();
+	if (!errmsg.empty())
+	{
+		jvo->init(nullptr, RS_PARAMS_INVALID);
+		return jvo;
+	}
+
+	dto->setPayload(&payload);
 	auto data = CycleControlService().createDischargeOrder(dto);
 	if (data) {
 		jvo->success(data);

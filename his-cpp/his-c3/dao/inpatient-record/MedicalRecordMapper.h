@@ -18,7 +18,7 @@ public:
 		data.setDocument_type_name(resultSet->getString(2));
 		data.setTitle(resultSet->getString(3));
 		data.setStatus(resultSet->getString(4));
-		data.setUpdated_by(resultSet->getString(5));
+		data.setUpdated_at(resultSet->getString(5));
 		return data;
 	}
 };
@@ -36,7 +36,7 @@ public:
 		data->setDocument_type_name(resultSet->getString(2));
 		data->setTitle(resultSet->getString(3));
 		data->setStatus(resultSet->getString(4));
-		data->setUpdated_by(resultSet->getString(5));
+		data->setUpdated_at(resultSet->getString(5));
 		return data;
 	}
 };

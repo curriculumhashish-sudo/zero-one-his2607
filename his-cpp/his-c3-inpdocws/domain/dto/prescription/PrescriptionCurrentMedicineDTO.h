@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #ifndef _PRESCRIPTION_CURRENT_MEDICINE_DTO_
 #define _PRESCRIPTION_CURRENT_MEDICINE_DTO_
@@ -22,9 +22,9 @@ class PrescriptionCurrentMedicineDTO : public oatpp::DTO
 	// 药品名称
 	API_DTO_FIELD_DEFAULT(String, medicationName, ZH_WORDS_GETTER("prescription.field.medicationName"));
 	// 几克每付
-	API_DTO_FIELD_DEFAULT(Int32, dose, ZH_WORDS_GETTER("prescription.field.dose"));
+	API_DTO_FIELD_DEFAULT(Float64, dose, ZH_WORDS_GETTER("prescription.field.dose"));
 	// 几元每g
-	API_DTO_FIELD_DEFAULT(Int32, retailUnitPrice, ZH_WORDS_GETTER("prescription.field.retailUnitPrice"));
+	API_DTO_FIELD_DEFAULT(Float64, retailUnitPrice, ZH_WORDS_GETTER("prescription.field.retailUnitPrice"));
 	// 单价单位
 	API_DTO_FIELD_DEFAULT(String, unitName, ZH_WORDS_GETTER("prescription.field.unitName"));
 };

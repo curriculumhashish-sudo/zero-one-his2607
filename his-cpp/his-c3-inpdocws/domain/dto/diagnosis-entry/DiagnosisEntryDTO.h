@@ -14,12 +14,16 @@ class DiagnosisEntryBriefDTO :public oatpp::DTO
 {
 	//定义
 	DTO_INIT(DiagnosisEntryBriefDTO, DTO);
-	//诊断主键
-	API_DTO_FIELD_REQUIRE(String, condition_id, ZH_WORDS_GETTER("diagnosis-entry.condition_id"), true);
+	////诊断主键
+	//API_DTO_FIELD_REQUIRE(String, condition_id, ZH_WORDS_GETTER("diagnosis-entry.condition_id"), true);
 	////诊断症状id
 	//API_DTO_FIELD_REQUIRE(String, definition_id, ZH_WORDS_GETTER("diagnosis-entry.definition_id"), true);
 	//诊断症状名称
 	API_DTO_FIELD_REQUIRE(String, definition_name, ZH_WORDS_GETTER("diagnosis-entry.definition_name"), true);
+};
+class DiagnosisEntryBriefPageDTO : public PageDTO<DiagnosisEntryBriefDTO::Wrapper>
+{
+	DTO_INIT(DiagnosisEntryBriefPageDTO, PageDTO<DiagnosisEntryBriefDTO::Wrapper>);
 };
 
 
@@ -45,7 +49,9 @@ class DiagnosisEntryDetailDTO :public oatpp::DTO
 	//诊断类型名称
 	API_DTO_FIELD_REQUIRE(String, type_name, ZH_WORDS_GETTER("diagnosis-entry.type_name"), true);
 	//主诊标注
-	API_DTO_FIELD_REQUIRE(Boolean, main_flag, ZH_WORDS_GETTER("diagnosis-entry.main_flag"), true);
+	API_DTO_FIELD_REQUIRE(String, main_flag, ZH_WORDS_GETTER("diagnosis-entry.main_flag"), true);
+	//主诊标注
+	API_DTO_FIELD_REQUIRE(String, adm_encounter_diagnosis_id, ZH_WORDS_GETTER("diagnosis-entry.adm_encounter_diagnosis_id"), true);
 };
 class DiagnosisEntryDetailPageDTO : public PageDTO<DiagnosisEntryDetailDTO::Wrapper>
 {

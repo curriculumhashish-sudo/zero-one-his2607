@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #ifndef _PRESCRIPTION_CURRENT_DTO_
 #define _PRESCRIPTION_CURRENT_DTO_
@@ -18,6 +18,8 @@ class PrescriptionCurrentDTO : public oatpp::DTO
 	DTO_INIT(PrescriptionCurrentDTO, DTO);
 	// 处方号
 	API_DTO_FIELD_DEFAULT(String, id, ZH_WORDS_GETTER("prescription.field.prescriptionNo"));
+	// 处方组号
+	API_DTO_FIELD_DEFAULT(String, prescriptionGroupKey, ZH_WORDS_GETTER("prescription.field.prescriptionGroupKey"));
 	// 处方状态
 	API_DTO_FIELD_DEFAULT(String, statusEnum, ZH_WORDS_GETTER("prescription.field.statusEnum"));
 	// 长期或短期

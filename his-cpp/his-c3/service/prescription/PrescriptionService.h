@@ -13,12 +13,18 @@
 #include "../../domain/dto/prescription/PrescriptionDeleteResponseDTO.h"
 #include "domain/dto/PayloadDTO.h"
 
+#include "json.hpp"
+#include "RedisClient.h"
 
 /**
  * Queries, inserts, and soft-deletes prescription records.
  */
 class PrescriptionService
 {
+private:
+	// Inject the shared Redis client registered in OtherComponent.hpp.
+	//OATPP_COMPONENT(std::shared_ptr<RedisClient>, redisClient);
+
 public:
 	PrescriptionHistoryListDTO::Wrapper listAllHistoryPrescription(const PrescriptionHistoryQuery::Wrapper& query);
 	PrescriptionCurrentListDTO::Wrapper listAllCurrentPrescription(const PrescriptionCurrentQuery::Wrapper& query);

@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #ifndef _PRESCRIPTION_DELETE_RESPONSE_VO_
 #define _PRESCRIPTION_DELETE_RESPONSE_VO_

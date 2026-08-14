@@ -11,6 +11,7 @@ rent:
   code: 租户编码
   description: 租户描述
   is_active: 租户状态
+  extraProperties: 租户扩展属性
   created_at: 租户创建时间
   updated_at: 租户更新时间
   created_by: 租户创建人
@@ -127,19 +128,20 @@ diagnosis:
   summary: 使用声明式服务查询多条数据
  field:
   id: 诊断表id
-  tenant_id: 租户id
-  encounter_id: 就诊id
-  condition_id: 病情/诊断条件id
-  primary_flag: 是否主诊断
-  set_always: 是否设为常用
+  tenantId: 租户id
+  encounterId: 就诊id
+  conditionId: 病情/诊断条件id
+  patientId: 患者id
+  primaryFlag: 是否主诊断
+  setAlways: 是否设为常用
   rank: 排序
-  condition_def_id: 诊断定义id
-  condition_code: 病情编码
-  diag_type_code: 诊断类型
-  disease_def_id: 疾病id
-  syndrome_def_id: 证候id
+  conditionDefId: 诊断定义id
+  conditionCode: 病情编码
+  diagTypeCode: 诊断类型
+  diseaseDefId: 疾病id
+  syndromeDefId: 证候id
   description: 诊断描述
-  tcm_flag: 是否中医
+  tcmFlag: 是否中医
 
 # 营养快线  nick1484065161
 tcm-prescription:
@@ -196,8 +198,6 @@ inpdocws:
     organizationId: 科室ID
     organizationName: 科室名称
     keyword: 关键字（住院号/姓名/床号）
-    dischargeWay: 出院方式（1-医嘱离院 2-转院 3-转社区 4-非医嘱离院 5-死亡 6-其他）
-    dischargeTime: 出院时间
     orderStatus: 医嘱状态
     encounterNewStatus: 就诊新状态（创建出院后变为ON_HOLD）
     orderId: 出院医嘱ID
@@ -223,6 +223,12 @@ medicalorder:
     successCount: "成功数量"
     failCount: "失败数量"
     failReasons: "失败原因列表"
+    operatorId: "操作人ID"
+    clearGroupIds: "拆组ID列表"
+    assignGroup: "并组载荷"
+    lines: "停嘱行列表"
+    productTableName: "产品定义表名"
+    stopTime: "停嘱时间"
   merge-order:
     summary: "并组医嘱接口"
   split-order:
@@ -264,6 +270,8 @@ advice:
   summary: 取消停嘱
  field:
   encounterId: 就诊ID
+  tenantId: 租户ID
+  updatedCount: 更新数量
   patientId: 患者ID
   productTableName: 产品定义表名
   requestId: 医嘱请求ID
@@ -292,7 +300,7 @@ prescription:
     action: 操作类型
     scope: 操作范围
     medicationRequestIds: 药品申请ID列表
-    prescriptionGroupKey: 处方分组标识
+    # prescriptionGroupKey: 处方分组标识
     prescriptions: 处方列表
     success: 是否成功
     message: 提示信息
@@ -356,7 +364,7 @@ enter-orders:
  method: 服用方式
  rate: 服用时间
  authored_at: 开立时间
- taotal_price: 总金额
+ total_price: 总金额
  authored_by: 开立医生
  skin_text: 皮试标志
  patient_id: 患者id
@@ -366,3 +374,4 @@ enter-orders:
  tenant_id: 租户id
  encounter_id: 诊断id
  group_id: 小组id
+ excel: 导入报表文件

@@ -12,7 +12,7 @@
 class DiagnosisEntryQueryNull :public PageQuery
 {
 	//定义
-	DTO_INIT(DiagnosisEntryQueryNull, DTO);
+	DTO_INIT(DiagnosisEntryQueryNull, PageQuery);
 	//租户id
 	API_DTO_FIELD_REQUIRE(String, tenant_id, ZH_WORDS_GETTER("diagnosis-entry.tenant_id"), true);
 };
@@ -21,11 +21,13 @@ class DiagnosisEntryQueryNull :public PageQuery
 class DiagnosisEntryQueryById :public PageQuery
 {
 	//定义
-	DTO_INIT(DiagnosisEntryQueryById, DTO);
+	DTO_INIT(DiagnosisEntryQueryById, PageQuery);
 	//租户id
 	API_DTO_FIELD_REQUIRE(String, tenant_id, ZH_WORDS_GETTER("diagnosis-entry.tenant_id"), true);
 	//患者id
 	API_DTO_FIELD_REQUIRE(String, patient_id, ZH_WORDS_GETTER("diagnosis-entry.patient_id"), true);
+	//患者id
+	API_DTO_FIELD_REQUIRE(String, encounter_id, ZH_WORDS_GETTER("diagnosis-entry.encounter_id"), true);
 };
 
 #include OATPP_CODEGEN_END(DTO)

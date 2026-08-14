@@ -9,12 +9,12 @@
 
 class RentQuery : public PageQuery {
 	DTO_INIT(RentQuery,PageQuery);
-	// ï¿½â»§ï¿½ï¿½ï¿½ï¿½
-	API_DTO_FIELD_DEFAULT(String,code,ZH_WORDS_GETTER("rent.field.code"));
-	// ï¿½Ø¼ï¿½ï¿½ï¿½
-	API_DTO_FIELD_DEFAULT(String, keywords, ZH_WORDS_GETTER("rent.field.keywords"));
-	// ï¿½â»§×´Ì¬
-	API_DTO_FIELD_DEFAULT(Int32, status, ZH_WORDS_GETTER("rent.field.status"));
+	// ×â»§±àÂë
+	API_DTO_FIELD_REQUIRE(String,code,ZH_WORDS_GETTER("rent.field.code"),false);
+	// ¹Ø¼ü´Ê
+	API_DTO_FIELD_REQUIRE(String, keywords, ZH_WORDS_GETTER("rent.field.keywords"), false);
+	// ×â»§×´Ì¬
+	API_DTO_FIELD_REQUIRE(Int32, status, ZH_WORDS_GETTER("rent.field.status"), false);
 };
 
 

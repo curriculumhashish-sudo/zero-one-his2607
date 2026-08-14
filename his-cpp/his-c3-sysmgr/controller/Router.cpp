@@ -22,8 +22,8 @@
 #include "rent/RentController.h"
 #include "tenant/TenantController.h"
 #include "tenantuser/TenantUserController.h"
-#include "controller/Settings/SettingsController.h"
-#include "setting/settings.h"
+#include "controller/settingitems/SettingItemsController.h"
+#include "settings/SettingsController.h"
 
 // If the macro for disabling Swagger documentation is defined
 #ifdef CLOSE_SWAGGER_DOC
@@ -48,6 +48,6 @@ void Router::initRouter()
 	ROUTER_SIMPLE_BIND(RentController);
 	ROUTER_SIMPLE_BIND(TenantController);
 	ROUTER_SIMPLE_BIND(TenantUserController);
+	ROUTER_SIMPLE_BIND(SettingItemsController);
 	ROUTER_SIMPLE_BIND(SettingsController);
-	ROUTER_SIMPLE_BIND(SettingController);
 }

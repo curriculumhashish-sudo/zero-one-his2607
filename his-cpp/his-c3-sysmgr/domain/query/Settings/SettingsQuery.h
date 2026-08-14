@@ -9,5 +9,5 @@ class SettingsQuery : public PageQuery {
 	DTO_INIT(SettingsQuery, PageQuery);
 	API_DTO_FIELD_REQUIRE(String, keywords,ZH_WORDS_GETTER("settings.field.keywords"),false);
 };
-#include OATPP_CODEGEN_END(DTO);
+#include OATPP_CODEGEN_END(DTO)
 #endif

@@ -15,7 +15,7 @@ class MedicalRecordByTitleDO : public BaseDO
 	// 病历状态
 	MYSQL_SYNTHESIZE(string, status, Status);
 	// 病历更新人id
-	MYSQL_SYNTHESIZE(string, updated_by, Updated_by);
+	MYSQL_SYNTHESIZE(string, updated_at, Updated_at);
 public:
 	MedicalRecordByTitleDO() : BaseDO("emr_document")
 	{
@@ -23,7 +23,7 @@ public:
 		MYSQL_ADD_FIELD("document_type_name", "s", document_type_name);
 		MYSQL_ADD_FIELD("title", "s", title);
 		MYSQL_ADD_FIELD("status", "s", status);
-		MYSQL_ADD_FIELD("updated_by", "s", updated_by);
+		MYSQL_ADD_FIELD("updated_at", "s", updated_at);
 	}
 };
 

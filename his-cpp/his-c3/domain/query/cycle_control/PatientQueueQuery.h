@@ -41,11 +41,6 @@ class PatientQueueQuery : public PageQuery
 	DTO_FIELD_INFO(keyword) {
 		info->description = ZH_WORDS_GETTER("inpdocws.field.keyword");
 	}
-	// 就诊状态过滤（IN_PROGRESS / ON_HOLD / PENDING 等）
-	DTO_FIELD(String, statusEnum);
-	DTO_FIELD_INFO(statusEnum) {
-		info->description = ZH_WORDS_GETTER("inpdocws.field.statusEnum");
-	}
 };
 
 #include OATPP_CODEGEN_END(DTO)

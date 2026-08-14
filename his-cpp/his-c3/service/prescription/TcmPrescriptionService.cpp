@@ -35,8 +35,7 @@
 
 namespace
 {
-// Defines the tenant and domain values shared by prescription state transitions.
-const std::string DEFAULT_TENANT_ID = "1";
+// Defines the domain values shared by prescription state transitions.
 const std::string COMPLETED_STATUS = "COMPLETED";
 const std::string DRAFT_STATUS = "DRAFT";
 const std::string STOPPED_STATUS = "STOPPED";
@@ -49,13 +48,12 @@ std::string getOperatorId(const PayloadDTO &payload)
     return operatorId.empty() ? payload.getUsername() : operatorId;
 }
 
-// Verifies that a locked record belongs to the requested active TCM encounter.
+// Verifies that a locked TCM record belongs to the requested encounter.
 bool matchesContext(const PtrMedMedicationRequestDO &current, const std::string &patientId,
                     const std::string &encounterId)
 {
     return current && current->getPatientId() == patientId &&
-           current->getEncounterId() == encounterId && current->getIsDeleted() == 0 &&
-           current->getTcmFlag() == 1;
+           current->getEncounterId() == encounterId && current->getIsDeleted() == 0;
 }
 // Generates a traceable prescription number with a random suffix.
 std::string generatePrescriptionNo()
@@ -155,10 +153,7 @@ TcmPrescriptionSignServiceResult TcmPrescriptionService::signPrescription(
                 const std::string& requestId = targetEntry.first;
                 const std::string& groupKey = targetEntry.second;
 
-                auto current = dao.selectByIdForUpdate(
-                    requestId,
-                    DEFAULT_TENANT_ID
-                );
+                auto current = dao.selectByIdForUpdate(requestId);
 
                 if (!matchesContext(current, patientId, encounterId))
                 {
@@ -169,7 +164,6 @@ TcmPrescriptionSignServiceResult TcmPrescriptionService::signPrescription(
                 }
 
                 if (current->getStatusEnum() != DRAFT_STATUS ||
-                    !current->getPrescriptionNo().empty() ||
                     current->getPrescriptionGroupKey() != groupKey)
                 {
                     transaction.rollback();
@@ -188,14 +182,35 @@ TcmPrescriptionSignServiceResult TcmPrescriptionService::signPrescription(
 
             auto generatedPrescriptionNos =
                 oatpp::Fields<oatpp::String>::createShared();
-            // Generate one prescription number for each group.
+            // Reuse the number of a withdrawn draft, or generate one for a new draft.
             for (const auto& groupEntry : requestsByGroup)
             {
                 const std::string& groupKey = groupEntry.first;
-                const std::string prescriptionNo =
-                    generatePrescriptionNo();
+                const auto& groupRequests = groupEntry.second;
+                std::string prescriptionNo;
 
-                for (const auto& current : groupEntry.second)
+                for (const auto& current : groupRequests)
+                {
+                    if (current->getPrescriptionNo().empty())
+                        continue;
+
+                    if (prescriptionNo.empty())
+                    {
+                        prescriptionNo = current->getPrescriptionNo();
+                    }
+                    else if (prescriptionNo != current->getPrescriptionNo())
+                    {
+                        transaction.rollback();
+                        result.message =
+                            "The draft prescription group has inconsistent numbers.";
+                        return result;
+                    }
+                }
+
+                if (prescriptionNo.empty())
+                    prescriptionNo = generatePrescriptionNo();
+
+                for (const auto& current : groupRequests)
                 {
                     const int affectedRows = dao.updateForSign(
                         *current,
@@ -296,7 +311,7 @@ TcmPrescriptionWithdrawServiceResult TcmPrescriptionService::withdrawPrescriptio
                     result.message = "Medication request IDs must be non-empty and unique.";
                     return result;
                 }
-                auto current = dao.selectByIdForUpdate(requestId, DEFAULT_TENANT_ID);
+                auto current = dao.selectByIdForUpdate(requestId);
 
                 if (!matchesContext(current, patientId, encounterId))
                 {
@@ -313,7 +328,7 @@ TcmPrescriptionWithdrawServiceResult TcmPrescriptionService::withdrawPrescriptio
                     return result;
                 }
                 if (dao.countWithdrawalBlockingRecords(requestId, prescriptionNo,
-                                                       DEFAULT_TENANT_ID) != 0)
+                                                       current->getTenantId()) != 0)
                 {
                     transaction.rollback();
                     result.message =
@@ -410,7 +425,7 @@ TcmPrescriptionStopServiceResult TcmPrescriptionService::stopPrescription(
                     return result;
                 }
                 const auto rows =
-                    dao.selectByPrescriptionNoForUpdate(prescriptionNo, DEFAULT_TENANT_ID);
+                    dao.selectByPrescriptionNoForUpdate(prescriptionNo, patientId, encounterId);
 
                 if (rows.empty())
                 {
@@ -529,7 +544,7 @@ TcmPrescriptionCancelStopServiceResult TcmPrescriptionService::cancelStopPrescri
                     return result;
                 }
                 const auto rows =
-                    dao.selectByPrescriptionNoForUpdate(prescriptionNo, DEFAULT_TENANT_ID);
+                    dao.selectByPrescriptionNoForUpdate(prescriptionNo, patientId, encounterId);
 
                 if (rows.empty())
                 {

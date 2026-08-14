@@ -40,7 +40,7 @@ class CycleControlController : public oatpp::web::server::api::ApiController
 public:
 	/**
 	 * 查询住院患者队列 - 分页获取在院患者列表。
-	 * 支持按病区、关键字（住院号/姓名/床号）和状态筛选。
+	 * 支持按病区、关键字（住院号/姓名/床号）筛选。
 	 */
 	API_DEF_ENDPOINT_INFO_QUERY_AUTH(
 		ZH_WORDS_GETTER("inpdocws.cycle-control.patient-queue.summary"),
@@ -64,12 +64,12 @@ public:
 	API_HANDLER_ENDPOINT_AUTH(
 		API_M_POST, "/inpatientDoctorStation/cycle-control/discharge-order",
 		createDischargeOrder, BODY_DTO(CreateDischargeOrderDTO::Wrapper, dto),
-		execCreateDischargeOrder(dto)
+		execCreateDischargeOrder(dto, authObject->getPayload())
 	);
 
 private:
 	PatientQueuePageVO::Wrapper execQueryPatientQueue(const PatientQueueQuery::Wrapper& query);
-	DischargeOrderVO::Wrapper execCreateDischargeOrder(const CreateDischargeOrderDTO::Wrapper& dto);
+	DischargeOrderVO::Wrapper execCreateDischargeOrder(const CreateDischargeOrderDTO::Wrapper& dto, const PayloadDTO& payload);
 };
 
 #undef API_TAG

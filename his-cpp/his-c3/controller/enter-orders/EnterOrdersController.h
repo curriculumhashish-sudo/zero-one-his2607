@@ -31,7 +31,9 @@ public:
 		//租户id查询参数
 		API_DEF_ADD_QUERY_PARAMS(String, "tenant_id", ZH_WORDS_GETTER("enter-orders.tenant_id"), "", true);
 		//患者id查询参数
-		API_DEF_ADD_QUERY_PARAMS(String, "patient-id", ZH_WORDS_GETTER("enter-orders.patient-id"), "", true);
+		API_DEF_ADD_QUERY_PARAMS(String, "patient_id", ZH_WORDS_GETTER("enter-orders.patient_id"), "", true);
+		//患者id查询参数
+		API_DEF_ADD_QUERY_PARAMS(String, "encounter_id ", ZH_WORDS_GETTER("enter-orders.encounter_id "), "", true);
 	}
 	//定义获取医嘱列表（条件+分页）接口处理
 	ENDPOINT("GET", "/enter-orders/get", queryEnterOrders, QUERIES(QueryParams, params), API_HANDLER_AUTH_PARAME)
@@ -42,24 +44,32 @@ public:
 		return createDtoResponse(Status::CODE_200, executeQueryEnterOrders(query));
 	}
 
-	//定义新增医嘱接口描述
-	ENDPOINT_INFO(addEnterOrders)
-	{
-		//接口归属
-		info->addTag(ZH_WORDS_GETTER("enter-orders.api-name"));
-		//授权描述
-		API_DEF_ADD_AUTH();
-		//接口标题
-		info->summary = ZH_WORDS_GETTER("enter-orders.summary2");
-		//响应格式
-		API_DEF_ADD_RSP_JSON_WRAPPER(StringJsonVO);
-	}
-	//定义新增医嘱接口处理
-	ENDPOINT("POST", "/enter-orders/add", addEnterOrders, BODY_DTO(EnterOrdersAddDTO::Wrapper, dto), API_HANDLER_AUTH_PARAME)
-	{
-		//返回前端结果
-		return createDtoResponse(Status::CODE_200, execAddEnterOrders(dto, authObject->getPayload()));
-	}
+	////定义新增医嘱接口描述
+	//ENDPOINT_INFO(addEnterOrders)
+	//{
+	//	//接口归属
+	//	info->addTag(ZH_WORDS_GETTER("enter-orders.api-name"));
+	//	//授权描述
+	//	API_DEF_ADD_AUTH();
+	//	//接口标题
+	//	info->summary = ZH_WORDS_GETTER("enter-orders.summary2");
+	//	//响应格式
+	//	API_DEF_ADD_RSP_JSON_WRAPPER(StringJsonVO);
+	//}
+	////定义新增医嘱接口处理
+	//ENDPOINT("POST", "/enter-orders/add", addEnterOrders, BODY_DTO(EnterOrdersAddDTO::Wrapper, dto), API_HANDLER_AUTH_PARAME)
+	//{
+	//	//返回前端结果
+	//	return createDtoResponse(Status::CODE_200, execAddEnterOrders(request, authObject->getPayload()));
+	//}
+
+	// 3.1 定义导入接口描述
+	API_DEF_ENDPOINT_INFO_FILE_AUTH(ZH_WORDS_GETTER("enter-orders.summary2"), addEnterOrders, EnterOrdersImportDTO::Wrapper, StringJsonVO::Wrapper, ZH_WORDS_GETTER("enter-orders.api-name"));
+	// 3.2 定义导入接口处理
+	API_HANDLER_ENDPOINT_AUTH(API_M_POST, "/enter-orders/add", addEnterOrders, REQUEST(std::shared_ptr<IncomingRequest>, request), execAddEnterOrders(request, authObject->getPayload()));
+
+
+
 
 	//定义修改医嘱接口描述
 	ENDPOINT_INFO(modifyEnterOrders)
@@ -101,20 +111,12 @@ public:
 
 
 
-	//// 3.1 定义修改接口描述
-	//API_DEF_ENDPOINT_INFO_AUTH(ZH_WORDS_GETTER("sample.put.summary"), modifySample, StringJsonVO::Wrapper, API_TAG);
-	//// 3.2 定义修改接口处理
-	//API_HANDLER_ENDPOINT_AUTH(API_M_PUT, "/sample", modifySample, BODY_DTO(SampleDTO::Wrapper, dto), execModifySample(dto, authObject->getPayload()));
-
-	//// 3.1 定义删除接口描述
-	//API_DEF_ENDPOINT_INFO_AUTH(ZH_WORDS_GETTER("sample.delete.summary"), removeSample, ListJsonVO<String>::Wrapper, API_TAG);
-	//// 3.2 定义删除接口处理
-	//API_HANDLER_ENDPOINT_AUTH(API_M_DEL, "/sample", removeSample, BODY_DTO(List<String>, ids), execRemoveSample(ids));
 
 
 private:
 	QueryPageJsonVO::Wrapper executeQueryEnterOrders(const EnterOrdersQueryById::Wrapper& query);
-	StringJsonVO::Wrapper execAddEnterOrders(const EnterOrdersAddDTO::Wrapper& dto, const PayloadDTO& payload);
+	StringJsonVO::Wrapper EnterOrdersController::execAddEnterOrders(std::shared_ptr<IncomingRequest> request, const PayloadDTO& payload);
+	//StringJsonVO::Wrapper execAddEnterOrders(const EnterOrdersAddDTO::Wrapper& dto, const PayloadDTO& payload);
 	StringJsonVO::Wrapper execModifyEnterOrders(const EnterOrdersModifyDTO::Wrapper& dto, const PayloadDTO& payload);
 	ListJsonVO<String>::Wrapper execRemoveEnterOrders(const List<String>& ids);
 };

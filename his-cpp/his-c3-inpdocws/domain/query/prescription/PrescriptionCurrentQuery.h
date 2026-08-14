@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #ifndef _PRESCRIPTION_CURRENT_QUERY_
 #define _PRESCRIPTION_CURRENT_QUERY_

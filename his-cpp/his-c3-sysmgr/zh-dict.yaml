@@ -11,6 +11,7 @@ rent:
   code: 租户编码
   description: 租户描述
   is_active: 租户状态
+  extraProperties: 租户扩展属性
   created_at: 租户创建时间
   updated_at: 租户更新时间
   created_by: 租户创建人
@@ -79,7 +80,7 @@ settings:
     tag: 系统管理-配置管理
 
 # 泰普寇德
-setting:
+settingitems:
   add:
     summary: 新增配置项
   modify:
@@ -87,3 +88,11 @@ setting:
   remove:
     summary: 删除配置项
   tag: 配置相关接口
+  dto:
+    id: 配置项的主键
+    name: 配置项的名称
+    value: 配置项的值
+    providername: 提供者类型
+    providerkey: 提供者键
+    tenantid: 租户ID
+    description: 描述

@@ -1,7 +1,7 @@
 ﻿/*
  Copyright Zero One Star. All rights reserved.
 
- 取消停嘱响应 VO
+ Traditional Chinese medicine cancel-stop response VO
 
  @Author: nick1484065161
  @Date: 2026/07/20 00:00:00
@@ -20,32 +20,32 @@
 */
 #pragma once
 
-// 防止头文件被重复包含
+// Prevents this header from being included more than once.
 #ifndef _TCM_PRESCRIPTION_CANCEL_STOP_VO_H_
 #define _TCM_PRESCRIPTION_CANCEL_STOP_VO_H_
 
-// 引入项目通用定义
+// Provides project-wide definitions.
 #include "../../GlobalInclude.h"
 
-// 引入取消停嘱接口的业务返回 DTO
+// Provides the business result DTO for cancel-stop operations.
 #include "../../dto/prescription/TcmPrescriptionCancelStopResultDTO.h"
 
-// 开始生成 Oatpp DTO 相关代码
+// Begins Oatpp DTO code generation.
 #include OATPP_CODEGEN_BEGIN(DTO)
 
-// 定义取消停嘱接口统一 JSON 返回对象
+// Wraps a cancel-stop result in the standard JSON response format.
 class TcmPrescriptionCancelStopJsonVO
     : public JsonVO<TcmPrescriptionCancelStopResultDTO::Wrapper>
 {
-    // 初始化 JSON 返回对象类型
+    // Initializes Oatpp metadata for this response type.
     DTO_INIT(
         TcmPrescriptionCancelStopJsonVO,
         JsonVO<TcmPrescriptionCancelStopResultDTO::Wrapper>
     );
 };
 
-// 结束生成 Oatpp DTO 相关代码
+// Ends Oatpp DTO code generation.
 #include OATPP_CODEGEN_END(DTO)
 
-// 结束头文件保护
-#endif
+// Ends the header guard.
+#endif // _TCM_PRESCRIPTION_CANCEL_STOP_VO_H_

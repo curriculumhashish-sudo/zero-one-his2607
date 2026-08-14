@@ -17,8 +17,8 @@ class RentDetailPageJsonVO : public JsonVO<RentDetailPageDTO::Wrapper> {
 /**
  * 示例显示JsonVO，用于响应给客户端的Json对象
  */
-class RentNameJsonVO : public JsonVO<RentNameDTO::Wrapper> {
-	DTO_INIT(RentNameJsonVO, JsonVO<RentNameDTO::Wrapper>);
+class RentNameJsonVO : public JsonVO<RentNamePageDTO::Wrapper> {
+	DTO_INIT(RentNameJsonVO, JsonVO<RentNamePageDTO::Wrapper>);
 };
 
 #include OATPP_CODEGEN_END(DTO)

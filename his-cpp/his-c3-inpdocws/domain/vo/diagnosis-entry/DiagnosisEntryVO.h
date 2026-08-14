@@ -19,8 +19,8 @@
 /**
  * 示例分页显示JsonVO，用于响应给客户端的Json对象
  */
-class DiagnosisEntryPageJsonVO : public JsonVO<DiagnosisEntryBriefDTO::Wrapper> {
-	DTO_INIT(DiagnosisEntryPageJsonVO, JsonVO<DiagnosisEntryBriefDTO::Wrapper>);
+class DiagnosisEntryPageJsonVO : public JsonVO<DiagnosisEntryBriefPageDTO::Wrapper> {
+	DTO_INIT(DiagnosisEntryPageJsonVO, JsonVO<DiagnosisEntryBriefPageDTO::Wrapper>);
 };
 
 class DiagnosisEntryDetailPageJsonVO : public JsonVO<DiagnosisEntryDetailPageDTO::Wrapper> {

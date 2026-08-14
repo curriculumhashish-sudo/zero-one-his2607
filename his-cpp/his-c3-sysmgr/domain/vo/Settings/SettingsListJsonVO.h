@@ -2,7 +2,7 @@
 #pragma once
 #ifndef _SETTINGSLISTJSONVO_H_
 #define _SETTINGSLISTJSONVO_H_
-#include "domain/dto/settings/SettingsDTO.h"
+#include "domain/dto/Settings/SettingsDTO.h"
 #include OATPP_CODEGEN_BEGIN(DTO)
 
 class SettingsListJsonVO :public ListJsonVO<SettingsDTO::Wrapper> {

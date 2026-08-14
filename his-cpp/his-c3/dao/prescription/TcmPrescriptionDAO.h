@@ -38,16 +38,14 @@
 class TcmPrescriptionDAO : public BaseDAO
 {
 public:
-    // Selects and locks one medication request by its primary key and tenant.
-    PtrMedMedicationRequestDO selectByIdForUpdate(
-        const std::string& id,
-        const std::string& tenantId
-    );
+    // Selects and locks one medication request by its primary key.
+    PtrMedMedicationRequestDO selectByIdForUpdate(const std::string& id);
 
     // Selects and locks all medication requests under one prescription number.
     std::list<PtrMedMedicationRequestDO> selectByPrescriptionNoForUpdate(
         const std::string& prescriptionNo,
-        const std::string& tenantId
+        const std::string& patientId,
+        const std::string& encounterId
     );
 
     // Counts dispensing, charging, or execution records that block withdrawal.

@@ -5,30 +5,27 @@
 
 
 
-StringJsonVO::Wrapper DiagnosisController::execAddDiagnosis(const DiagnosisAddDTO::Wrapper& dto, const PayloadDTO& payload)
+DiagnosisAddResultVO::Wrapper DiagnosisController::execAddDiagnosis(const DiagnosisAddDTO::Wrapper& dto, const PayloadDTO& payload)
 {
 
 	// 定义返回数据对象
-	auto jvo = StringJsonVO::createShared();
+	auto jvo = DiagnosisAddResultVO::createShared();
 
 	// 参数校验
 	std::string errmsg = dto->validate();
 	if (errmsg != "")
 	{
-		jvo->init(errmsg, RS_PARAMS_INVALID);
+		auto resultData = DiagnosisAddResultDTO::createShared();
+
+		jvo->init(resultData, RS_PARAMS_INVALID);
 		return jvo;
 	}
-
+	
 	// 执行数据新增
 	dto->setPayload(&payload);
-	std::string id = DiagnosisService().saveData(dto);
-	if (id != "") {
-		jvo->success(id);
-	}
-	else
-	{
-		jvo->fail("");
-	}
+	auto result = DiagnosisService().saveData(dto);
+
+	jvo->success(result);
 	//响应结果
 	return jvo;
 }
@@ -56,7 +53,7 @@ StringJsonVO::Wrapper DiagnosisController::execModifyDiagnosis(const DiagnosisMo
 	// 响应结果
 	return jvo;
 }
-
+/*
 StringJsonVO::Wrapper DiagnosisController::execRemoveDiagnosis(const DiagnosisRemoveDTO::Wrapper& dto, const PayloadDTO& payload)
 {
 	// 定义返回数据对象
@@ -83,32 +80,45 @@ StringJsonVO::Wrapper DiagnosisController::execRemoveDiagnosis(const DiagnosisRe
 	}
 	// 响应结果
 	return jvo;
-}
+}*/
 
 
 
 
-/*
+
 BooleanJsonVO::Wrapper DiagnosisController::execRemoveDiagnosis(const String& id)
 {
-	// 定义返回数据对象
-	auto jvo = BooleanJsonVO::createShared();
-	// 参数校验
-	if (id->empty())
+    auto jvo = BooleanJsonVO::createShared();
+    
+    if (id->empty()) {
+        jvo->init(nullptr, RS_PARAMS_INVALID);
+        return jvo;
+    }
+    
+    // 1. 查询获取完整数据
+    auto res = DiagnosisService().getById(id);
+    if (!res) {
+        jvo->init(nullptr, RS_FAIL);
+        return jvo;
+    }
+    
+    // 2. 构造 RemoveDTO 
+    auto dto = DiagnosisRemoveDTO::createShared();
+    dto->id = res->id;
+    dto->conditionId = res->conditionId;
+    
+	if (!dto->id || dto->id->empty() || !dto->conditionId || dto->conditionId->empty()) 
 	{
 		jvo->init(nullptr, RS_PARAMS_INVALID);
 		return jvo;
 	}
-
-	// 执行数据删除
-	if (DiagnosisService().removeData(id)) {
-		jvo->success(true);
-	}
-	else
-	{
-		jvo->fail(false);
-	}
-	// 响应结果
-	return jvo;
+    // 3. 执行删除
+    if (DiagnosisService().removeData(dto)) {
+        jvo->success(true);
+    } else {
+        jvo->fail(false);
+    }
+    
+    return jvo;
 }
-*/
+

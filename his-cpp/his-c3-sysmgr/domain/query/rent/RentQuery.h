@@ -10,11 +10,11 @@
 class RentQuery : public PageQuery {
 	DTO_INIT(RentQuery,PageQuery);
 	// ×â»§±àÂë
-	API_DTO_FIELD_DEFAULT(String,code,ZH_WORDS_GETTER("rent.field.code"),false);
+	API_DTO_FIELD_REQUIRE(String,code,ZH_WORDS_GETTER("rent.field.code"),false);
 	// ¹Ø¼ü´Ê
-	API_DTO_FIELD_DEFAULT(String, keywords, ZH_WORDS_GETTER("rent.field.keywords"), false);
+	API_DTO_FIELD_REQUIRE(String, keywords, ZH_WORDS_GETTER("rent.field.keywords"), false);
 	// ×â»§×´Ì¬
-	API_DTO_FIELD_DEFAULT(Int32, status, ZH_WORDS_GETTER("rent.field.status"), false);
+	API_DTO_FIELD_REQUIRE(Int32, status, ZH_WORDS_GETTER("rent.field.status"), false);
 };
 
 

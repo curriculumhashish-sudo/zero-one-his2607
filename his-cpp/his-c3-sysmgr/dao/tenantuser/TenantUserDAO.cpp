@@ -33,20 +33,6 @@ uint64_t TenantUserDAO::count(const TenantUserQuery::Wrapper& query)
 	std::string sql = "SELECT COUNT(ut.id) FROM whale_user_tenants ut INNER JOIN whale_users u ON ut.user_id = u.id WHERE ut.is_deleted = 0 AND u.is_deleted = 0 AND ut.tenant_id = ? ";
 	SqlParams params;
 	SQLPARAMS_PUSH(params, "s", std::string, query->tenantId.getValue(""));
-	if (query->isActive)
-	{
-		sql += "AND u.is_active = ? ";
-		SQLPARAMS_PUSH(params, "i", int32_t, query->isActive.getValue(0));
-	}
-	if (query->keywords && !query->keywords->empty())
-	{
-		sql += "AND (u.user_name LIKE CONCAT('%',?,'%') OR u.name LIKE CONCAT('%',?,'%') OR u.phone_number LIKE CONCAT('%',?,'%') OR u.email LIKE CONCAT('%',?,'%')) ";
-		std::string keywords = query->keywords.getValue("");
-		SQLPARAMS_PUSH(params, "s", std::string, keywords);
-		SQLPARAMS_PUSH(params, "s", std::string, keywords);
-		SQLPARAMS_PUSH(params, "s", std::string, keywords);
-		SQLPARAMS_PUSH(params, "s", std::string, keywords);
-	}
 	return sqlSession->executeQueryNumerical(sql, params);
 }
 
@@ -57,20 +43,6 @@ std::list<PtrTenantUserQueryDO> TenantUserDAO::selectPage(const TenantUserQuery:
 		"WHERE ut.is_deleted = 0 AND u.is_deleted = 0 AND ut.tenant_id = ? ";
 	SqlParams params;
 	SQLPARAMS_PUSH(params, "s", std::string, query->tenantId.getValue(""));
-	if (query->isActive)
-	{
-		sql += "AND u.is_active = ? ";
-		SQLPARAMS_PUSH(params, "i", int32_t, query->isActive.getValue(0));
-	}
-	if (query->keywords && !query->keywords->empty())
-	{
-		sql += "AND (u.user_name LIKE CONCAT('%',?,'%') OR u.name LIKE CONCAT('%',?,'%') OR u.phone_number LIKE CONCAT('%',?,'%') OR u.email LIKE CONCAT('%',?,'%')) ";
-		std::string keywords = query->keywords.getValue("");
-		SQLPARAMS_PUSH(params, "s", std::string, keywords);
-		SQLPARAMS_PUSH(params, "s", std::string, keywords);
-		SQLPARAMS_PUSH(params, "s", std::string, keywords);
-		SQLPARAMS_PUSH(params, "s", std::string, keywords);
-	}
 	sql += "ORDER BY ut.created_at DESC LIMIT ?, ?";
 	SQLPARAMS_PUSH(params, "ull", uint64_t, (query->pageIndex.getValue(1) - 1) * query->pageSize.getValue(10));
 	SQLPARAMS_PUSH(params, "ull", uint64_t, query->pageSize.getValue(10));

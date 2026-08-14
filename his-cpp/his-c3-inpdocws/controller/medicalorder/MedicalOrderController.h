@@ -1,37 +1,38 @@
-#pragma once
+Ôªø#pragma once
 
 #include "domain/vo/BaseJsonVO.h"
 #include "domain/dto/medicalorder/SignAdviceDTO.h"
 #include "domain/dto/medicalorder/WithdrawAdviceDTO.h"
 #include "domain/dto/medicalorder/CancelStopAdviceDTO.h"
+#include "domain/vo/medicalorder/MedicalOrderOperationResultVO.h"
 
 #include OATPP_CODEGEN_BEGIN(ApiController)
 
 #define API_TAG_ADVICE ZH_WORDS_GETTER("advice.tag")
 
 class MedicalOrderController : public oatpp::web::server::api::ApiController {
-	//∂®“Âøÿ÷∆∆˜∑√Œ »Îø⁄
+	// ‰∏â‰∏™Êé•Âè£ÈÉΩÂøÖÈ°ªÁªèËøáËÆ§ËØÅÔºåÊìç‰Ωú‰∫∫‰ªéËÆ§ËØÅ‰ø°ÊÅØ‰∏≠Ëé∑Âèñ„ÄÇ
 	API_ACCESS_DECLARE(MedicalOrderController);
 public:
-    // ==================== «©∑¢“Ω÷ˆ ====================
+    // ==================== Á≠æÂèëÂåªÂò± ====================
     API_DEF_ENDPOINT_INFO_AUTH(
-        ZH_WORDS_GETTER("advice.sign.summary"), signAdvice, StringJsonVO::Wrapper, API_TAG_ADVICE);
+        ZH_WORDS_GETTER("advice.sign.summary"), signAdvice, MedicalOrderOperationResultVO::Wrapper, API_TAG_ADVICE);
     API_HANDLER_ENDPOINT_AUTH(
         API_M_POST, "/medical-order/sign", signAdvice,
         BODY_DTO(SignAdviceDTO::Wrapper, dto),
         execSignAdvice(dto, authObject->getPayload()));
 
-    // ==================== ≥∑ªÿ“Ω÷ˆ ====================
+    // ==================== Êí§ÂõûÂåªÂò± ====================
     API_DEF_ENDPOINT_INFO_AUTH(
-        ZH_WORDS_GETTER("advice.withdraw.summary"), withdrawAdvice, StringJsonVO::Wrapper, API_TAG_ADVICE);
+        ZH_WORDS_GETTER("advice.withdraw.summary"), withdrawAdvice, MedicalOrderOperationResultVO::Wrapper, API_TAG_ADVICE);
     API_HANDLER_ENDPOINT_AUTH(
         API_M_POST, "/medical-order/withdraw", withdrawAdvice,
         BODY_DTO(WithdrawAdviceDTO::Wrapper, dto),
         execWithdrawAdvice(dto, authObject->getPayload()));
 
-    // ==================== »°œ˚Õ£÷ˆ ====================
+    // ==================== ÂèñÊ∂àÂÅúÂò± ====================
     API_DEF_ENDPOINT_INFO_AUTH(
-        ZH_WORDS_GETTER("advice.cancel-stop.summary"), cancelStopAdvice, StringJsonVO::Wrapper, API_TAG_ADVICE);
+        ZH_WORDS_GETTER("advice.cancel-stop.summary"), cancelStopAdvice, MedicalOrderOperationResultVO::Wrapper, API_TAG_ADVICE);
     API_HANDLER_ENDPOINT_AUTH(
         API_M_POST, "/medical-order/cancel-stop", cancelStopAdvice,
         BODY_DTO(CancelStopAdviceDTO::Wrapper, dto),
@@ -39,9 +40,9 @@ public:
 
 
 private:
-    StringJsonVO::Wrapper execSignAdvice(const SignAdviceDTO::Wrapper& dto, const PayloadDTO& payload);
-    StringJsonVO::Wrapper execWithdrawAdvice(const WithdrawAdviceDTO::Wrapper& dto, const PayloadDTO& payload);
-    StringJsonVO::Wrapper execCancelStopAdvice(const CancelStopAdviceDTO::Wrapper& dto, const PayloadDTO& payload);
+    MedicalOrderOperationResultVO::Wrapper execSignAdvice(const SignAdviceDTO::Wrapper& dto, const PayloadDTO& payload);
+    MedicalOrderOperationResultVO::Wrapper execWithdrawAdvice(const WithdrawAdviceDTO::Wrapper& dto, const PayloadDTO& payload);
+    MedicalOrderOperationResultVO::Wrapper execCancelStopAdvice(const CancelStopAdviceDTO::Wrapper& dto, const PayloadDTO& payload);
 
 };
 

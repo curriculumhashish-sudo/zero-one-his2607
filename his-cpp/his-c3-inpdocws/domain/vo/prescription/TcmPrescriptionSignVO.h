@@ -1,7 +1,7 @@
 /*
  Copyright Zero One Star. All rights reserved.
 
- 签发中药处方响应 VO
+ Defines the JSON response envelope for TCM prescription signing.
 
  @Author: nick1484065161
  @Date: 2026/07/20 00:00:00
@@ -20,22 +20,26 @@
 */
 #pragma once
 
+// Prevents duplicate VO declarations when this header is included repeatedly.
 #ifndef _TCM_PRESCRIPTION_SIGN_VO_H_
 #define _TCM_PRESCRIPTION_SIGN_VO_H_
 
 #include "../../GlobalInclude.h"
 #include "../../dto/prescription/TcmPrescriptionSignResultDTO.h"
 
+// Starts Oat++ DTO code generation.
 #include OATPP_CODEGEN_BEGIN(DTO)
 
 /**
  * Define the JSON response for traditional Chinese medicine prescription signing.
  */
-class TcmPrescriptionSignJsonVO: public JsonVO<TcmPrescriptionSignResultDTO::Wrapper>
+class TcmPrescriptionSignJsonVO : public JsonVO<TcmPrescriptionSignResultDTO::Wrapper>
 {
-    DTO_INIT(TcmPrescriptionSignJsonVO,JsonVO<TcmPrescriptionSignResultDTO::Wrapper>);
+    DTO_INIT(TcmPrescriptionSignJsonVO, JsonVO<TcmPrescriptionSignResultDTO::Wrapper>);
 };
 
+// Ends Oat++ DTO code generation.
 #include OATPP_CODEGEN_END(DTO)
 
+// Ends the signing response VO include guard.
 #endif // !_TCM_PRESCRIPTION_SIGN_VO_H_

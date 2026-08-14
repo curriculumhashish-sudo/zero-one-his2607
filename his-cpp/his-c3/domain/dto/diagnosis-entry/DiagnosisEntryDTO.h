@@ -50,6 +50,8 @@ class DiagnosisEntryDetailDTO :public oatpp::DTO
 	API_DTO_FIELD_REQUIRE(String, type_name, ZH_WORDS_GETTER("diagnosis-entry.type_name"), true);
 	//主诊标注
 	API_DTO_FIELD_REQUIRE(String, main_flag, ZH_WORDS_GETTER("diagnosis-entry.main_flag"), true);
+	//主诊标注
+	API_DTO_FIELD_REQUIRE(String, adm_encounter_diagnosis_id, ZH_WORDS_GETTER("diagnosis-entry.adm_encounter_diagnosis_id"), true);
 };
 class DiagnosisEntryDetailPageDTO : public PageDTO<DiagnosisEntryDetailDTO::Wrapper>
 {

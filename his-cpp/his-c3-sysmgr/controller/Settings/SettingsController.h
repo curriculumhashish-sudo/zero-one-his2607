@@ -3,10 +3,10 @@
 #define _SETTINGSCONTROLLER_H_
 
 #include "domain/vo/BaseJsonVO.h"
-#include "domain/query/settings/SettingsQuery.h"
-#include "domain/query/settings/ConfigItemQuery.h"
-#include "domain/vo/settings/SettingsPageJsonVO.h"
-#include "domain/vo/settings/SettingsListJsonVO.h"
+#include "domain/query/Settings/SettingsQuery.h"
+#include "domain/query/Settings/ConfigItemQuery.h"
+#include "domain/vo/Settings/SettingsPageJsonVO.h"
+#include "domain/vo/Settings/SettingsListJsonVO.h"
 
 #include OATPP_CODEGEN_BEGIN(ApiController)
 

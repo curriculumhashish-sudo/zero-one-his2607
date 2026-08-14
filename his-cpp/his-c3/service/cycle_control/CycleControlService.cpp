@@ -1,4 +1,4 @@
-/*
+﻿/*
  Copyright Zero One Star. All rights reserved.
 
  @Author: awei
@@ -20,7 +20,7 @@
 #include "CycleControlService.h"
 #include "dao/cycle_control/PatientQueueDAO.h"
 #include "dao/cycle_control/DischargeOrderDAO.h"
-#include "SimpleDateTimeFormat.h"
+#include "TransactionManager.h"
 
 PatientQueuePageDTO::Wrapper CycleControlService::queryPatientQueue(const PatientQueueQuery::Wrapper& query)
 {
@@ -63,21 +63,41 @@ PatientQueuePageDTO::Wrapper CycleControlService::queryPatientQueue(const Patien
 
 DischargeOrderDetailDTO::Wrapper CycleControlService::createDischargeOrder(const CreateDischargeOrderDTO::Wrapper& dto)
 {
+	string encounterId = dto->encounterId.getValue("");
+
 	DischargeOrderDAO dao;
-	string orderId = dao.insertDischargeOrder(dto);
-	if (orderId.empty())
+	// 幂等判断：已存在有效出院医嘱时直接返回已有结果
+	string existOrderId = dao.queryActiveDischargeOrder(encounterId);
+	if (!existOrderId.empty())
+	{
+		auto result = DischargeOrderDetailDTO::createShared();
+		result->orderId = existOrderId;
+		result->encounterId = encounterId;
+		result->statusEnum = "ACTIVE";
+		result->encounterNewStatus = "ON_HOLD";
+		return result;
+	}
+	// 校验就诊存在且为在院状态
+	if (!dao.encounterInProgress(encounterId))
 	{
 		return nullptr;
 	}
 
-	dao.updateEncounterStatus(dto->encounterId.getValue(""));
+	// 事务内完成插入医嘱与更新就诊状态
+	TransactionManager tm(&dao);
+	string orderId = dao.insertDischargeOrder(dto);
+	int rows = dao.updateEncounterStatus(encounterId);
+	if (orderId.empty() || rows != 1)
+	{
+		tm.rollback();
+		return nullptr;
+	}
+	tm.commit();
 
 	auto result = DischargeOrderDetailDTO::createShared();
 	result->orderId = orderId;
-	result->encounterId = dto->encounterId;
+	result->encounterId = encounterId;
 	result->statusEnum = "ACTIVE";
-	result->dischargeWay = dto->dischargeWay;
-	result->dischargeTime = dto->dischargeTime;
 	result->encounterNewStatus = "ON_HOLD";
 	return result;
 }

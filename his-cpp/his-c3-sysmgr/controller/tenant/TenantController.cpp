@@ -33,6 +33,14 @@ StringJsonVO::Wrapper TenantController::execAddTenant(const TenantAddDTO::Wrappe
 StringJsonVO::Wrapper TenantController::execModifyTenant(const TenantModifyDTO::Wrapper& dto, const PayloadDTO& payload) {
 	// 定义返回数据对象
 	auto jvo = StringJsonVO::createShared();
+
+	// 参数校验
+	std::string errmsg = dto->validate();
+	if (errmsg != "") {
+		jvo->init(errmsg, RS_PARAMS_INVALID);
+		return jvo;
+	}
+
 	// 设置负载数据
 	dto->setPayload(&payload);
 	// 执行数据修改

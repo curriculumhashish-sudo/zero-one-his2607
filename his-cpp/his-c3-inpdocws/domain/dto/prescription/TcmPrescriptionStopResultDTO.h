@@ -1,7 +1,7 @@
 /*
  Copyright Zero One Star. All rights reserved.
 
- 停嘱结果 DTO
+ Traditional Chinese medicine prescription-stop result DTO
 
  @Author: nick1484065161
  @Date: 2026/07/20 00:00:00
@@ -20,31 +20,31 @@
 */
 #pragma once
 
-// 防止头文件被重复包含
+// Prevents this header from being included more than once.
 #ifndef _TCM_PRESCRIPTION_STOP_RESULT_DTO_H_
 #define _TCM_PRESCRIPTION_STOP_RESULT_DTO_H_
 
-// 引入项目通用定义和 DTO 宏
+// Provides project-wide definitions and DTO macros.
 #include "../../GlobalInclude.h"
 
-// 开始生成 Oatpp DTO 相关代码
+// Begins Oatpp DTO code generation.
 #include OATPP_CODEGEN_BEGIN(DTO)
 
-// 定义停嘱接口的业务返回结果
+// Carries the business result of a prescription-stop operation.
 class TcmPrescriptionStopResultDTO : public oatpp::DTO
 {
-    // 初始化当前 DTO 类型
+    // Initializes Oatpp metadata for this DTO type.
     DTO_INIT(TcmPrescriptionStopResultDTO, DTO);
 
-    // 表示停嘱操作是否成功
+    // Indicates whether the prescription-stop operation succeeded.
     API_DTO_FIELD(Boolean, success, ZH_WORDS_GETTER("tcm-prescription.field.success"), true, true);
 
-    // 表示停嘱操作的提示信息
+    // Describes the outcome of the prescription-stop operation.
     API_DTO_FIELD(String, message, ZH_WORDS_GETTER("tcm-prescription.field.message"), true, "operation completed");
 };
 
-// 结束生成 Oatpp DTO 相关代码
+// Ends Oatpp DTO code generation.
 #include OATPP_CODEGEN_END(DTO)
 
-// 结束头文件保护
-#endif
+// Ends the header guard.
+#endif // _TCM_PRESCRIPTION_STOP_RESULT_DTO_H_

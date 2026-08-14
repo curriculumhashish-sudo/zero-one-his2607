@@ -44,10 +44,6 @@ string PatientQueueDAO::queryConditionBuilder(const PatientQueueQuery::Wrapper& 
 		SQLPARAMS_PUSH(params, "s", string, kw);
 		SQLPARAMS_PUSH(params, "s", string, kw);
 	}
-	if (query->statusEnum) {
-		sql << " AND e.status_enum = ?";
-		SQLPARAMS_PUSH(params, "s", string, query->statusEnum.getValue(""));
-	}
 	return sql.str();
 }
 

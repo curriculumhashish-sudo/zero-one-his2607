@@ -26,8 +26,10 @@ public:
 		API_DEF_ADD_RSP_JSON_WRAPPER(ByTitlePageJsonVO);
 		//分页查询参数
 		API_DEF_ADD_PAGE_PARAMS();
+		API_DEF_ADD_QUERY_PARAMS(String, "patient_id", ZH_WORDS_GETTER("inpatient-record.patient_id"), "", true);
 		//病历名称查询参数
 		API_DEF_ADD_QUERY_PARAMS(String, "title", ZH_WORDS_GETTER("inpatient-record.title"), "", false);
+		
 	}
 	//定义获取历史病历列表（条件+分页）接口处理
 	ENDPOINT("GET", "/inpatient-record/brief", queryBrief, QUERIES(QueryParams, params),API_HANDLER_AUTH_PARAME)
@@ -58,6 +60,7 @@ public:
 		info->summary = ZH_WORDS_GETTER("inpatient-record.summary2");
 		//响应格式
 		API_DEF_ADD_RSP_JSON_WRAPPER(ByIdJsonVO);
+		API_DEF_ADD_QUERY_PARAMS(String, "patient_id", ZH_WORDS_GETTER("inpatient-record.patient_id"), "", true);
 		//病历id查询参数
 		API_DEF_ADD_QUERY_PARAMS(String, "id", ZH_WORDS_GETTER("inpatient-record.id"), "", true);
 	}
@@ -95,30 +98,30 @@ public:
 	//	return createDtoResponse(Status::CODE_200, execAddMedicalRecord(dto, authObject->getPayload()));
 	//}
 
-	////定义保存病历接口2描述
-	//ENDPOINT_INFO(modifyMedicalRecord)
-	//{
-	//	//接口归属
-	//	info->addTag(ZH_WORDS_GETTER("inpatient-record.api-name"));
-	//	//授权描述
-	//	API_DEF_ADD_AUTH();
-	//	//接口标题
-	//	info->summary = ZH_WORDS_GETTER("inpatient-record.summary4");
-	//	//响应格式
-	//	API_DEF_ADD_RSP_JSON_WRAPPER(StringJsonVO);
-	//}
-	////定义保存病历接口2处理
-	//ENDPOINT("PUT", "/inpatient-record/modify", modifyMedicalRecord, BODY_DTO(MedicalRecordModifyDTO::Wrapper, dto), API_HANDLER_AUTH_PARAME)
-	//{
-	//	//返回前端结果
-	//	return createDtoResponse(Status::CODE_200, execModifyMedicalRecord(dto, authObject->getPayload()));
-	//}
+	//定义保存病历接口2描述
+	ENDPOINT_INFO(modifyMedicalRecord)
+	{
+		//接口归属
+		info->addTag(ZH_WORDS_GETTER("inpatient-record.api-name"));
+		//授权描述
+		API_DEF_ADD_AUTH();
+		//接口标题
+		info->summary = ZH_WORDS_GETTER("inpatient-record.summary4");
+		//响应格式
+		API_DEF_ADD_RSP_JSON_WRAPPER(StringJsonVO);
+	}
+	//定义保存病历接口2处理
+	ENDPOINT("PUT", "/inpatient-record/modify", modifyMedicalRecord, BODY_DTO(MedicalRecordAddDTO::Wrapper, dto), API_HANDLER_AUTH_PARAME)
+	{
+		//返回前端结果
+		return createDtoResponse(Status::CODE_200, execModifyMedicalRecord(dto, authObject->getPayload()));
+	}
 
 private:
 	ByTitlePageJsonVO::Wrapper executeQueryByTitle(const MedicalRecordQueryByTitle::Wrapper& query);
 	ByIdJsonVO::Wrapper executeQueryById(const MedicalRecordQueryById::Wrapper& query);
 	StringJsonVO::Wrapper execAddMedicalRecord(const MedicalRecordAddDTO::Wrapper& dto, const PayloadDTO& payload);
-	//StringJsonVO::Wrapper execModifyMedicalRecord(const MedicalRecordModifyDTO::Wrapper& dto, const PayloadDTO& payload);
+	StringJsonVO::Wrapper execModifyMedicalRecord(const MedicalRecordAddDTO::Wrapper& dto, const PayloadDTO& payload);
 };
 
 #include OATPP_CODEGEN_END(ApiController)

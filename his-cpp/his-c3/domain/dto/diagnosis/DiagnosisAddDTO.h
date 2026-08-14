@@ -52,8 +52,34 @@ public:
 	}
 	
 };
+/**
+ * 诊断查询DTO类（对应SQL查询字段）
+ */
+class DiagnosisDTO : public oatpp::DTO
+{
+	DTO_INIT(DiagnosisDTO, DTO);
 
-
+	// 主键
+	API_DTO_FIELD_REQUIRE(String, id, ZH_WORDS_GETTER("diagnosis.field.id"), false);
+	// 就诊ID
+	API_DTO_FIELD_REQUIRE(String, encounterId, ZH_WORDS_GETTER("diagnosis.field.encounterId"), false);
+	// 病情/诊断条件ID
+	API_DTO_FIELD_REQUIRE(String, conditionId, ZH_WORDS_GETTER("diagnosis.field.conditionId"), false);
+	// 是否主诊断
+	API_DTO_FIELD_REQUIRE(Int32, primaryFlag, ZH_WORDS_GETTER("diagnosis.field.primaryFlag"), false);
+	// 排序序号
+	API_DTO_FIELD_REQUIRE(Int32, rank, ZH_WORDS_GETTER("diagnosis.field.rank"), false);
+	// 诊断描述
+	API_DTO_FIELD_REQUIRE(String, description, ZH_WORDS_GETTER("diagnosis.field.description"), false);
+	// 诊断类型码
+	API_DTO_FIELD_REQUIRE(String, diagTypeCode, ZH_WORDS_GETTER("diagnosis.field.diagTypeCode"), false);
+	// 病情编码
+	API_DTO_FIELD_REQUIRE(Int32, conditionCode, ZH_WORDS_GETTER("diagnosis.field.conditionCode"), false);
+	// 中医证候组
+	API_DTO_FIELD_REQUIRE(String, tcmSyndromeGroup, ZH_WORDS_GETTER("diagnosis.field.tcmSyndromeGroup"), false);
+	// 是否中医诊断
+	API_DTO_FIELD_REQUIRE(Int32, tcmFlag, ZH_WORDS_GETTER("diagnosis.field.tcmFlag"), false);
+};
 
 
 

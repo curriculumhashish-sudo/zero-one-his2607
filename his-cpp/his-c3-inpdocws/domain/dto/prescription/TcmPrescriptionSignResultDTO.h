@@ -1,7 +1,7 @@
 /*
  Copyright Zero One Star. All rights reserved.
 
- 签发中药处方结果 DTO
+ Defines response data returned after signing TCM prescriptions.
 
  @Author: nick1484065161
  @Date: 2026/07/20 00:00:00
@@ -20,11 +20,13 @@
 */
 #pragma once
 
+// Prevents duplicate DTO declarations when this header is included repeatedly.
 #ifndef _TCM_PRESCRIPTION_SIGN_RESULT_DTO_H_
 #define _TCM_PRESCRIPTION_SIGN_RESULT_DTO_H_
 
 #include "../../GlobalInclude.h"
 
+// Starts Oat++ DTO code generation.
 #include OATPP_CODEGEN_BEGIN(DTO)
 
 /**
@@ -33,28 +35,19 @@
 class TcmPrescriptionSignResultDTO : public oatpp::DTO
 {
     DTO_INIT(TcmPrescriptionSignResultDTO, DTO);
-    
+
     // Indicate whether the prescription signing operation succeeded.
-    API_DTO_FIELD(Boolean,success,ZH_WORDS_GETTER("tcm-prescription.field.success"),true,true);
+    API_DTO_FIELD(Boolean, success,
+        ZH_WORDS_GETTER("tcm-prescription.field.success"), true, false);
+
     // Map each prescription group key to its generated prescription number.
-    API_DTO_FIELD(Fields<String>, prescriptionNoByGroupKey, ZH_WORDS_GETTER("tcm-prescription.field.prescription-no-by-group-key"), true, {});
-public:
-    /**
-     * Initialize response example values for Swagger.
-     */
-    TcmPrescriptionSignResultDTO()
-    {
-        this->success = true;
-        this->prescriptionNoByGroupKey = {
-            {
-                "tcm-rx-1782719488981-gejhfw",
-                "CP2026-06-290003"
-            }
-        };
-    }
+    API_DTO_FIELD(Fields<String>, prescriptionNoByGroupKey,
+        ZH_WORDS_GETTER("tcm-prescription.field.prescription-no-by-group-key"),
+        true, {});
 };
 
-
+// Ends Oat++ DTO code generation.
 #include OATPP_CODEGEN_END(DTO)
 
+// Ends the signing result DTO include guard.
 #endif // !_TCM_PRESCRIPTION_SIGN_RESULT_DTO_H_

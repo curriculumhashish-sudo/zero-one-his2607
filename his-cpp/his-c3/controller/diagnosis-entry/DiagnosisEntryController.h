@@ -56,6 +56,8 @@ public:
 		API_DEF_ADD_QUERY_PARAMS(String, "tenant_id", ZH_WORDS_GETTER("diagnosis-entry.tenant_id"), "", true);
 		//患者id查询参数
 		API_DEF_ADD_QUERY_PARAMS(String, "patient_id", ZH_WORDS_GETTER("diagnosis-entry.patient-id"), "", true);
+		//患者id查询参数
+		API_DEF_ADD_QUERY_PARAMS(String, "encounter_id", ZH_WORDS_GETTER("diagnosis-entry.encounter_id"), "", true);
 	}
 	//定义获取患者诊断记录（条件+分页）接口处理
 	ENDPOINT("GET", "/diagnosis-entry/detail", queryDetail, QUERIES(QueryParams, params), API_HANDLER_AUTH_PARAME)

@@ -2,7 +2,7 @@
 
 /*
  Copyright Zero One Star. All rights reserved.
- åŒ…è£…DTO
+ °ü×°DTO
  @Author: PKQ
  @Date: 2026/07/20 00:00:00
 
@@ -21,52 +21,49 @@
 
 #include OATPP_CODEGEN_BEGIN(DTO)
 
-//VOåˆ—è¡¨
-//åˆ†é¡µè®¢å•åˆ—è¡¨æŸ¥è¯¢çš„ JSON å“åº”
+//VOÁĞ±í
+//·ÖÒ³¶©µ¥ÁĞ±í²éÑ¯µÄ JSON ÏìÓ¦
 class MedOrderPageJsonVO : public JsonVO<MedOrderPageDTO::Wrapper>
 {
 	DTO_INIT(MedOrderPageJsonVO, JsonVO<MedOrderPageDTO::Wrapper>);
 };
 
-//åˆå¹¶VOè¿”å›group_id
-//åˆå¹¶æ“ä½œç»“æœçš„JSONå“åº”
-
-class MergeResultDTO : public oatpp::DTO
+//ºÏ²¢VO·µ»Øgroup_id
+//ºÏ²¢²Ù×÷½á¹ûµÄJSONÏìÓ¦
+class MedgeResultDTO : public oatpp::DTO
 {
-	DTO_INIT(MergeResultDTO, DTO);
+	DTO_INIT(MedgeResultDTO, DTO);
 	API_DTO_FIELD_DEFAULT(String, groupId, ZH_WORDS_GETTER("medicalorder.field.groupId"));
 };
 
-class MergeResultJsonVO : public JsonVO<MergeResultDTO::Wrapper>
+class MergeResultJsonVO : public JsonVO<MedgeResultDTO::Wrapper>
 {
-	DTO_INIT(MergeResultJsonVO, JsonVO<MergeResultDTO::Wrapper>);
-
+	DTO_INIT(MergeResultJsonVO, JsonVO<MedgeResultDTO::Wrapper>);
 };
 
-//åˆ†å˜±VO
-//åˆ†å˜±æ“ä½œç»“æœçš„JSONå“åº”
-class SplitResultDTO : public oatpp::DTO
+//·ÖÖöVO
+//·ÖÖö²Ù×÷½á¹ûµÄJSONÏìÓ¦
+class SplitReslutDTO : public oatpp::DTO
 {
-	DTO_INIT(SplitResultDTO, DTO);
-	//æ‹†åˆ†å˜±æ‰˜æ•°é‡
+	DTO_INIT(SplitReslutDTO, DTO);
+	//²ğ·ÖÖöÍĞÊıÁ¿
 	API_DTO_FIELD_DEFAULT(Int32, splitCount, ZH_WORDS_GETTER("medicalorder.field.splitCount"));
 };
-class SplitResultJsonVO : public JsonVO<SplitResultDTO::Wrapper>
+class SplitResultJsonVO : public JsonVO<SplitReslutDTO::Wrapper>
 {
-	DTO_INIT(SplitResultJsonVO, JsonVO<SplitResultDTO::Wrapper>);
-
+	DTO_INIT(SplitResultJsonVO, JsonVO<SplitReslutDTO::Wrapper>);
 };
 
-//åœå˜±VO
-//åœå˜±æ“ä½œç»“æœçš„JSONå“åº”
+//Í£ÖöVO
+//Í£Öö²Ù×÷½á¹ûµÄJSONÏìÓ¦
 class StopResultDTO : public oatpp::DTO
 {
 	DTO_INIT(StopResultDTO, DTO);
-	//æˆåŠŸåœå˜±çš„æ•°é‡
+	//³É¹¦Í£ÖöµÄÊıÁ¿
 	API_DTO_FIELD_DEFAULT(Int32, successCount, ZH_WORDS_GETTER("medicalorder.field.successCount"));
-	//åœå˜±å¤±è´¥çš„æ•°é‡
+	//Í£ÖöÊ§°ÜµÄÊıÁ¿
 	API_DTO_FIELD_DEFAULT(Int32, failCount, ZH_WORDS_GETTER("medicalorder.field.failCount"));
-	//å¤±è´¥åŒ»å˜±IDå’ŒåŸå› 
+	//Ê§°ÜÒ½ÖöIDºÍÔ­Òò
 	API_DTO_FIELD_DEFAULT(List<String>, failReasons, ZH_WORDS_GETTER("medicalorder.field.failReasons"));
 };
 class StopResultJsonVO : public JsonVO<StopResultDTO::Wrapper>
@@ -74,7 +71,5 @@ class StopResultJsonVO : public JsonVO<StopResultDTO::Wrapper>
 	DTO_INIT(StopResultJsonVO, JsonVO<StopResultDTO::Wrapper>);
 };
 
-
-#include OATPP_CODEGEN_END(DTO)
-
+#include OATPP_CODEGEN_BEGIN(DTO)
 #endif

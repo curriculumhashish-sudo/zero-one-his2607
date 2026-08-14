@@ -32,25 +32,23 @@ namespace
         "IFNULL(status_changed_time, ''), patient_id, encounter_id, "
         "IFNULL(effective_dose_end, ''), therapy_enum, IFNULL(tcm_flag, 0), "
         "IFNULL(content_json, ''), "
-        "IF(JSON_VALID(content_json), "
-        "IFNULL(JSON_UNQUOTE(JSON_EXTRACT(content_json, '$.prescriptionGroupKey')), ''), ''), "
+        "IFNULL(group_id, ''), "
         "is_deleted, IFNULL(updated_by, ''), IFNULL(updated_at, '') "
         "FROM zo_his.med_medication_request ";
 }
 
 PtrMedMedicationRequestDO TcmPrescriptionDAO::selectByIdForUpdate(
-    const std::string& id,
-    const std::string& tenantId
+    const std::string& id
 )
 {
     const std::string sql =
         SELECT_MEDICATION_REQUEST +
-        "WHERE id = ? AND tenant_id = ? FOR UPDATE";
+        "WHERE id = ? AND is_deleted = 0 "
+        "AND (tcm_flag = 1 OR rx_type_code = '2') FOR UPDATE";
 
     // Bind string parameters in SQL placeholder order.
     SqlParams params;
     SQLPARAMS_PUSH(params, "s", std::string, id);
-    SQLPARAMS_PUSH(params, "s", std::string, tenantId);
 
     return sqlSession->executeQueryOne<PtrMedMedicationRequestDO>(
         sql,
@@ -62,18 +60,22 @@ PtrMedMedicationRequestDO TcmPrescriptionDAO::selectByIdForUpdate(
 std::list<PtrMedMedicationRequestDO>
 TcmPrescriptionDAO::selectByPrescriptionNoForUpdate(
     const std::string& prescriptionNo,
-    const std::string& tenantId
+    const std::string& patientId,
+    const std::string& encounterId
 )
 {
     const std::string sql =
         SELECT_MEDICATION_REQUEST +
-        "WHERE prescription_no = ? AND tenant_id = ? "
+        "WHERE prescription_no = ? AND patient_id = ? AND encounter_id = ? "
+        "AND is_deleted = 0 "
+        "AND (tcm_flag = 1 OR rx_type_code = '2') "
         "ORDER BY id FOR UPDATE";
 
     // Bind string parameters in SQL placeholder order.
     SqlParams params;
     SQLPARAMS_PUSH(params, "s", std::string, prescriptionNo);
-    SQLPARAMS_PUSH(params, "s", std::string, tenantId);
+    SQLPARAMS_PUSH(params, "s", std::string, patientId);
+    SQLPARAMS_PUSH(params, "s", std::string, encounterId);
 
     return sqlSession->executeQuery<PtrMedMedicationRequestDO>(
         sql,
@@ -132,8 +134,8 @@ int TcmPrescriptionDAO::updateForSign(
         "status_changed_time = ?, updated_by = ?, updated_at = ?, "
         "version = version + 1 "
         "WHERE id = ? AND tenant_id = ? AND patient_id = ? AND encounter_id = ? "
-        "AND is_deleted = 0 AND tcm_flag = 1 "
-        "AND (prescription_no IS NULL OR prescription_no = '') "
+        "AND is_deleted = 0 AND (tcm_flag = 1 OR rx_type_code = '2') "
+        "AND IFNULL(prescription_no, '') = ? "
         "AND status_enum = ? AND version = ?";
 
     // Bind SET values before the guarded WHERE values.
@@ -147,6 +149,7 @@ int TcmPrescriptionDAO::updateForSign(
     SQLPARAMS_PUSH(params, "s", std::string, current.getTenantId());
     SQLPARAMS_PUSH(params, "s", std::string, current.getPatientId());
     SQLPARAMS_PUSH(params, "s", std::string, current.getEncounterId());
+    SQLPARAMS_PUSH(params, "s", std::string, current.getPrescriptionNo());
     SQLPARAMS_PUSH(params, "s", std::string, expectedStatus);
     SQLPARAMS_PUSH(params, "i", int, current.getVersion());
 
@@ -163,11 +166,12 @@ int TcmPrescriptionDAO::updateForWithdraw(
 {
     const std::string sql =
         "UPDATE zo_his.med_medication_request "
-        "SET prescription_no = NULL, status_enum = ?, status_reason = NULL, "
+        "SET status_enum = ?, status_reason = NULL, "
         "status_changed_time = ?, effective_dose_end = NULL, "
         "updated_by = ?, updated_at = ?, version = version + 1 "
         "WHERE id = ? AND tenant_id = ? AND patient_id = ? AND encounter_id = ? "
-        "AND prescription_no = ? AND is_deleted = 0 AND tcm_flag = 1 "
+        "AND prescription_no = ? AND is_deleted = 0 "
+        "AND (tcm_flag = 1 OR rx_type_code = '2') "
         "AND status_enum = ? AND version = ?";
 
     // Bind SET values before the guarded WHERE values.
@@ -202,7 +206,8 @@ int TcmPrescriptionDAO::updateForStop(
         "effective_dose_end = ?, updated_by = ?, updated_at = ?, "
         "version = version + 1 "
         "WHERE id = ? AND tenant_id = ? AND patient_id = ? AND encounter_id = ? "
-        "AND prescription_no = ? AND is_deleted = 0 AND tcm_flag = 1 "
+        "AND prescription_no = ? AND is_deleted = 0 "
+        "AND (tcm_flag = 1 OR rx_type_code = '2') "
         "AND status_enum = ? AND version = ?";
 
     // Bind SET values before the guarded WHERE values.
@@ -237,7 +242,8 @@ int TcmPrescriptionDAO::updateForCancelStop(
         "effective_dose_end = NULL, updated_by = ?, updated_at = ?, "
         "version = version + 1 "
         "WHERE id = ? AND tenant_id = ? AND patient_id = ? AND encounter_id = ? "
-        "AND prescription_no = ? AND is_deleted = 0 AND tcm_flag = 1 "
+        "AND prescription_no = ? AND is_deleted = 0 "
+        "AND (tcm_flag = 1 OR rx_type_code = '2') "
         "AND status_enum = ? AND version = ?";
 
     // Bind SET values before the guarded WHERE values.

@@ -26,10 +26,10 @@ ListJsonVO<String>::Wrapper TenantUserController::execAddTenantUser(const Tenant
 
 	dto->setPayload(&payload);
 	auto result = TenantUserService().saveBatch(dto);
-	if (result->empty())
-		jvo->fail(result);
+	if (result.success)
+		jvo->success(result.userIds);
 	else
-		jvo->success(result);
+		jvo->fail(result.userIds);
 	return jvo;
 }
 
@@ -45,9 +45,9 @@ ListJsonVO<String>::Wrapper TenantUserController::execRemoveTenantUser(const Ten
 
 	dto->setPayload(&payload);
 	auto result = TenantUserService().removeBatch(dto);
-	if (result->empty())
-		jvo->fail(result);
+	if (result.success)
+		jvo->success(result.userIds);
 	else
-		jvo->success(result);
+		jvo->fail(result.userIds);
 	return jvo;
 }

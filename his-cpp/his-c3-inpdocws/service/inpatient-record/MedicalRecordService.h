@@ -15,14 +15,14 @@ class MedicalRecordService
 public:
 	// 分页查询所有数据
 	MedicalRecordBriefPageDTO::Wrapper listAll(const MedicalRecordQueryByTitle::Wrapper& query);
-	//// 通过ID查询单个数据
-	//SampleDTO::Wrapper getById(std::string id);
-	//// 保存数据
-	//std::string saveData(const SampleAddDTO::Wrapper& dto);
+	// 通过ID查询单个数据
+	MedicalRecordDetailDTO::Wrapper getById(const MedicalRecordQueryById::Wrapper& query);
+	// 保存数据
+	std::string saveData(const MedicalRecordAddDTO::Wrapper& dto);
 	//// 批量保存数据
 	//bool saveDataBatch(const oatpp::List<SampleAddDTO::Wrapper>& datas);
-	//// 修改数据
-	//bool updateData(const SampleDTO::Wrapper& dto);
+	// 修改数据
+	bool updateData(const MedicalRecordAddDTO::Wrapper& dto);
 	//// 通过ID删除数据
 	//bool removeData(const oatpp::List<oatpp::String>& ids);
 };

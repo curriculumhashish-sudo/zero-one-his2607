@@ -30,9 +30,13 @@
 class DischargeOrderDAO : public BaseDAO
 {
 public:
+	// 校验就诊记录存在且为IN_PROGRESS状态
+	bool encounterInProgress(const string& encounterId);
+	// 查询已存在的有效出院医嘱ID（幂等判断），不存在返回空
+	string queryActiveDischargeOrder(const string& encounterId);
 	// 向wkf_service_request插入出院医嘱记录，返回新记录ID
 	string insertDischargeOrder(const CreateDischargeOrderDTO::Wrapper& dto);
-	// 更新就诊状态为ON_HOLD
+	// 条件更新就诊状态为ON_HOLD（仅当当前状态为IN_PROGRESS），返回影响行数
 	int updateEncounterStatus(const string& encounterId);
 };
 

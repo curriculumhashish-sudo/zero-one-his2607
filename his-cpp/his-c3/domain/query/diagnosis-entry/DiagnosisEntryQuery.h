@@ -26,6 +26,8 @@ class DiagnosisEntryQueryById :public PageQuery
 	API_DTO_FIELD_REQUIRE(String, tenant_id, ZH_WORDS_GETTER("diagnosis-entry.tenant_id"), true);
 	//»¼Õßid
 	API_DTO_FIELD_REQUIRE(String, patient_id, ZH_WORDS_GETTER("diagnosis-entry.patient_id"), true);
+	//»¼Õßid
+	API_DTO_FIELD_REQUIRE(String, encounter_id, ZH_WORDS_GETTER("diagnosis-entry.encounter_id"), true);
 };
 
 #include OATPP_CODEGEN_END(DTO)

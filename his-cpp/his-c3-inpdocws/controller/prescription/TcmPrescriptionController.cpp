@@ -1,16 +1,11 @@
-﻿/*
- Copyright Zero One Star. All rights reserved.
-
- 中药处方控制器接口实现
-
- @Author: nick1484065161
- @Date: 2026/07/20 00:00:00
+/*
+ Copyright (c) 2025-2066, Zero One Technology Co., Ltd.
 
  Licensed under the Apache License, Version 2.0 (the "License");
  you may not use this file except in compliance with the License.
  You may obtain a copy of the License at
 
-      https://www.apache.org/licenses/LICENSE-2.0
+     http://www.apache.org/licenses/LICENSE-2.0
 
  Unless required by applicable law or agreed to in writing, software
  distributed under the License is distributed on an "AS IS" BASIS,
@@ -20,101 +15,176 @@
 */
 #include "stdafx.h"
 #include "TcmPrescriptionController.h"
+#include "../../service/prescription/TcmPrescriptionService.h"
 
+/**
+ * Validates and delegates a prescription - signing request.
+ */
 TcmPrescriptionSignJsonVO::Wrapper
 TcmPrescriptionController::execSignTcmPrescription(
-    const TcmPrescriptionSignDTO::Wrapper& dto,
-    const PayloadDTO& payload
+    const TcmPrescriptionSignDTO::Wrapper & dto,
+    const PayloadDTO & payload
 )
 {
-    // 当前阶段先保留请求参数，后续接入 Service 时使用处方签发数据。
-    (void)dto;
-
-    // 当前阶段先保留认证信息，后续用于记录操作人和租户信息。
-    (void)payload;
-
-    // 创建签发接口的业务返回结果对象。
-    auto result = TcmPrescriptionSignResultDTO::createShared();
-
-    // 创建统一 JSON 返回对象。
     auto response = TcmPrescriptionSignJsonVO::createShared();
 
-    // 将签发结果放入统一响应的 data 字段。
-    response->success(result);
+    if (!dto)
+    {
+        response->init(nullptr, RS_PARAMS_INVALID);
+        return response;
+    }
 
-    // 返回签发接口响应。
+    const std::string validationError = dto->validate();
+
+    if (!validationError.empty())
+    {
+        response->init(nullptr, RS_PARAMS_INVALID);
+        return response;
+    }
+
+    TcmPrescriptionService service;
+    const auto serviceResult =
+        service.signPrescription(dto, payload);
+
+    if (serviceResult.success)
+    {
+        response->success(serviceResult.data);
+    }
+    else if (serviceResult.invalidRequest)
+    {
+        response->init(
+            serviceResult.data,
+            RS_PARAMS_INVALID
+        );
+    }
+    else
+    {
+        response->fail(serviceResult.data);
+    }
+
     return response;
 }
 
-TcmPrescriptionWithdrawJsonVO::Wrapper
-TcmPrescriptionController::execWithdrawTcmPrescription(
-    const TcmPrescriptionWithdrawDTO::Wrapper& dto,
-    const PayloadDTO& payload
-)
+
+/**
+ * Validates and delegates a prescription-withdrawal request.
+ */
+TcmPrescriptionWithdrawJsonVO::Wrapper TcmPrescriptionController::execWithdrawTcmPrescription(
+    const TcmPrescriptionWithdrawDTO::Wrapper &dto, const PayloadDTO &payload)
 {
-    // 当前阶段先保留撤回请求参数，后续接入 Service 时使用撤回目标。
-    (void)dto;
-
-    // 当前阶段先保留认证信息，后续用于记录操作人和租户信息。
-    (void)payload;
-
-    // 创建撤回接口的业务返回结果对象。
-    auto result = TcmPrescriptionWithdrawResultDTO::createShared();
-
-    // 创建统一 JSON 返回对象。
     auto response = TcmPrescriptionWithdrawJsonVO::createShared();
 
-    // 将撤回结果放入统一响应的 data 字段。
-    response->success(result);
+    if (!dto)
+    {
+        response->init(nullptr, RS_PARAMS_INVALID);
+        return response;
+    }
 
-    // 返回撤回接口响应。
+    const std::string validationError = dto->validate();
+
+    if (!validationError.empty())
+    {
+        response->init(nullptr, RS_PARAMS_INVALID);
+        return response;
+    }
+
+    // Delegate the structurally valid request to the business service.
+    TcmPrescriptionService service;
+    const auto serviceResult = service.withdrawPrescription(dto, payload);
+
+    if (serviceResult.success)
+    {
+        response->success(serviceResult.data);
+    }
+    else if (serviceResult.invalidRequest)
+    {
+        response->init(serviceResult.data, RS_PARAMS_INVALID);
+    }
+    else
+    {
+        response->fail(serviceResult.data);
+    }
+
     return response;
 }
-
-// 执行停嘱中药处方接口
-TcmPrescriptionStopJsonVO::Wrapper
-TcmPrescriptionController::execStopTcmPrescription(
-    const TcmPrescriptionStopDTO::Wrapper& dto,
-    const PayloadDTO& payload
-)
+/**
+ * Validates and delegates a prescription-stop request.
+ */
+TcmPrescriptionStopJsonVO::Wrapper TcmPrescriptionController::execStopTcmPrescription(
+    const TcmPrescriptionStopDTO::Wrapper &dto, const PayloadDTO &payload)
 {
-    // 暂时保留请求参数和认证信息，后续接入业务层时使用
-    (void)dto;
-    (void)payload;
-
-    // 创建停嘱接口的业务返回结果
-    auto stopResult = TcmPrescriptionStopResultDTO::createShared();
-
-    // 创建统一 JSON 返回对象
     auto response = TcmPrescriptionStopJsonVO::createShared();
 
-    // 将业务结果放入 data 字段
-    response->success(stopResult);
+    if (!dto)
+    {
+        response->init(nullptr, RS_PARAMS_INVALID);
+        return response;
+    }
 
-    // 返回接口响应
+    const std::string validationError = dto->validate();
+
+    if (!validationError.empty())
+    {
+        response->init(nullptr, RS_PARAMS_INVALID);
+        return response;
+    }
+
+    TcmPrescriptionService service;
+    const auto serviceResult = service.stopPrescription(dto, payload);
+
+    if (serviceResult.success)
+    {
+        response->success(serviceResult.data);
+    }
+    else if (serviceResult.invalidRequest)
+    {
+        response->init(serviceResult.data, RS_PARAMS_INVALID);
+    }
+    else
+    {
+        response->fail(serviceResult.data);
+    }
+
     return response;
 }
 
-// 执行取消停嘱中药处方接口
-TcmPrescriptionCancelStopJsonVO::Wrapper
-TcmPrescriptionController::execCancelStopTcmPrescription(
-    const TcmPrescriptionCancelStopDTO::Wrapper& dto,
-    const PayloadDTO& payload
-)
+/**
+ * Validates and delegates a cancel-stop request.
+ */
+TcmPrescriptionCancelStopJsonVO::Wrapper TcmPrescriptionController::execCancelStopTcmPrescription(
+    const TcmPrescriptionCancelStopDTO::Wrapper &dto, const PayloadDTO &payload)
 {
-    // 暂时保留请求参数和认证信息，后续接入业务层时使用
-    (void)dto;
-    (void)payload;
-
-    // 创建取消停嘱接口的业务返回结果
-    auto cancelStopResult = TcmPrescriptionCancelStopResultDTO::createShared();
-
-    // 创建统一 JSON 返回对象
     auto response = TcmPrescriptionCancelStopJsonVO::createShared();
 
-    // 将业务结果放入 data 字段
-    response->success(cancelStopResult);
+    if (!dto)
+    {
+        response->init(nullptr, RS_PARAMS_INVALID);
+        return response;
+    }
 
-    // 返回接口响应
+    const std::string validationError = dto->validate();
+
+    if (!validationError.empty())
+    {
+        response->init(nullptr, RS_PARAMS_INVALID);
+        return response;
+    }
+
+    TcmPrescriptionService service;
+    const auto serviceResult = service.cancelStopPrescription(dto, payload);
+
+    if (serviceResult.success)
+    {
+        response->success(serviceResult.data);
+    }
+    else if (serviceResult.invalidRequest)
+    {
+        response->init(serviceResult.data, RS_PARAMS_INVALID);
+    }
+    else
+    {
+        response->fail(serviceResult.data);
+    }
+
     return response;
 }

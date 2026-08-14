@@ -12,11 +12,13 @@
 class EnterOrdersQueryById :public PageQuery
 {
 	//定义
-	DTO_INIT(EnterOrdersQueryById, DTO);
+	DTO_INIT(EnterOrdersQueryById, PageQuery);
 	//租户id
 	API_DTO_FIELD_REQUIRE(String, tenant_id, ZH_WORDS_GETTER("enter-orders.tanent_id"), true);
 	//患者id
 	API_DTO_FIELD_REQUIRE(String, patient_id, ZH_WORDS_GETTER("enter-orders.patient_id"), true);
+	//患者id
+	API_DTO_FIELD_REQUIRE(String, encounter_id, ZH_WORDS_GETTER("enter-orders.encounter_id "), true);
 };
 
 #include OATPP_CODEGEN_END(DTO)

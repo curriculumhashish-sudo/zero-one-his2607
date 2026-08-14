@@ -10,6 +10,12 @@ class MedicalRecordQueryByTitle :public PageQuery
 	//定义
 	DTO_INIT(MedicalRecordQueryByTitle, PageQuery);
 	//病历名称
+	DTO_FIELD(String, patient_id);
+	DTO_FIELD_INFO(patient_id) {
+		info->required = true;
+		info->description = ZH_WORDS_GETTER("inpatient-record.patient_id");
+	}
+	//病历名称
 	DTO_FIELD(String, title);
 	DTO_FIELD_INFO(title) {
 		info->required = false;
@@ -21,6 +27,13 @@ class MedicalRecordQueryById :public oatpp::DTO
 {
 	//定义
 	DTO_INIT(MedicalRecordQueryById, DTO);
+
+	//病历名称
+	DTO_FIELD(String, patient_id);
+	DTO_FIELD_INFO(patient_id) {
+		info->required = true;
+		info->description = ZH_WORDS_GETTER("inpatient-record.patient_id");
+	}
 	//病历id
 	DTO_FIELD(String, id);
 	DTO_FIELD_INFO(id) {

@@ -26,6 +26,8 @@ public:
 	// 数据校验
 	std::string validate()
 	{
+		if (!id || id->empty())
+			return "id invalidate.";
 		if (!code || code->empty())
 			return "code invalidate.";
 		if (!name || name->empty())

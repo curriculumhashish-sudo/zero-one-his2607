@@ -6,6 +6,7 @@
 
 #include <string>
 #include <vector>
+#include <algorithm>
 #include <cctype>
 #include <cstdlib>
 
@@ -236,13 +237,50 @@ PrescriptionHistoryListDTO::Wrapper PrescriptionService::listAllHistoryPrescript
 		return historyList;
 	}
 
+	//// Build a stable cache key from patientId and encounterId.
+	//std::string cacheKey = "his:prescription:History:patientId="
+	//	+ query->patientId.getValue("") + ":encounterId!="
+	//	+ query->id.getValue("");
+
+	////// Shared JSON mapper for cache serialization/deserialization.
+	//auto mapper = oatpp::parser::json::mapping::ObjectMapper::createShared();
+
+	////// Try to read the cached DTO list from Redis.
+	//std::string cached = redisClient->execute<std::string>(
+	//	[cacheKey](Redis* r) -> std::string {
+	//		auto value = r->get(cacheKey);
+	//		return value ? *value : std::string();
+	//	});
+
+	//if (!cached.empty())
+	//{
+	//	// Cache hit: deserialize JSON back into the DTO list and return it directly.
+	//	auto parsed = mapper->readFromString<oatpp::List<PrescriptionHistoryDTO::Wrapper>>(
+	//		oatpp::String(cached));
+	//	if (parsed)
+	//	{
+	//		historyList->historyRows = parsed;
+	//		return historyList;
+	//	}
+	//	// Fall through to refresh the cache when the stored payload fails to parse.
+	//}
+
+	// Cache miss (or stale cache): short-circuit when the DB has nothing to return.
+	// Cache an empty marker ("[]") with a short TTL to prevent cache penetration
+	// when callers repeatedly query a patient/encounter that has no records.
 	PrescriptionDAO dao;
 	uint64_t count = dao.countHistory(query);
 	if (count <= 0)
 	{
+		//redisClient->execute<bool>(
+		//	[cacheKey](Redis* r) -> bool {
+		//		r->setex(cacheKey, 30, "[]");
+		//		return true;
+		//	});
 		return historyList;
 	}
 
+	// Load summaries from DB and convert them into the response DTOs.
 	std::list<PrescriptionHistorySummaryDO> result =
 		dao.selectHistoryPrescription(query);
 
@@ -258,6 +296,23 @@ PrescriptionHistoryListDTO::Wrapper PrescriptionService::listAllHistoryPrescript
 		dto->medicationNames = parseMedicineNames(summary.getMedicationNamesJson());
 		historyList->historyRows->push_back(dto);
 	}
+
+	// Cache the freshly-built DTO list with a randomized TTL around 5 minutes.
+	//if (historyList->historyRows && !historyList->historyRows->empty())
+	//{
+	//	auto json = mapper->writeToString(historyList->historyRows);
+	//	std::string value = json.getValue("");
+	//	if (!value.empty())
+	//	{
+	//		redisClient->execute<bool>(
+	//			[cacheKey, value](Redis* r) -> bool {
+	//				int ttl = 300 + (std::rand() % 60);
+	//				r->setex(cacheKey, ttl, value);
+	//				return true;
+	//			});
+	//	}
+	//}
+
 	return historyList;
 }
 
@@ -336,7 +391,47 @@ PrescriptionNewResponseDTO::Wrapper PrescriptionService::savePrescription(const 
 
 	PrescriptionDAO dao;
 	oatpp::List<oatpp::String> idList = dao.insertNewPrescription(data);
-	
+
+	// Drop every cached history entry that belongs to the inserted patient so the
+	// next read reflects the newly added prescription.
+	//std::string insertedPatientId = dto->patientId.getValue("");
+	//if (!insertedPatientId.empty())
+	//{
+	//	// Pattern matches every encounter-scoped history cache for this patient.
+	//	const std::string cacheKeyPattern =
+	//		"his:prescription:History:patientId=" + insertedPatientId + ":*";
+
+	//	redisClient->execute<size_t>(
+	//		[cacheKeyPattern](Redis* r) -> size_t {
+	//			// Use SCAN to walk the keyspace incrementally instead of KEYS to
+	//			// avoid blocking Redis on large keyspaces.
+	//			std::vector<std::string> keysToDelete;
+	//			std::vector<std::string> batch;
+	//			sw::redis::Cursor cursor = 0;
+	//			do
+	//			{
+	//				batch.clear();
+	//				cursor = r->scan(cursor, cacheKeyPattern, std::back_inserter(batch));
+	//				if (!batch.empty())
+	//				{
+	//					keysToDelete.insert(
+	//						keysToDelete.end(), batch.begin(), batch.end());
+	//				}
+	//			} while (cursor != 0);
+
+	//			if (!keysToDelete.empty())
+	//			{
+	//				// SCAN may surface the same key across iterations; dedupe before DEL.
+	//				std::sort(keysToDelete.begin(), keysToDelete.end());
+	//				keysToDelete.erase(
+	//					std::unique(keysToDelete.begin(), keysToDelete.end()),
+	//					keysToDelete.end());
+	//				r->del(keysToDelete.begin(), keysToDelete.end());
+	//			}
+	//			return keysToDelete.size();
+	//		});
+	//}
+
 	auto res = PrescriptionNewResponseDTO::createShared();
 	if (!idList->empty())
 	{
@@ -380,6 +475,50 @@ PrescriptionDeleteResponseDTO::Wrapper PrescriptionService::removePrescription(c
 
 	PrescriptionDAO dao;
 	int out = dao.deleteById(data);
+
+	// Drop every cached history entry that belongs to the affected patient so the
+	// next read reflects the removal. Only invalidate when the DB delete actually
+	// took effect, so a failed delete does not wipe valid cached entries.
+	//if (out > 0)
+	//{
+	//	std::string affectedPatientId = dto->patientId.getValue("");
+	//	if (!affectedPatientId.empty())
+	//	{
+	//		// Pattern matches every encounter-scoped history cache for this patient.
+	//		const std::string cacheKeyPattern =
+	//			"his:prescription:History:patientId=" + affectedPatientId + ":*";
+
+	//		redisClient->execute<size_t>(
+	//			[cacheKeyPattern](Redis* r) -> size_t {
+	//				// Use SCAN to walk the keyspace incrementally instead of KEYS to
+	//				// avoid blocking Redis on large keyspaces.
+	//				std::vector<std::string> keysToDelete;
+	//				std::vector<std::string> batch;
+	//				sw::redis::Cursor cursor = 0;
+	//				do
+	//				{
+	//					batch.clear();
+	//					cursor = r->scan(cursor, cacheKeyPattern, std::back_inserter(batch));
+	//					if (!batch.empty())
+	//					{
+	//						keysToDelete.insert(
+	//							keysToDelete.end(), batch.begin(), batch.end());
+	//					}
+	//				} while (cursor != 0);
+
+	//				if (!keysToDelete.empty())
+	//				{
+	//					// SCAN may surface the same key across iterations; dedupe before DEL.
+	//					std::sort(keysToDelete.begin(), keysToDelete.end());
+	//					keysToDelete.erase(
+	//						std::unique(keysToDelete.begin(), keysToDelete.end()),
+	//						keysToDelete.end());
+	//					r->del(keysToDelete.begin(), keysToDelete.end());
+	//				}
+	//				return keysToDelete.size();
+	//			});
+	//	}
+	//}
 
 	auto res = PrescriptionDeleteResponseDTO::createShared();
 	if (out > 0) {

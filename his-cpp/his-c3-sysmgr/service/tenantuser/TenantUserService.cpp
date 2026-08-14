@@ -61,19 +61,22 @@ TenantUserPageDTO::Wrapper TenantUserService::listAll(const TenantUserQuery::Wra
 	return page;
 }
 
-oatpp::List<oatpp::String> TenantUserService::saveBatch(const TenantUserBatchAddDTO::Wrapper& dto)
+TenantUserBatchResult TenantUserService::saveBatch(const TenantUserBatchAddDTO::Wrapper& dto)
 {
+	TenantUserBatchResult result;
 	TenantUserDAO dao;
 	auto inputUserIds = normalizeUserIds(dto->userIds);
 	auto validUserIds = dao.selectExistingUserIds(inputUserIds);
 	if (validUserIds.empty())
-		return oatpp::List<oatpp::String>::createShared();
+	{
+		result.success = true;
+		return result;
+	}
 
 	auto boundUserIds = dao.selectBoundUserIds(dto->tenantId.getValue(""), validUserIds);
 	std::set<std::string> boundSet(boundUserIds.begin(), boundUserIds.end());
 
 	std::list<TenantUserRelDO> relations;
-	std::list<std::string> addedUserIds;
 	UuidFacade uuid(1);
 	std::string now = SimpleDateTimeFormat::format();
 	std::string username = dto->getPayload() ? dto->getPayload()->getUsername() : "";
@@ -90,25 +93,38 @@ oatpp::List<oatpp::String> TenantUserService::saveBatch(const TenantUserBatchAdd
 		relation.setCreatedBy(username);
 		relation.setUpdatedBy(username);
 		relation.setIsDeleted(0);
-		addedUserIds.push_back(userId);
+		result.userIds->push_back(userId.c_str());
 	}
 
 	if (relations.empty())
-		return oatpp::List<oatpp::String>::createShared();
+	{
+		result.success = true;
+		return result;
+	}
 
-	return dao.insertBatch(relations) == static_cast<int>(relations.size()) ? toOatppList(addedUserIds) : oatpp::List<oatpp::String>::createShared();
+	result.success = dao.insertBatch(relations) == static_cast<int>(relations.size());
+	if (!result.success)
+		result.userIds = oatpp::List<oatpp::String>::createShared();
+	return result;
 }
 
-oatpp::List<oatpp::String> TenantUserService::removeBatch(const TenantUserBatchRemoveDTO::Wrapper& dto)
+TenantUserBatchResult TenantUserService::removeBatch(const TenantUserBatchRemoveDTO::Wrapper& dto)
 {
+	TenantUserBatchResult result;
 	TenantUserDAO dao;
 	auto inputUserIds = normalizeUserIds(dto->userIds);
 	auto boundUserIds = dao.selectBoundUserIds(dto->tenantId.getValue(""), inputUserIds);
 	if (boundUserIds.empty())
-		return oatpp::List<oatpp::String>::createShared();
+	{
+		result.success = true;
+		return result;
+	}
 
 	std::string now = SimpleDateTimeFormat::format();
 	std::string username = dto->getPayload() ? dto->getPayload()->getUsername() : "";
 	int rows = dao.softDeleteByTenantAndUserIds(dto->tenantId.getValue(""), boundUserIds, username, now);
-	return rows == static_cast<int>(boundUserIds.size()) ? toOatppList(boundUserIds) : oatpp::List<oatpp::String>::createShared();
+	result.success = rows == static_cast<int>(boundUserIds.size());
+	if (result.success)
+		result.userIds = toOatppList(boundUserIds);
+	return result;
 }

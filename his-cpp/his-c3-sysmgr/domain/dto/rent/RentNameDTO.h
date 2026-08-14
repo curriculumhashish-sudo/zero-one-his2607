@@ -9,9 +9,14 @@
 class RentNameDTO :public oatpp::DTO {
 	DTO_INIT(RentNameDTO, DTO);
 
-	API_DTO_FIELD_DEFAULT(Int32, id, ZH_WORDS_GETTER("rent.field.id"), false);
-	API_DTO_FIELD_DEFAULT(String, name, ZH_WORDS_GETTER("rent.field.name"), false);
-	API_DTO_FIELD_DEFAULT(String, code, ZH_WORDS_GETTER("rent.field.code"), false);
+	API_DTO_FIELD_REQUIRE(Int32, id, ZH_WORDS_GETTER("rent.field.id"), false);
+	API_DTO_FIELD_REQUIRE(String, name, ZH_WORDS_GETTER("rent.field.name"), false);
+	API_DTO_FIELD_REQUIRE(String, code, ZH_WORDS_GETTER("rent.field.code"), false);
+};
+
+class RentNamePageDTO : public PageDTO<RentNameDTO::Wrapper>
+{
+	DTO_INIT(RentNamePageDTO, PageDTO<RentNameDTO::Wrapper>);
 };
 
 #include OATPP_CODEGEN_END(DTO)

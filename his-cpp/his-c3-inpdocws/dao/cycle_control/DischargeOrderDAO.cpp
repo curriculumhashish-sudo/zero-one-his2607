@@ -18,38 +18,63 @@
 */
 #include "stdafx.h"
 #include "DischargeOrderDAO.h"
+#include "StringMapper.h"
 #include "id/UuidFacade.h"
 #include "SimpleDateTimeFormat.h"
 
+bool DischargeOrderDAO::encounterInProgress(const string& encounterId)
+{
+	string sql = "SELECT COUNT(*) FROM adm_encounter WHERE id = ? AND class_enum = 'IMP'"
+		" AND status_enum = 'IN_PROGRESS' AND is_deleted = 0";
+	return sqlSession->executeQueryNumerical(sql, "%s", encounterId) > 0;
+}
+
+string DischargeOrderDAO::queryActiveDischargeOrder(const string& encounterId)
+{
+	string sql = "SELECT id FROM wkf_service_request"
+		" WHERE encounter_id = ? AND category_enum = 'DISCHARGE'"
+		" AND status_enum = 'ACTIVE' AND is_deleted = 0 LIMIT 1";
+	// Execute query and return the first id column value
+	list<string> ids = sqlSession->executeQuery<string>(sql, StringMapper(), "%s", encounterId);
+	return ids.empty() ? "" : ids.front();
+}
+
 string DischargeOrderDAO::insertDischargeOrder(const CreateDischargeOrderDTO::Wrapper& dto)
 {
+	string encounterId = dto->encounterId.getValue("");
+
 	UuidFacade uf;
 	string id = uf.genUuid();
 	string activityId = uf.genUuid();
 	string now = SimpleDateTimeFormat::format();
+	// 从认证Payload获取当前用户ID
+	string operatorId = dto->getPayload() ? dto->getPayload()->getId() : "";
 
 	string sql = "INSERT INTO wkf_service_request"
 		" (id, tenant_id, created_at, updated_at, created_by, updated_by,"
 		" is_deleted, version, status_enum, category_enum,"
 		" patient_id, encounter_id, requester_id, activity_id,"
-		" quantity, unit_code, authored_time, org_id, reason_text)"
-		" VALUES (?, 1, ?, ?, '1', '1',"
+		" quantity, unit_code, authored_time, org_id)"
+		" VALUES (?,"
+		" (SELECT tenant_id FROM adm_encounter WHERE id = ?), ?, ?, ?, ?,"
 		" 0, 0, 'ACTIVE', 'DISCHARGE',"
-		" (SELECT patient_id FROM adm_encounter WHERE id = ?), ?,"
-		" (SELECT id FROM whale_users LIMIT 1), ?,"
+		" (SELECT patient_id FROM adm_encounter WHERE id = ?), ?, ?, ?,"
 		" 1, 'ci', ?,"
-		" (SELECT organization_id FROM adm_encounter WHERE id = ?), ?)";
+		" (SELECT organization_id FROM adm_encounter WHERE id = ?))";
 
 	SqlParams params;
 	SQLPARAMS_PUSH(params, "s", string, id);
+	SQLPARAMS_PUSH(params, "s", string, encounterId);
 	SQLPARAMS_PUSH(params, "s", string, now);
 	SQLPARAMS_PUSH(params, "s", string, now);
-	SQLPARAMS_PUSH(params, "s", string, dto->encounterId.getValue(""));
-	SQLPARAMS_PUSH(params, "s", string, dto->encounterId.getValue(""));
+	SQLPARAMS_PUSH(params, "s", string, operatorId);
+	SQLPARAMS_PUSH(params, "s", string, operatorId);
+	SQLPARAMS_PUSH(params, "s", string, encounterId);
+	SQLPARAMS_PUSH(params, "s", string, encounterId);
+	SQLPARAMS_PUSH(params, "s", string, operatorId);
 	SQLPARAMS_PUSH(params, "s", string, activityId);
 	SQLPARAMS_PUSH(params, "s", string, now);
-	SQLPARAMS_PUSH(params, "s", string, dto->encounterId.getValue(""));
-	SQLPARAMS_PUSH(params, "s", string, dto->dischargeWay.getValue(""));
+	SQLPARAMS_PUSH(params, "s", string, encounterId);
 
 	int rows = sqlSession->executeUpdate(sql, params);
 	return rows > 0 ? id : "";
@@ -57,6 +82,7 @@ string DischargeOrderDAO::insertDischargeOrder(const CreateDischargeOrderDTO::Wr
 
 int DischargeOrderDAO::updateEncounterStatus(const string& encounterId)
 {
-	string sql = "UPDATE adm_encounter SET status_enum = 'ON_HOLD' WHERE id = ? AND is_deleted = 0";
+	string sql = "UPDATE adm_encounter SET status_enum = 'ON_HOLD'"
+		" WHERE id = ? AND is_deleted = 0 AND status_enum = 'IN_PROGRESS'";
 	return sqlSession->executeUpdate(sql, "%s", encounterId);
 }

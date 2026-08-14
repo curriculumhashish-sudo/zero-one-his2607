@@ -11,8 +11,6 @@ class TenantUserQuery : public PageQuery
 {
 	DTO_INIT(TenantUserQuery, PageQuery);
 	API_DTO_FIELD_REQUIRE(String, tenantId, ZH_WORDS_GETTER("tenant-user.field.tenantId"), true);
-	API_DTO_FIELD_REQUIRE(String, keywords, ZH_WORDS_GETTER("tenant-user.field.keywords"), false);
-	API_DTO_FIELD_REQUIRE(Int32, isActive, ZH_WORDS_GETTER("tenant-user.field.isActive"), false);
 };
 
 #include OATPP_CODEGEN_END(DTO)
