@@ -32,6 +32,10 @@ public interface RedisConstant {
      */
     String LOGIN_CONTEXT_TENANT_ID_FIELD = "tenantId";
     /**
+     * Department/organization id in the login context hash.
+     */
+    String LOGIN_CONTEXT_DEPT_ID_FIELD = "deptId";
+    /**
      * 用户会话key前缀
      */
     String USER_SESSION_PREFIX = "user:session:";

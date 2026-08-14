@@ -107,8 +107,9 @@ public class StoreHouseServiceImpl implements StoreHouseService {
         String tenantId = resolveCurrentTenantId();
         // 校验 formEnum 必须属于库房药房允许范围
         validateFormEnum(dto.getFormEnum());
+        String organizationId = resolveDefaultOrganizationId(dto.getOrganizationId());
         // 校验 organizationId 是否真实存在、属于当前租户、为有效机构
-        validateOrganizationId(dto.getOrganizationId(), tenantId);
+        validateOrganizationId(organizationId, tenantId);
 
         LambdaQueryWrapper<StoreHouseDO> dupCheck = new LambdaQueryWrapper<>();
         dupCheck.eq(StoreHouseDO::getTenantId, tenantId)
@@ -125,7 +126,7 @@ public class StoreHouseServiceImpl implements StoreHouseService {
         entity.setDisplayOrder(0);
         entity.setStatusEnum(StorehouseStatusEnum.ACTIVE.getDesc());
         entity.setModeEnum(ModeEnum.INSTANCE.getDesc());
-        entity.setOrganizationId(dto.getOrganizationId());
+        entity.setOrganizationId(organizationId);
         entity.setBusNo(generateBusNo());
         entity.setCreatedAt(LocalDateTime.now());
         entity.setUpdatedAt(LocalDateTime.now());
@@ -139,8 +140,6 @@ public class StoreHouseServiceImpl implements StoreHouseService {
         String tenantId = resolveCurrentTenantId();
         // 校验 formEnum 必须属于库房药房允许范围
         validateFormEnum(dto.getFormEnum());
-        // 校验 organizationId 是否真实存在、属于当前租户、为有效机构
-        validateOrganizationId(dto.getOrganizationId(), tenantId);
 
         StoreHouseDO existing = storeHouseMapper.selectById(dto.getId());
         if (existing == null || !STOREHOUSE_FORMS.contains(existing.getFormEnum())) {
@@ -149,6 +148,12 @@ public class StoreHouseServiceImpl implements StoreHouseService {
         if (!Objects.equals(existing.getTenantId(), tenantId)) {
             throw new StoreHouseTenantAccessException("无权修改其他租户的库房药房数据");
         }
+        String organizationId = resolveOrganizationId(
+                dto.getOrganizationId(),
+                existing.getOrganizationId()
+        );
+        // 校验 organizationId 是否真实存在、属于当前租户、为有效机构
+        validateOrganizationId(organizationId, tenantId);
 
         LambdaUpdateWrapper<StoreHouseDO> wrapper = new LambdaUpdateWrapper<>();
         wrapper.eq(StoreHouseDO::getId, dto.getId())
@@ -158,7 +163,7 @@ public class StoreHouseServiceImpl implements StoreHouseService {
                 .set(StoreHouseDO::getFormEnum, dto.getFormEnum())
                 .set(StoreHouseDO::getOperationalEnum, dto.getOperationalEnum())
                 .set(StoreHouseDO::getModeEnum, dto.getModeEnum())
-                .set(StoreHouseDO::getOrganizationId, dto.getOrganizationId())
+                .set(StoreHouseDO::getOrganizationId, organizationId)
                 .set(StoreHouseDO::getDisplayOrder, dto.getDisplayOrder())
                 .set(StoreHouseDO::getPyStr, dto.getPyStr())
                 .set(StoreHouseDO::getWbStr, dto.getWbStr())
@@ -306,12 +311,54 @@ public class StoreHouseServiceImpl implements StoreHouseService {
         }
     }
 
+    private String resolveDefaultOrganizationId(String organizationId) {
+        String normalizedOrganizationId = trimToNull(organizationId);
+        if (normalizedOrganizationId != null) {
+            return normalizedOrganizationId;
+        }
+        return resolveCurrentDeptId();
+    }
+
+    private String resolveOrganizationId(
+            String organizationId,
+            String defaultOrganizationId
+    ) {
+        String normalizedOrganizationId = trimToNull(organizationId);
+        if (normalizedOrganizationId != null) {
+            return normalizedOrganizationId;
+        }
+        return trimToNull(defaultOrganizationId);
+    }
+
+    private String resolveCurrentDeptId() {
+        try {
+            String deptId = userHolder.getCurrentDeptId();
+            if (StrUtil.isBlank(deptId)) {
+                throw new StoreHouseTenantAccessException("当前登录用户未绑定机构/科室，请联系管理员");
+            }
+            return deptId.trim();
+        } catch (StoreHouseTenantAccessException e) {
+            throw e;
+        } catch (Exception e) {
+            log.error("获取当前机构/科室ID失败", e);
+            throw new StoreHouseTenantAccessException("当前登录用户未绑定机构/科室，请联系管理员");
+        }
+    }
+
+    private String trimToNull(String value) {
+        if (value == null) {
+            return null;
+        }
+        String normalized = value.trim();
+        return normalized.isEmpty() ? null : normalized;
+    }
+
     /**
      * 校验 organizationId 是否真实存在、是否属于当前租户、是否为有效机构
      */
     private void validateOrganizationId(String organizationId, String tenantId) {
-        if (organizationId == null) {
-            return;
+        if (organizationId == null || organizationId.isBlank()) {
+            throw new IllegalArgumentException("当前登录用户未绑定机构/科室，请联系管理员");
         }
         DepartmentDO org = departmentMapper.selectById(organizationId);
         if (org == null) {

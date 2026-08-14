@@ -34,7 +34,7 @@ public class StoreHouseUpdateDTO implements Serializable {
     @Schema(description = "模式枚举(INSTANCE/CLASS)", example = "INSTANCE")
     private String modeEnum;
 
-    @Schema(description = "机构ID", example = "322663105141149696")
+    @Schema(description = "机构ID，不传保留原机构", example = "322663105141149696")
     private String organizationId;
 
     @Schema(description = "显示顺序", example = "0")

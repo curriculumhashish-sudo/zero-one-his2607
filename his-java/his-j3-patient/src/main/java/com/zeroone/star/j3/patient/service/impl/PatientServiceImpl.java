@@ -72,7 +72,10 @@ public class PatientServiceImpl implements PatientService {
     @Override
     @Transactional(rollbackFor = Exception.class)
     public String createPatient(PatientCreateDTO dto) {
-        NormalizedPatient normalized = normalizeAndValidate(dto);
+        NormalizedPatient normalized = normalizeAndValidate(
+                dto,
+                resolveDefaultOrganizationId(dto.getOrganizationId())
+        );
         String tenantId = userHolder.getCurrentTenantId();
         requireActiveOrganization(
                 normalized.organizationId(),
@@ -135,7 +138,13 @@ public class PatientServiceImpl implements PatientService {
             );
         }
 
-        NormalizedPatient normalized = normalizeAndValidate(dto);
+        NormalizedPatient normalized = normalizeAndValidate(
+                dto,
+                resolveOrganizationId(
+                        dto.getOrganizationId(),
+                        patient.getOrganizationId()
+                )
+        );
         requireUnchangedState(patient, dto, normalized.organizationId());
         requireActiveOrganization(
                 normalized.organizationId(),
@@ -264,10 +273,13 @@ public class PatientServiceImpl implements PatientService {
         return result;
     }
 
-    private NormalizedPatient normalizeAndValidate(PatientCreateDTO dto) {
+    private NormalizedPatient normalizeAndValidate(
+            PatientCreateDTO dto,
+            String resolvedOrganizationId
+    ) {
         String name = trimToNull(dto.getName());
         String genderEnum = toUpperCase(dto.getGenderEnum());
-        String organizationId = trimToNull(dto.getOrganizationId());
+        String organizationId = trimToNull(resolvedOrganizationId);
         String idCard = normalizeIdCard(dto.getIdCard());
         String phone = trimToNull(dto.getPhone());
         String linkTelcom = trimToNull(dto.getLinkTelcom());
@@ -300,7 +312,7 @@ public class PatientServiceImpl implements PatientService {
             throw new PatientBusinessException("死亡日期不能早于出生日期");
         }
         if (organizationId == null) {
-            throw new PatientBusinessException("建档机构ID不能为空");
+            throw new PatientBusinessException("当前登录用户未绑定机构/科室，请联系管理员");
         }
         validateTelephone(phone, "联系电话");
         validateTelephone(linkTelcom, "联系人电话");
@@ -327,6 +339,35 @@ public class PatientServiceImpl implements PatientService {
         if (!StringUtils.hasText(organizationTenantId)) {
             throw new PatientBusinessException(
                     "建档机构不存在、已停用、已删除或不属于当前租户"
+            );
+        }
+    }
+
+    private String resolveDefaultOrganizationId(String organizationId) {
+        String normalizedOrganizationId = trimToNull(organizationId);
+        if (normalizedOrganizationId != null) {
+            return normalizedOrganizationId;
+        }
+        return getCurrentDeptId();
+    }
+
+    private String resolveOrganizationId(
+            String organizationId,
+            String defaultOrganizationId
+    ) {
+        String normalizedOrganizationId = trimToNull(organizationId);
+        if (normalizedOrganizationId != null) {
+            return normalizedOrganizationId;
+        }
+        return trimToNull(defaultOrganizationId);
+    }
+
+    private String getCurrentDeptId() {
+        try {
+            return userHolder.getCurrentDeptId();
+        } catch (Exception e) {
+            throw new PatientBusinessException(
+                    "当前登录用户未绑定机构/科室，请联系管理员"
             );
         }
     }

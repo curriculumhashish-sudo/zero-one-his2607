@@ -54,7 +54,7 @@ public class SupplierUpdateDTO {
     @Schema(description = "银行账户", example = "6222000000000000000")
     private String bankAccount;
 
-    @Schema(description = "机构标识", example = "1", requiredMode = Schema.RequiredMode.REQUIRED)
+    @Schema(description = "机构标识，不传保留原机构", example = "1", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
     private String orgId;
 
     @Schema(description = "显示顺序", example = "1")

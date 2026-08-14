@@ -28,6 +28,7 @@ import org.yaml.snakeyaml.util.UriEncoder;
 public class UserHolder {
     private static final String LOCAL_TEST_USER_ID = "1";
     private static final String LOCAL_TEST_TENANT_ID = "1";
+    private static final String LOCAL_TEST_DEPT_ID = "1";
 
     @Value("${spring.application.name:}")
     private String applicationName;
@@ -155,6 +156,45 @@ public class UserHolder {
                 return LOCAL_TEST_TENANT_ID;
             }
             throw new IllegalStateException("获取当前租户ID失败", e);
+        }
+    }
+
+    /**
+     * Get current user's department/organization id from login context.
+     *
+     * @return current department/organization id
+     */
+    public String getCurrentDeptId() {
+        try {
+            UserDTO currentUser = getCurrentUser();
+            if (currentUser == null || !StringUtils.hasText(currentUser.getId())) {
+                throw new IllegalStateException("Cannot get current user id");
+            }
+            if (applicationContext == null) {
+                throw new IllegalStateException("RedisTemplate is not initialized");
+            }
+
+            Object deptId = getRedisHashValue(
+                    RedisConstant.LOGIN_CONTEXT_PREFIX + currentUser.getId(),
+                    RedisConstant.LOGIN_CONTEXT_DEPT_ID_FIELD
+            );
+            if (deptId == null || !StringUtils.hasText(deptId.toString())) {
+                if (isJ3AuthBypassEnabled()) {
+                    return LOCAL_TEST_DEPT_ID;
+                }
+                throw new IllegalStateException("Current user has no department/organization id");
+            }
+            return deptId.toString();
+        } catch (RuntimeException e) {
+            if (isJ3AuthBypassEnabled()) {
+                return LOCAL_TEST_DEPT_ID;
+            }
+            throw e;
+        } catch (Exception e) {
+            if (isJ3AuthBypassEnabled()) {
+                return LOCAL_TEST_DEPT_ID;
+            }
+            throw new IllegalStateException("Failed to get current department/organization id", e);
         }
     }
 

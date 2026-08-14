@@ -23,6 +23,6 @@ public class StoreHouseAddDTO implements Serializable {
     @Schema(description = "形态枚举(WAREHOUSE/PHARMACY/DEPT_PHARMACY)", example = "WAREHOUSE", requiredMode = Schema.RequiredMode.REQUIRED)
     private String formEnum;
 
-    @Schema(description = "机构ID，不传默认0", example = "322663105141149696")
+    @Schema(description = "机构ID，不传使用当前登录用户科室", example = "322663105141149696")
     private String organizationId;
 }

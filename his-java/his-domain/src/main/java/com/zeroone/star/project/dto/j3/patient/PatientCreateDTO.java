@@ -214,8 +214,7 @@ public class PatientCreateDTO {
     @Schema(
             description = "建档机构ID",
             example = "322663105141149696",
-            requiredMode = Schema.RequiredMode.REQUIRED
+            requiredMode = Schema.RequiredMode.NOT_REQUIRED
     )
-    @NotBlank(message = "建档机构ID不能为空")
     private String organizationId;
 }

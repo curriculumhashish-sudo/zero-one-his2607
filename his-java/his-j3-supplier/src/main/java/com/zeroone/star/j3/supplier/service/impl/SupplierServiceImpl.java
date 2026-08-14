@@ -108,9 +108,6 @@ public class SupplierServiceImpl extends ServiceImpl<SupplierMapper, Supplier> i
         if (!StringUtils.hasText(dto.getWbStr())) {
             throw new IllegalArgumentException("五笔码不能为空");
         }
-        if (!StringUtils.hasText(dto.getOrgId())) {
-            throw new IllegalArgumentException("机构标识不能为空");
-        }
         if (!StringUtils.hasText(dto.getCreditCode())) {
             throw new IllegalArgumentException("统一信用代码不能为空");
         }
@@ -130,7 +127,9 @@ public class SupplierServiceImpl extends ServiceImpl<SupplierMapper, Supplier> i
         dto.setStatusEnum(normalizeStatus(dto.getStatusEnum(), ACTIVE));
 
         dto.setTypeEnum(normalizeTypeEnum(dto.getTypeEnum()));
-        dto.setOrgId(requireActiveOrganization(dto.getOrgId()));
+        dto.setOrgId(requireActiveOrganization(
+                resolveDefaultOrgId(dto.getOrgId())
+        ));
 
         // DTO → Entity 转换
         Supplier supplier = msSupplierMapper.SupplierAddDTO2Supplier(dto);
@@ -175,11 +174,11 @@ public class SupplierServiceImpl extends ServiceImpl<SupplierMapper, Supplier> i
             throw new IllegalArgumentException("供应商ID不能为空");
         }
         String tenantId = getCurrentTenantId();
-        Long exists = this.lambdaQuery()
+        Supplier existing = this.lambdaQuery()
                 .eq(Supplier::getId, id.trim())
                 .eq(Supplier::getTenantId, tenantId)
-                .count();
-        if (exists == null || exists == 0) {
+                .one();
+        if (existing == null) {
             throw new IllegalArgumentException("供应商不存在，请检查ID是否正确");
         }
         // 校验必填业务字段
@@ -190,7 +189,9 @@ public class SupplierServiceImpl extends ServiceImpl<SupplierMapper, Supplier> i
         if (!StringUtils.hasText(dto.getWbStr())) {
             throw new IllegalArgumentException("五笔码不能为空");
         }
-        String normalizedOrgId = requireActiveOrganization(dto.getOrgId());
+        String normalizedOrgId = requireActiveOrganization(
+                resolveOrgId(dto.getOrgId(), existing.getOrgId())
+        );
         // 状态枚举合法性校验：传入的状态必须是 ACTIVE / INACTIVE，非法值直接抛出异常
         String normalizedStatusEnum = null;
         if (StringUtils.hasText(dto.getStatusEnum())) {
@@ -447,6 +448,32 @@ public class SupplierServiceImpl extends ServiceImpl<SupplierMapper, Supplier> i
             throw new IllegalArgumentException("typeEnum only supports ENTERPRISE or INDIVIDUAL");
         }
         return value;
+    }
+
+    private String resolveDefaultOrgId(String orgId) {
+        String normalizedOrgId = trimToNull(orgId);
+        if (normalizedOrgId != null) {
+            return normalizedOrgId;
+        }
+        return getCurrentDeptId();
+    }
+
+    private String resolveOrgId(String orgId, String defaultOrgId) {
+        String normalizedOrgId = trimToNull(orgId);
+        if (normalizedOrgId != null) {
+            return normalizedOrgId;
+        }
+        return trimToNull(defaultOrgId);
+    }
+
+    private String getCurrentDeptId() {
+        try {
+            return userHolder.getCurrentDeptId();
+        } catch (Exception e) {
+            throw new IllegalArgumentException(
+                    "当前登录用户未绑定机构/科室，请联系管理员"
+            );
+        }
     }
 
     private String requireActiveOrganization(String orgId) {
