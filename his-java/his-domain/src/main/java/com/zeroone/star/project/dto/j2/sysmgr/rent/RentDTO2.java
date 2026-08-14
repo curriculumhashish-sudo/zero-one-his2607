@@ -28,13 +28,13 @@ public class RentDTO2 extends RentNameDTO{
     private String extraProperties;
 
     @Schema(description = "创建时间", example = "2026-05-02 22:07:04", requiredMode = Schema.RequiredMode.REQUIRED)
-    private LocalDateTime createdAt;
+    private String createdAt;
 
     @Schema(description = "创建人", example = "1", requiredMode = Schema.RequiredMode.REQUIRED)
     private String createdBy;
 
     @Schema(description = "更新时间", example = "2026-05-02 22:07:04", requiredMode = Schema.RequiredMode.REQUIRED)
-    private LocalDateTime updatedAt;
+    private String updatedAt;
 
     @Schema(description = "更新人", example = "1", requiredMode = Schema.RequiredMode.REQUIRED)
     private String updatedBy;

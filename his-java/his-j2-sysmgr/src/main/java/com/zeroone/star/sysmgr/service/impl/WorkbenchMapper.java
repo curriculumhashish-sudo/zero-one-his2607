@@ -4,24 +4,16 @@ import com.zeroone.star.project.dto.j2.sysmgr.rentdto.RentDTO2;
 import com.zeroone.star.project.dto.j2.sysmgr.rentdto.RentNameDTO;
 import com.zeroone.star.sysmgr.entity.WhaleTenants;
 import org.mapstruct.Mapper;
-
+import org.mapstruct.Mapping;
 import org.mapstruct.ReportingPolicy;
 
 import java.util.List;
 
-/**
- * <p>
- * 描述：租户模块对象转换器
- * </p>
- * <p>版权：&copy;01星球</p>
- * <p>地址：01星球总部</p>
- * @author 鹿
- * @version 1.0.0
- */
 @Mapper(componentModel = "spring", unmappedTargetPolicy = ReportingPolicy.IGNORE)
 public interface WorkbenchMapper {
 
-
+    @Mapping(target = "createdAt", dateFormat = "yyyy-MM-dd HH:mm:ss")
+    @Mapping(target = "updatedAt", dateFormat = "yyyy-MM-dd HH:mm:ss")
     RentDTO2 toRentDTO2(WhaleTenants entity);
 
     WhaleTenants toEntity(RentDTO2 dto);

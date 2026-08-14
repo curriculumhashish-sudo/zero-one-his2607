@@ -32,14 +32,22 @@ public class MyBatisInit {
         return new MetaObjectHandler() {
             @Override
             public void insertFill(MetaObject metaObject) {
+                System.out.println("🔥 insertFill triggered, userHolder=" + userHolder);
                 LocalDateTime now = LocalDateTime.now();
                 this.strictInsertFill(metaObject, "createTime", LocalDateTime.class, now);
-                this.strictInsertFill(metaObject, "createdAt", LocalDateTime.class, now);  // 新增
-                this.strictInsertFill(metaObject, "updatedAt", LocalDateTime.class, now);  // 新增
+                this.strictInsertFill(metaObject, "createdAt", LocalDateTime.class, now);
+                this.strictInsertFill(metaObject, "updatedAt", LocalDateTime.class, now);
                 try {
-                    this.strictInsertFill(metaObject, "createBy", String.class, userHolder.getCurrentUser().getUsername());
+                    var currentUser = userHolder.getCurrentUser();
+                    if (currentUser != null) {
+                        String username = currentUser.getUsername();
+                        this.strictInsertFill(metaObject, "createdBy", String.class, username);
+                        this.strictInsertFill(metaObject, "updatedBy", String.class, username);
+                    } else {
+                        System.out.println("⚠️ getCurrentUser() 返回 null，跳过 createdBy/updatedBy 填充");
+                    }
                 } catch (Exception e) {
-                    System.out.println(e.getMessage());
+                    e.printStackTrace();
                 }
             }
 
@@ -47,11 +55,17 @@ public class MyBatisInit {
             public void updateFill(MetaObject metaObject) {
                 LocalDateTime now = LocalDateTime.now();
                 this.strictUpdateFill(metaObject, "updateTime", LocalDateTime.class, now);
-                this.strictUpdateFill(metaObject, "updatedAt", LocalDateTime.class, now);  // 新增
+                this.strictUpdateFill(metaObject, "updatedAt", LocalDateTime.class, now);
                 try {
-                    this.strictUpdateFill(metaObject, "updateBy", String.class, userHolder.getCurrentUser().getUsername());
+                    var currentUser = userHolder.getCurrentUser();
+                    if (currentUser != null) {
+                        String username = currentUser.getUsername();
+                        this.strictUpdateFill(metaObject, "updatedBy", String.class, username);
+                    } else {
+                        System.out.println("⚠️ getCurrentUser() 返回 null，跳过 updatedBy 填充");
+                    }
                 } catch (Exception e) {
-                    System.out.println(e.getMessage());
+                    e.printStackTrace();
                 }
             }
         };

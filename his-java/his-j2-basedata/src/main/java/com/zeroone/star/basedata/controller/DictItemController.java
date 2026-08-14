@@ -22,6 +22,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
 import java.util.List;
 
 
@@ -78,6 +79,9 @@ public class DictItemController implements DictItemApis {
             dto.setDicSort(dict.getSortOrder() != null ? dict.getSortOrder().intValue() : null);     // ✅ sortOrder
             return dto;
         });
+        if (pageDTO.getRows() == null) {
+            pageDTO.setRows(new ArrayList<>());   // ← 无数据也返回空数组
+        }
         return JsonVO.success(pageDTO);
     }
 

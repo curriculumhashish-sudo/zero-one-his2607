@@ -112,7 +112,6 @@ public class WhaleTenantsServiceImpl extends ServiceImpl<WhaleTenantsMapper, Wha
         Page<WhaleTenants> page = new Page<>(pageIndex, pageSize);
 
         LambdaQueryWrapper<WhaleTenants> wrapper = new LambdaQueryWrapper<>();
-        // 补全所有返回字段，与DTO一一对应
         wrapper.select(
                 WhaleTenants::getId,
                 WhaleTenants::getName,
@@ -192,7 +191,9 @@ public class WhaleTenantsServiceImpl extends ServiceImpl<WhaleTenantsMapper, Wha
         WhaleTenants tenant = new WhaleTenants();
         tenant.setId(updateDTO.getId());
         tenant.setName(updateDTO.getTenantName());
-        tenant.setIsActive(Integer.parseInt(updateDTO.getTenantStatus()));
+        if (StringUtils.hasText(updateDTO.getTenantStatus())) {
+            tenant.setIsActive(Integer.parseInt(updateDTO.getTenantStatus()));
+        }
         tenant.setDescription(updateDTO.getTenantDescription());
 
         if (baseMapper.updateById(tenant) != 1) {

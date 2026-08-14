@@ -118,7 +118,7 @@
                 <groupId>io.fabric8</groupId>
                 <artifactId>docker-maven-plugin</artifactId>
                 <configuration>
-                    <dockerHost>https://47.98.131.88:2375</dockerHost>
+                    <dockerHost>https://47.98.131.88:2376</dockerHost>
                     <certPath>D:\docker-ca\47.98.131.88</certPath>
                     <images>
                         <image>

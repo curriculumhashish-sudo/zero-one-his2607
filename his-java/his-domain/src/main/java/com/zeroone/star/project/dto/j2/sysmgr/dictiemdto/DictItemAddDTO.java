@@ -20,7 +20,7 @@ public class DictItemAddDTO {
     @Schema(description = "代码体系ID", example = "1", requiredMode = Schema.RequiredMode.REQUIRED)
     private Long codeSystemId;  // ✅ 新增
     @JsonAlias({"dictCode", "code"})
-    @Schema(description = "字典编码(只读，传参后端自动忽略)", accessMode = Schema.AccessMode.READ_ONLY)
+    @Schema(description = "字典编码", example = "ADMISSION", requiredMode = Schema.RequiredMode.REQUIRED)
     private String dicCode;
     @JsonAlias({"dictName", "display"})
     @Schema(description = "字典名称", example = "入院", requiredMode = Schema.RequiredMode.REQUIRED)
