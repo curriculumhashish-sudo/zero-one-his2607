@@ -1,0 +1,13 @@
+sn:
+  personcenter: personcenter
+sp:
+  personcenter: 10600
+
+server:
+  port: ${sp.personcenter}
+  servlet:
+    context-path: /j2-personcenter
+
+spring:
+  application:
+    name: ${sn.personcenter}

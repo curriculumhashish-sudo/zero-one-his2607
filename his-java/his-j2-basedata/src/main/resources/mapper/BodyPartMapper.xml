@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zeroone.star.basedata.mapper.BodyPartMapper">
+
+    <resultMap id="treeMap" type="com.zeroone.star.project.vo.j2.basedata.bodypart.BodyPartTreeVO">
+        <id column="id" property="id"/>
+        <result column="bus_no" property="partCode"/>
+        <result column="name" property="partName"/>
+        <collection property="children" column="id" select="selectChildren"/>
+    </resultMap>
+
+    <select id="selectTree" resultMap="treeMap">
+        SELECT id, bus_no, name
+        FROM dia_body_structure
+        WHERE parent_id IS NULL AND is_deleted = 0
+        ORDER BY bus_no ASC
+    </select>
+
+    <select id="selectChildren" resultMap="treeMap">
+        SELECT id, bus_no, name
+        FROM dia_body_structure
+        WHERE parent_id = #{id} AND is_deleted = 0
+        ORDER BY bus_no ASC
+    </select>
+
+    <select id="selectListCount" resultType="java.lang.Long">
+        SELECT COUNT(*)
+        FROM dia_body_structure t
+        WHERE t.is_deleted = 0
+        <if test="query.keyword != null and query.keyword != ''">
+            AND (t.bus_no LIKE CONCAT('%', #{query.keyword}, '%')
+            OR t.name LIKE CONCAT('%', #{query.keyword}, '%'))
+        </if>
+        <if test="query.parentId == 0 or (query.parentId != null and query.parentId == '0')">
+            AND t.parent_id IS NULL
+        </if>
+        <if test="query.parentId != null and query.parentId != '0'">
+            AND t.parent_id = #{query.parentId}
+        </if>
+        <if test="query.status != null and query.status != ''">
+            AND t.status_enum = #{query.status}
+        </if>
+    </select>
+
+    <select id="selectList"
+            resultType="com.zeroone.star.project.vo.j2.basedata.bodypart.BodyPartListVO">
+        SELECT
+        t.id,
+        t.bus_no AS partCode,
+        t.name AS partName,
+        t.parent_id AS parentId,
+        t.status_enum AS status,
+        CASE WHEN COUNT(c.id) > 0 THEN 1 ELSE 0 END AS hasChildren
+        FROM dia_body_structure t
+        LEFT JOIN dia_body_structure c ON c.parent_id = t.id AND c.is_deleted = 0
+        WHERE t.is_deleted = 0
+        <if test="query.keyword != null and query.keyword != ''">
+            AND (t.bus_no LIKE CONCAT('%', #{query.keyword}, '%')
+            OR t.name LIKE CONCAT('%', #{query.keyword}, '%'))
+        </if>
+        <if test="query.parentId == 0 or (query.parentId != null and query.parentId == '0')">
+            AND t.parent_id IS NULL
+        </if>
+        <if test="query.parentId != null and query.parentId != '0'">
+            AND t.parent_id = #{query.parentId}
+        </if>
+        <if test="query.status != null and query.status != ''">
+            AND t.status_enum = #{query.status}
+        </if>
+        GROUP BY t.id, t.bus_no, t.name, t.parent_id, t.status_enum
+        ORDER BY t.bus_no ASC
+        LIMIT #{limit} OFFSET #{offset}
+    </select>
+
+</mapper>

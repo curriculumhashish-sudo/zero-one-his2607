@@ -1,0 +1,13 @@
+sn:
+  workbench: workbench
+sp:
+  workbench: 10500
+
+server:
+  port: ${sp.workbench}
+  servlet:
+    context-path: /j2-workbench
+
+spring:
+  application:
+    name: ${sn.workbench}

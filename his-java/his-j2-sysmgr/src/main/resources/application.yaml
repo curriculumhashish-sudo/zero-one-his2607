@@ -1,0 +1,12 @@
+sn:
+  sysmgr: sysmgr
+sp:
+  sysmgr: 10400
+server:
+  port: ${sp.sysmgr}
+  servlet:
+    context-path: /j2-sysmgr
+
+spring:
+  application:
+    name: ${sn.sysmgr}
