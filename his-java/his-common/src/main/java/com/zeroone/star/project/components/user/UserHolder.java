@@ -3,16 +3,15 @@ package com.zeroone.star.project.components.user;
 import cn.hutool.core.convert.Convert;
 import cn.hutool.json.JSONObject;
 import com.zeroone.star.project.components.jwt.JwtComponent;
+import com.zeroone.star.project.constant.RedisConstant;
 import jakarta.annotation.Resource;
 import jakarta.servlet.http.HttpServletRequest;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 import org.yaml.snakeyaml.util.UriEncoder;
-
-import java.util.List;
-import java.util.Map;
 
 /**
  * <p>
@@ -27,6 +26,9 @@ import java.util.Map;
 public class UserHolder {
     @Resource
     JwtComponent jwtComponent;
+
+    @Resource
+    StringRedisTemplate stringRedisTemplate;
 
     /**
      * 从请求头中获取用户信息
@@ -96,5 +98,50 @@ public class UserHolder {
             return null;
         }
         return token.replace("Bearer ", "");
+    }
+
+    /**
+     * 获取当前用户选择的租户ID
+     * @return 当前租户ID
+     */
+    public String getCurrentTenantId() {
+        try {
+            UserDTO currentUser = getCurrentUser();
+            if (currentUser == null || !StringUtils.hasText(currentUser.getId())) {
+                throw new IllegalStateException("无法获取当前用户ID");
+            }
+            String userId = currentUser.getId();
+            Object tenantId = stringRedisTemplate.opsForHash().get(RedisConstant.USER_SESSION_PREFIX + userId, RedisConstant.USER_SESSION_TENANT_ID_FIELD);
+            if (tenantId == null || !StringUtils.hasText(tenantId.toString())) {
+                throw new IllegalStateException("未找到当前用户的租户ID");
+            }
+            return tenantId.toString();
+        } catch (Exception e) {
+            throw new IllegalStateException("获取当前租户ID失败", e);
+        }
+    }
+
+    /**
+     * 获取当前用户选择的部门ID
+     * @return 当前部门ID
+     */
+    public String getCurrentDeptId() {
+        try {
+            UserDTO currentUser = getCurrentUser();
+            if (currentUser == null || !StringUtils.hasText(currentUser.getId())) {
+                throw new IllegalStateException("Cannot get current user id");
+            }
+            String userId = currentUser.getId();
+            Object deptId = stringRedisTemplate.opsForHash().get(
+                    RedisConstant.LOGIN_CONTEXT_PREFIX + userId,
+                    RedisConstant.LOGIN_CONTEXT_DEPT_ID_FIELD
+            );
+            if (deptId == null || !StringUtils.hasText(deptId.toString())) {
+                throw new IllegalStateException("Current user has no department/organization id");
+            }
+            return deptId.toString();
+        } catch (Exception e) {
+            throw new IllegalStateException("Failed to get current department/organization id", e);
+        }
     }
 }

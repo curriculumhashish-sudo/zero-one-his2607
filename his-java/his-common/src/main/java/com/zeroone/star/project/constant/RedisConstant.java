@@ -27,8 +27,23 @@ public interface RedisConstant {
      */
     String USER_INFO_PREFIX = "user:info:";
     /**
+     * 用户登录上下文缓存的key前缀（Hash）
+     */
+    String LOGIN_CONTEXT_PREFIX =  "his:login:context:";
+    /**
+     * 用户登录上下文中的租户ID字段
+     */
+    String LOGIN_CONTEXT_TENANT_ID_FIELD = "tenantId";
+    /**
+     * Department/organization id in the login context hash.
+     */
+    String LOGIN_CONTEXT_DEPT_ID_FIELD = "deptId";
+    /**
      * 用户会话上下文缓存的key前缀（Hash）
      */
     String USER_SESSION_PREFIX = "user:session:";
-    String LOGIN_CONTEXT_PREFIX =  "user:login:";
+    /**
+     * 用户会话中的租户ID字段
+     */
+    String USER_SESSION_TENANT_ID_FIELD = "tenant_id";
 }

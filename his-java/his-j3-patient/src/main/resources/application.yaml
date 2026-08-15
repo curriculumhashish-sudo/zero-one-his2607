@@ -1,0 +1,16 @@
+server:
+  port: ${sp.j3-patient:10202}
+  servlet:
+    context-path: /j3-patient
+    encoding:
+      charset: UTF-8
+      force-response: true
+  address: 0.0.0.0
+
+spring:
+  application:
+    name: ${sn.j3-patient:his-j3-patient}
+  cloud:
+    nacos:
+      discovery:
+        register-enabled: ${NACOS_REGISTER_ENABLED:true}

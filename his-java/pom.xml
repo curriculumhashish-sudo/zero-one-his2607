@@ -43,6 +43,13 @@
         <module>his-j2-basedata</module>
         <module>his-j2-personcenter</module>
         <module>his-j2-workbench</module>
+        <module>his-j3-department</module>
+        <module>his-j3-patient</module>
+        <module>his-j3-ward</module>
+        <module>his-j3-storehouse</module>
+        <module>his-j3-supplier</module>
+        <module>his-j3-fee</module>
+        <module>his-j3-register</module>
     </modules>
     <properties>
         <!-- 项目版本号 -->

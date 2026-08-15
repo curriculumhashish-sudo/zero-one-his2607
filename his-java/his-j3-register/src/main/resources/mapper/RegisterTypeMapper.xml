@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zeroone.star.j3.register.mapper.RegisterTypeMapper">
+
+    <!-- 分页查询挂号类型：从收费项目定义表 JOIN 医疗服务表取业务编码 -->
+    <select id="selectRegisterTypePage" resultType="com.zeroone.star.j3.register.entity.RegisterType">
+        SELECT
+            cid.id              AS id,
+            cid.tenant_id       AS tenantId,
+            cid.created_at      AS createdAt,
+            cid.updated_at      AS updatedAt,
+            cid.created_by      AS createdBy,
+            cid.updated_by      AS updatedBy,
+            cid.is_deleted      AS isDeleted,
+            cid.instance_table  AS instanceTable,
+            cid.instance_id     AS instanceId,
+            cid.charge_name     AS name,
+            cid.status_enum     AS status,
+            cid.org_id          AS orgId,
+            cid.type_code       AS businessCode,
+            cid.yb_type         AS mdtrtCertNo,
+            cid.price_type_code AS priceTypeCode,
+            cid.price_value     AS amount,
+            cid.priority        AS priority,
+            hs.bus_no           AS serviceBusNo
+        FROM adm_charge_item_definition cid
+        LEFT JOIN adm_healthcare_service hs
+            ON hs.id = cid.instance_id
+            AND hs.is_deleted = 0
+        WHERE cid.is_deleted = 0
+          AND cid.type_code = '1012'
+          AND cid.instance_table = 'adm_healthcare_service'
+        <if test="keyword != null and keyword != ''">
+            AND (cid.charge_name LIKE CONCAT('%', #{keyword}, '%')
+              OR cid.yb_type LIKE CONCAT('%', #{keyword}, '%')
+              OR cid.id LIKE CONCAT('%', #{keyword}, '%')
+              OR hs.bus_no LIKE CONCAT('%', #{keyword}, '%'))
+        </if>
+        ORDER BY cid.created_at DESC
+    </select>
+
+    <!-- 按名称查找已存在的 healthcare_service.id（新增时自动关联） -->
+    <select id="selectHealthcareServiceIdByName" resultType="java.lang.String">
+        SELECT id
+        FROM adm_healthcare_service
+        WHERE name = #{name}
+          AND category_code = 'REGISTRATION'
+          AND is_deleted = 0
+        LIMIT 1
+    </select>
+
+    <!-- 兜底：取第一条有效的 healthcare_service.id -->
+    <select id="selectFirstHealthcareServiceId" resultType="java.lang.String">
+        SELECT id
+        FROM adm_healthcare_service
+        WHERE category_code = 'REGISTRATION'
+          AND is_deleted = 0
+        LIMIT 1
+    </select>
+
+</mapper>

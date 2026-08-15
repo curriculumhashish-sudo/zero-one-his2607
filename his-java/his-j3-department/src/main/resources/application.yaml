@@ -1,0 +1,17 @@
+server:
+  port: ${sp.j3-department:10201}
+  servlet:
+    context-path: /j3-department
+  address: 0.0.0.0
+
+spring:
+  application:
+    name: ${sn.j3-department:his-j3-department}
+  cloud:
+    nacos:
+      discovery:
+        register-enabled: ${NACOS_REGISTER_ENABLED:true}
+
+mybatis-plus:
+  configuration:
+    map-underscore-to-camel-case: true

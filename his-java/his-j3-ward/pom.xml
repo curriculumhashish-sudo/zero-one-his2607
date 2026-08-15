@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>com.zeroone.star</groupId>
+        <artifactId>his-java</artifactId>
+        <version>${revision}</version>
+        <relativePath>../pom.xml</relativePath>
+    </parent>
+    <artifactId>his-j3-ward</artifactId>
+    <dependencies>
+        <dependency><groupId>org.springframework.boot</groupId><artifactId>spring-boot-starter-web</artifactId></dependency>
+        <dependency><groupId>com.zeroone.star</groupId><artifactId>his-apis</artifactId></dependency>
+        <dependency><groupId>com.zeroone.star</groupId><artifactId>his-common</artifactId></dependency>
+        <dependency><groupId>com.alibaba.cloud</groupId><artifactId>spring-cloud-starter-alibaba-nacos-discovery</artifactId></dependency>
+        <dependency><groupId>com.alibaba.cloud</groupId><artifactId>spring-cloud-starter-alibaba-nacos-config</artifactId></dependency>
+        <dependency><groupId>com.baomidou</groupId><artifactId>mybatis-plus-spring-boot3-starter</artifactId></dependency>
+        <dependency><groupId>com.baomidou</groupId><artifactId>mybatis-plus-jsqlparser</artifactId></dependency>
+        <dependency><groupId>com.alibaba</groupId><artifactId>druid-spring-boot-starter</artifactId></dependency>
+        <dependency><groupId>com.mysql</groupId><artifactId>mysql-connector-j</artifactId></dependency>
+        <dependency><groupId>org.springframework.boot</groupId><artifactId>spring-boot-starter-data-redis</artifactId></dependency>
+        <dependency><groupId>org.mapstruct</groupId><artifactId>mapstruct</artifactId></dependency>
+        <dependency><groupId>org.springframework.boot</groupId><artifactId>spring-boot-starter-test</artifactId><scope>test</scope></dependency>
+    </dependencies>
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-maven-plugin</artifactId>
+                <configuration><mainClass>com.zeroone.star.j3.ward.WardApplication</mainClass></configuration>
+            </plugin>
+            <plugin>
+                <groupId>io.fabric8</groupId>
+                <artifactId>docker-maven-plugin</artifactId>
+                <configuration>
+                    <!-- Docker 远程管理地址 -->
+                    <dockerHost>https://47.96.2.145:2375</dockerHost>
+                    <!-- CA 证书位置：证书未申请下来，先留空；申请后填写证书目录 -->
+                    <certPath></certPath>
+                    <images>
+                        <image>
+                            <!-- Docker 镜像名称定义 -->
+                            <name>01star/${project.artifactId}:${project.version}</name>
+                            <!-- 指定 Dockerfile 所在目录 -->
+                            <build>
+                                <contextDir>${project.basedir}</contextDir>
+                            </build>
+                            <!-- 别名用于容器命名 -->
+                            <alias>${project.artifactId}</alias>
+                            <!-- 容器 run 相关配置 -->
+                            <run>
+                                <!-- 配置运行时容器命名策略为：别名 -->
+                                <namingStrategy>alias</namingStrategy>
+                                <!-- 端口映射 -->
+                                <ports>
+                                    <port>10207:10207</port>
+                                </ports>
+                                <!-- 数据卷 -->
+                                <volumes>
+                                    <bind>
+                                        <volume>/etc/localtime:/etc/localtime</volume>
+                                        <volume>/home/app/${project.artifactId}/logs:/tmp/logs</volume>
+                                    </bind>
+                                </volumes>
+                                <!-- 设置环境变量 -->
+                                <env>
+                                    <!-- JVM 参数 -->
+                                    <JAVA_OPTS>-Xms256m -Xmx256m</JAVA_OPTS>
+                                    <!-- 启动替换参数 -->
+                                    <SPRING_ARGS>
+                                        --spring.profiles.active=test
+                                        --spring.cloud.nacos.server-addr=47.96.2.145
+                                    </SPRING_ARGS>
+                                </env>
+                            </run>
+                            </image>
+                    </images>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+    <profiles>
+        <profile>
+            <id>codegen</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>com.zeroone.star</groupId>
+                        <artifactId>mp-code-generator-plugin</artifactId>
+                        <configuration>
+                            <dbConfig>
+                                <host>192.168.220.128</host>
+                                <port>3306</port>
+                                <dbname>his_j3_ward</dbname>
+                                <username>root</username>
+                                <password>123456</password>
+                            </dbConfig>
+                            <outDir>${project.basedir}/src/main/java</outDir>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
+</project>

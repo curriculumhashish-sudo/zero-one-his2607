@@ -1,0 +1,14 @@
+server:
+  port: ${sp.j3-register:10203}
+  servlet:
+    context-path: /j3-register
+  address: 0.0.0.0
+
+spring:
+  application:
+    name: ${sn.j3-register:his-j3-register}
+  cloud:
+    nacos:
+      discovery:
+        register-enabled: ${NACOS_REGISTER_ENABLED:true}
+        

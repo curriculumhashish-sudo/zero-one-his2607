@@ -1,0 +1,13 @@
+server:
+  port: ${sp.j3-ward:10207}
+  servlet:
+    context-path: /j3-ward
+  address: 0.0.0.0
+
+spring:
+  application:
+    name: ${sn.j3-ward:his-j3-ward}
+  cloud:
+    nacos:
+      discovery:
+        register-enabled: ${NACOS_REGISTER_ENABLED:true}
