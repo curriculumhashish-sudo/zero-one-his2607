@@ -2,7 +2,7 @@
 /*
  Copyright Zero One Star. All rights reserved.
 
- @Author: his-c4
+ @Author: Swan_Woo
  @Date: 2026/07/18 22:00:00
 
  Licensed under the Apache License, Version 2.0 (the "License");
@@ -37,6 +37,14 @@ class DispenseSummaryQuery : public PageQuery
 		ZH_WORDS_GETTER("dispense.field.status-enum"), false);
 	API_DTO_FIELD_REQUIRE(String, dispenseDate,
 		ZH_WORDS_GETTER("dispense.field.dispense-date"), false);
+	API_DTO_FIELD_REQUIRE(String, destinationLocationId,
+		ZH_WORDS_GETTER("dispense.field.des-location-id"), false);
+	API_DTO_FIELD_REQUIRE(String, startDate,
+		ZH_WORDS_GETTER("dispense.field.start-date"), false);
+	API_DTO_FIELD_REQUIRE(String, endDate,
+		ZH_WORDS_GETTER("dispense.field.end-date"), false);
+	API_DTO_FIELD_REQUIRE(String, keyword,
+		ZH_WORDS_GETTER("dispense.field.keyword"), false);
 };
 
 /**

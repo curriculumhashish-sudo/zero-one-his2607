@@ -19,53 +19,69 @@
 #include "stdafx.h"
 #include "BedService.h"
 #include "../../dao/admissiontransfer/BedDAO.h"
+#include "dao/common/NurseStationAccessDAO.h"
 #include "id/UuidFacade.h"
 #include "SimpleDateTimeFormat.h"
 
-BedPageDTO::Wrapper BedService::listFree(const BedQuery::Wrapper& query)
+BedPageDTO::Wrapper BedService::listFree(
+	const BedQuery::Wrapper& query, const std::string& userId)
 {
     auto pages = BedPageDTO::createShared();
     pages->pageIndex = query->pageIndex;
     pages->pageSize = query->pageSize;
+    pages->total = static_cast<int64_t>(0);
+    pages->pages = static_cast<int64_t>(0);
+    pages->rows = oatpp::List<BedDTO::Wrapper>::createShared();
 
     BedDAO dao;
-    uint64_t count = dao.countFree(query);
+	uint64_t count = dao.countFree(query, userId);
     if (count <= 0) {
         return pages;
     }
 
     pages->total = count;
     pages->calcPages();
-    std::list<LocationDO> result = dao.selectFreeWithPage(query);
-    for (LocationDO& sub : result)
-    {
-        auto dto = BedDTO::createShared();
-        ZO_STAR_DOMAIN_DO_TO_DTO(dto, sub,
-            id, Id, name, Name, parent_id, Parent_id,
-            form_enum, Form_enum, status_enum, Status_enum, organization_id, Organization_id);
-        pages->addData(dto);
-    }
+	auto result = dao.selectFreeWithPage(query, userId);
+	for (auto& item : result) pages->addData(item);
     return pages;
 }
 
 std::string BedService::assignBed(const BedAssignAddDTO::Wrapper& dto, const PayloadDTO& payload)
 {
-    BedReservationDO data;
-    UuidFacade uf;
-    data.setId(uf.genUuid());
-    data.setAppointment_id(dto->appointment_id.getValue(""));
-    data.setLocation_id(dto->location_id.getValue(""));
-    data.setPatient_id(dto->patient_id.getValue(""));
-    data.setIntended_admission_date(dto->intended_admission_date.getValue(""));
-    data.setCreated_at(SimpleDateTimeFormat::format());
-    data.setCreated_by(payload.getUsername());
-    data.setIs_deleted(false);
-    try {
-        BedDAO dao;
-        return dao.reserve(data) == 1 ? data.getId() : "";
-    }
-    catch (...) {
-        // Duplicate key (location_id + intended_admission_date) => bed already reserved
-        return "";
-    }
+	BedDAO dao;
+	const std::string appointmentId = dto->appointment_id.getValue("");
+	const std::string patientId = dto->patient_id.getValue("");
+	const std::string bedId = dto->location_id.getValue("");
+	const std::string operatorId = payload.getId();
+	const std::string resolvedEncounterId = dao.resolveEncounterId(appointmentId, patientId);
+	if (resolvedEncounterId.empty()
+		|| !NurseStationAccessDAO().canAccessEncounter(operatorId, resolvedEncounterId))
+		return "";
+	dao.getSqlSession()->beginTransaction();
+	try {
+		const std::string encounterId = dao.resolveEncounterId(appointmentId, patientId);
+		if (encounterId != resolvedEncounterId)
+			throw std::runtime_error("Assignment context changed.");
+		const std::string status = dao.selectEncounterStatusForUpdate(encounterId);
+		const std::string activeBed = dao.selectActiveBedForUpdate(encounterId);
+		if (activeBed == bedId) {
+			dao.getSqlSession()->commitTransaction();
+			return encounterId;
+		}
+		const auto operationalStatus = dao.selectBedOperationalStatusForUpdate(bedId);
+		const bool bedAvailable = operationalStatus == "VACANT"
+			|| operationalStatus == "AVAILABLE" || operationalStatus == "NOT_IN_USE";
+		if (status != "REGISTERED" || !activeBed.empty() || !bedAvailable
+			|| dao.occupyBed(bedId, operatorId) != 1
+			|| dao.createBedTrack(encounterId, bedId, operatorId) != 1
+			|| dao.markEncounterAdmitted(encounterId, operatorId) != 1)
+			throw std::runtime_error("Bed assignment conflict.");
+		dao.consumeReservation(appointmentId, patientId, bedId, operatorId);
+		dao.getSqlSession()->commitTransaction();
+		return encounterId;
+	}
+	catch (...) {
+		dao.getSqlSession()->rollbackTransaction();
+		return "";
+	}
 }

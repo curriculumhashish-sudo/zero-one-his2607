@@ -34,10 +34,12 @@ class CreateMedicationSummaryDispenseItemDTO : public oatpp::DTO
 		ZH_WORDS_GETTER("medicationcollection.field.encounterId"), true);
 
 public:
-	CreateMedicationSummaryDispenseItemDTO()
+	static Wrapper createExample()
 	{
-		dispenseId = "338131147144708096";
-		encounterId = "337907884548657152";
+		auto dto = createShared();
+		dto->dispenseId = "338131147144708096";
+		dto->encounterId = "337907884548657152";
+		return dto;
 	}
 };
 
@@ -47,12 +49,17 @@ class CreateMedicationSummaryDTO : public oatpp::DTO
 
 	API_DTO_FIELD_REQUIRE(List<CreateMedicationSummaryDispenseItemDTO::Wrapper>, dispenseItems,
 		ZH_WORDS_GETTER("medicationcollection.field.dispenseItems"), true);
+	API_DTO_FIELD_REQUIRE(String, idempotencyKey,
+		ZH_WORDS_GETTER("medicationcollection.field.idempotencyKey"), true);
 
 public:
-	CreateMedicationSummaryDTO()
+	static Wrapper createExample()
 	{
-		dispenseItems = List<CreateMedicationSummaryDispenseItemDTO::Wrapper>::createShared();
-		dispenseItems->push_back(CreateMedicationSummaryDispenseItemDTO::createShared());
+		auto dto = createShared();
+		dto->idempotencyKey = "MEDICATION-SUMMARY-20260721-001";
+		dto->dispenseItems = List<CreateMedicationSummaryDispenseItemDTO::Wrapper>::createShared();
+		dto->dispenseItems->push_back(CreateMedicationSummaryDispenseItemDTO::createExample());
+		return dto;
 	}
 };
 
@@ -64,13 +71,14 @@ class CreateMedicationSummaryResponseDTO : public oatpp::DTO
 		ZH_WORDS_GETTER("medicationcollection.field.summaryNos"), true);
 	API_DTO_FIELD_REQUIRE(String, message,
 		ZH_WORDS_GETTER("medicationcollection.field.message"), false);
+	API_DTO_FIELD_REQUIRE(Int32, successCount,
+		ZH_WORDS_GETTER("medicationcollection.field.successCount"), true);
 
 public:
 	CreateMedicationSummaryResponseDTO()
 	{
 		summaryNos = List<String>::createShared();
-		summaryNos->push_back("MS202607210001");
-		message = "Medication summary created.";
+		successCount = 0;
 	}
 };
 

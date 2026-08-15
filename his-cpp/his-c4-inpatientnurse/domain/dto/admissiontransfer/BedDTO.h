@@ -16,15 +16,26 @@ class BedDTO : public oatpp::DTO
     API_DTO_FIELD_REQUIRE(String, form_enum, ZH_WORDS_GETTER("bed.field.formenum"),true);
     API_DTO_FIELD_REQUIRE(String, status_enum, ZH_WORDS_GETTER("bed.field.statusenum"),true);
     API_DTO_FIELD_REQUIRE(String, organization_id, ZH_WORDS_GETTER("bed.field.organizationid"),true);
+	API_DTO_FIELD_REQUIRE(String, operational_enum,
+		ZH_WORDS_GETTER("bed.field.operationalenum"), true);
+	API_DTO_FIELD_REQUIRE(Int64, version,
+		ZH_WORDS_GETTER("bed.field.version"), true);
+	API_DTO_FIELD_REQUIRE(Int32, display_order,
+		ZH_WORDS_GETTER("bed.field.displayorder"), true);
+	API_DTO_FIELD_REQUIRE(String, house_id,
+		ZH_WORDS_GETTER("bed.field.houseid"), true);
+	API_DTO_FIELD_REQUIRE(String, house_name,
+		ZH_WORDS_GETTER("bed.field.housename"), true);
+	API_DTO_FIELD_REQUIRE(String, ward_id,
+		ZH_WORDS_GETTER("bed.field.wardid"), true);
+	API_DTO_FIELD_REQUIRE(String, ward_name,
+		ZH_WORDS_GETTER("bed.field.wardname"), true);
 public:
-    BedDTO() {
-		this->id = "BED30101";
-		this->name = ZH_WORDS_GETTER("business-text.sample.bed-name");
-		this->parent_id = "WARD301";
-        this->form_enum = "BED";
-        this->status_enum = "ENABLE";
-		this->organization_id = "334526752078102528";
-    }
+	BedDTO()
+	{
+		version = static_cast<v_int64>(0);
+		display_order = 0;
+	}
 };
 
 // Bed page DTO
@@ -36,9 +47,9 @@ public:
 	{
 		pageIndex = 1;
 		pageSize = 10;
-		total = 1;
-		pages = 1;
-		rows = {BedDTO::createShared()};
+		total = static_cast<v_int64>(0);
+		pages = static_cast<v_int64>(0);
+		rows = List<BedDTO::Wrapper>::createShared();
 	}
 };
 

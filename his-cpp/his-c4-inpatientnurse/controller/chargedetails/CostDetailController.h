@@ -25,6 +25,7 @@
 #include "domain/query/chargedetails/CostSummaryQuery.h"
 #include "domain/vo/chargedetails/CostDetailVO.h"
 #include "domain/vo/chargedetails/CostSummaryVO.h"
+#include "controller/RequestValidation.h"
 using namespace oatpp;
 
 #include OATPP_CODEGEN_BEGIN(ApiController)
@@ -39,26 +40,39 @@ public:
 		ZH_WORDS_GETTER("chargedetails.query-details.summary"),
 		queryAll, CostDetailPageJsonVO::Wrapper, API_TAG,
 		API_DEF_QUERY_PARAM_BUILD(CostDetailQuery);
+		info->queryParams["patientId"].addExample("default", String("326940849401761792"));
+		info->queryParams["encounterId"].addExample("default", String("337907884548657152"));
+		info->queryParams["busNo"].addExample("default", String("CHG202607240001"));
+		info->queryParams["typeCode"].addExample("default", String("MEDICATION"));
+		info->queryParams["startDate"].addExample("default", String("2026-07-01"));
+		info->queryParams["endDate"].addExample("default", String("2026-07-24"));
 		info->responses[Status::CODE_200].addExample(
 			"success", CostDetailPageJsonVO::createShared());
 	)
 	API_HANDLER_ENDPOINT_QUERY_AUTH(API_M_GET, "/chargedetails/query-details",
-		queryAll, CostDetailQuery, execQueryAll(query));
+		queryAll, CostDetailQuery, execQueryAll(query, authObject->getPayload()));
 
 	// Query cost summary by conditions.
 	API_DEF_ENDPOINT_INFO_AUTH(
 		ZH_WORDS_GETTER("chargedetails.query-summary.summary"),
 		summaryByEncounter, CostSummaryListJsonVO::Wrapper, API_TAG,
 		API_DEF_QUERY_PARAM_BUILD(CostSummaryQuery);
+		info->queryParams["patientId"].addExample("default", String("326940849401761792"));
+		info->queryParams["encounterId"].addExample("default", String("337907884548657152"));
+		info->queryParams["startDate"].addExample("default", String("2026-07-01"));
+		info->queryParams["endDate"].addExample("default", String("2026-07-24"));
 		info->responses[Status::CODE_200].addExample(
 			"success", CostSummaryListJsonVO::createShared());
 	)
 	API_HANDLER_ENDPOINT_QUERY_AUTH(API_M_GET, "/chargedetails/query-summary",
-		summaryByEncounter, CostSummaryQuery, execSummaryByEncounter(query));
+		summaryByEncounter, CostSummaryQuery,
+		execSummaryByEncounter(query, authObject->getPayload()));
 
 private:
-	CostDetailPageJsonVO::Wrapper execQueryAll(const CostDetailQuery::Wrapper& query);
-	CostSummaryListJsonVO::Wrapper execSummaryByEncounter(const CostSummaryQuery::Wrapper& query);
+	CostDetailPageJsonVO::Wrapper execQueryAll(
+		const CostDetailQuery::Wrapper& query, const PayloadDTO& payload);
+	CostSummaryListJsonVO::Wrapper execSummaryByEncounter(
+		const CostSummaryQuery::Wrapper& query, const PayloadDTO& payload);
 };
 
 #undef API_TAG

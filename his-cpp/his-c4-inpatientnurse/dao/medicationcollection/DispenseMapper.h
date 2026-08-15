@@ -2,7 +2,7 @@
 /*
  Copyright Zero One Star. All rights reserved.
 
- @Author: his-c4
+ @Author: Swan_Woo
  @Date: 2026/07/18 22:40:00
 
  Licensed under the Apache License, Version 2.0 (the "License");
@@ -37,10 +37,17 @@ public:
 		DispenseSummaryDO data;
 		data.setSummaryNo(resultSet->getString(1));
 		data.setStatusEnum(resultSet->getString(2));
-		data.setDesLocationId(resultSet->getString(3));
-		data.setItemCount(resultSet->getInt(4));
-		data.setPlannedDispenseTime(resultSet->getString(5));
-		data.setDispenseTime(resultSet->getString(6));
+		data.setStatusText(resultSet->getString(3));
+		data.setDesLocationId(resultSet->getString(4));
+		data.setDesLocationName(resultSet->getString(5));
+		data.setApplicantId(resultSet->getString(6));
+		data.setApplicantName(resultSet->getString(7));
+		data.setApplyTime(resultSet->getString(8));
+		data.setReceiverId(resultSet->getString(9));
+		data.setItemCount(resultSet->getInt(10));
+		data.setPlannedDispenseTime(resultSet->getString(11));
+		data.setDispenseTime(resultSet->getString(12));
+		data.setVersion(resultSet->getInt64(13));
 		return data;
 	}
 };
@@ -56,9 +63,14 @@ public:
 	{
 		DispenseDetailDO data;
 		data.setId(resultSet->getString(1));
-		data.setName(resultSet->getString(2));
-		data.setQuantity(resultSet->getDouble(3));
-		data.setUnitCode(resultSet->getString(4));
+		data.setMedicationId(resultSet->getString(2));
+		data.setName(resultSet->getString(3));
+		data.setQuantity(resultSet->getDouble(4));
+		data.setUnitCode(resultSet->getString(5));
+		data.setSpecification(resultSet->getString(6));
+		data.setPackageDisplay(resultSet->getString(7));
+		data.setUnitPrice(resultSet->getDouble(8));
+		data.setTotalPrice(resultSet->getDouble(9));
 		return data;
 	}
 };

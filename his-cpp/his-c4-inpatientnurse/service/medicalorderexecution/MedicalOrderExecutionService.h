@@ -2,7 +2,7 @@
 /*
  Copyright Zero One Star. All rights reserved.
 
- @Author: fanpai
+ @Author: Swan_Woo
  @Date: 2026/07/20 16:00:00
 
  Licensed under the Apache License, Version 2.0 (the "License");
@@ -23,6 +23,7 @@
 #include "domain/vo/medicalorderexecution/MedicalOrderVO.h"
 #include "domain/query/medicalorderexecution/MedicalOrderQuery.h"
 #include "domain/dto/medicalorderexecution/MedicalOrderExecutionDTO.h"
+#include "domain/dto/PayloadDTO.h"
 #include "domain/vo/BaseJsonVO.h"
 
 /**
@@ -66,6 +67,11 @@ public:
      * Defaults to status_enum = 'verified' if not specified.
      */
     MedicalOrderPageJsonVO::Wrapper queryExecutionItems(const MedicalOrderQuery::Wrapper& query);
+	OrderExecutionWorkbenchDTO::Wrapper queryExecutionWorkbench(
+		const OrderExecutionWorkbenchQueryDTO::Wrapper& query);
+	BatchOrderExecutionResponseDTO::Wrapper executeBatch(
+		const BatchExecuteOrderRequestDTO::Wrapper& dto,
+		const PayloadDTO& payload);
 
     /**
      * Start executing an order.

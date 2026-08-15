@@ -27,20 +27,17 @@
 class CostSummaryQuery : public oatpp::DTO {
 	DTO_INIT(CostSummaryQuery, DTO);
 
+	// patient id
+	API_DTO_FIELD_REQUIRE(String, patientId, ZH_WORDS_GETTER("chargedetails.field.patientId"), true);
 	// encounter id
-	API_DTO_FIELD_REQUIRE(String, encounterId, ZH_WORDS_GETTER("chargedetails.field.encounterId"), false);
+	API_DTO_FIELD_REQUIRE(String, encounterId, ZH_WORDS_GETTER("chargedetails.field.encounterId"), true);
 	// start date
-	API_DTO_FIELD_REQUIRE(String, startDate, ZH_WORDS_GETTER("chargedetails.field.startDate"), false);
+	API_DTO_FIELD_REQUIRE(String, startDate, ZH_WORDS_GETTER("chargedetails.field.startDate"), true);
 	// end date
-	API_DTO_FIELD_REQUIRE(String, endDate, ZH_WORDS_GETTER("chargedetails.field.endDate"), false);
+	API_DTO_FIELD_REQUIRE(String, endDate, ZH_WORDS_GETTER("chargedetails.field.endDate"), true);
 
 public:
-	CostSummaryQuery()
-	{
-		encounterId = "337907884548657152";
-		startDate = "2026-07-01";
-		endDate = "2026-07-24";
-	}
+	CostSummaryQuery() = default;
 };
 
 #include OATPP_CODEGEN_END(DTO)

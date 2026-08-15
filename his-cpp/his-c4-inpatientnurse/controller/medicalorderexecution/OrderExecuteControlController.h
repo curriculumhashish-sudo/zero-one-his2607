@@ -3,6 +3,8 @@
 #include "domain/vo/BaseJsonVO.h"
 #include "domain/dto/medicalorderexecution/OrderExecuteDTO.h"
 #include "domain/vo/medicalorderexecution/OrderExecuteVO.h"
+#include "domain/vo/medicalorderexecution/MedicalOrderVO.h"
+#include "controller/RequestValidation.h"
 
 #include OATPP_CODEGEN_BEGIN(ApiController)
 
@@ -19,7 +21,7 @@ public:
 		StringJsonVO::Wrapper,
 		API_TAG,
 		oatpp::List<OrderNotExecuteDTO::Wrapper> example = {
-			OrderNotExecuteDTO::createShared()};
+			OrderNotExecuteDTO::createExample()};
 		info->body.addExample("default", example);
 		info->responses[Status::CODE_200].addExample(
 			"success", StringJsonVO::createShared());
@@ -29,7 +31,7 @@ public:
 		API_M_POST,
 		"/advice/notexecute",
 		skipOrderExecution,
-		BODY_DTO(List<OrderNotExecuteDTO::Wrapper>, dto),
+		C4_REQUIRED_BODY_DTO(List<OrderNotExecuteDTO::Wrapper>, dto),
 		execSkipOrderExecution(dto, authObject->getPayload())
 	);
 
@@ -40,7 +42,7 @@ public:
 		cancelOrderExecution,
 		CancelExecutionJsonVO::Wrapper,
 		API_TAG,
-		info->body.addExample("default", CancelExecutionRequestDTO::createShared());
+		info->body.addExample("default", CancelExecutionRequestDTO::createExample());
 		info->responses[Status::CODE_200].addExample(
 			"success", CancelExecutionJsonVO::createShared());
 	);
@@ -49,9 +51,41 @@ public:
 		API_M_POST,
 		"/advice/cancelexecute",
 		cancelOrderExecution,
-		BODY_DTO(CancelExecutionRequestDTO::Wrapper, dto),
+		C4_REQUIRED_BODY_DTO(CancelExecutionRequestDTO::Wrapper, dto),
 		execCancelOrderExecution(dto, authObject->getPayload())
 	);
+
+	API_DEF_ENDPOINT_INFO_AUTH(
+		ZH_WORDS_GETTER("medical-order-execution.workbench-skip.summary"),
+		skipOrderExecutionBatch,
+		BatchOrderExecutionJsonVO::Wrapper,
+		API_TAG,
+		info->body.addExample("default", BatchSkipOrderRequestDTO::createExample());
+		info->responses[Status::CODE_200].addExample(
+			"success", BatchOrderExecutionJsonVO::createShared());
+	);
+	API_HANDLER_ENDPOINT_AUTH(
+		API_M_POST,
+		"/nurse-station/order-executions/skip",
+		skipOrderExecutionBatch,
+		C4_REQUIRED_BODY_DTO(BatchSkipOrderRequestDTO::Wrapper, dto),
+		execSkipOrderExecutionBatch(dto, authObject->getPayload()));
+
+	API_DEF_ENDPOINT_INFO_AUTH(
+		ZH_WORDS_GETTER("medical-order-execution.workbench-cancel.summary"),
+		cancelOrderExecutionBatch,
+		BatchOrderExecutionJsonVO::Wrapper,
+		API_TAG,
+		info->body.addExample("default", BatchCancelExecutionRequestDTO::createExample());
+		info->responses[Status::CODE_200].addExample(
+			"success", BatchOrderExecutionJsonVO::createShared());
+	);
+	API_HANDLER_ENDPOINT_AUTH(
+		API_M_POST,
+		"/nurse-station/order-executions/cancel",
+		cancelOrderExecutionBatch,
+		C4_REQUIRED_BODY_DTO(BatchCancelExecutionRequestDTO::Wrapper, dto),
+		execCancelOrderExecutionBatch(dto, authObject->getPayload()));
 private:
 	StringJsonVO::Wrapper execSkipOrderExecution(
 		const List<OrderNotExecuteDTO::Wrapper>&, 
@@ -60,6 +94,10 @@ private:
 	CancelExecutionJsonVO::Wrapper execCancelOrderExecution(
 		const CancelExecutionRequestDTO::Wrapper&,
 		const PayloadDTO&);
+	BatchOrderExecutionJsonVO::Wrapper execSkipOrderExecutionBatch(
+		const BatchSkipOrderRequestDTO::Wrapper&, const PayloadDTO&);
+	BatchOrderExecutionJsonVO::Wrapper execCancelOrderExecutionBatch(
+		const BatchCancelExecutionRequestDTO::Wrapper&, const PayloadDTO&);
 };
 
 #undef API_TAG

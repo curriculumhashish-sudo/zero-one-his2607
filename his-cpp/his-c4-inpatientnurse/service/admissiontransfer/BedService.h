@@ -28,7 +28,8 @@ class BedService
 {
 public:
     // Query free beds with pagination
-    BedPageDTO::Wrapper listFree(const BedQuery::Wrapper& query);
+	BedPageDTO::Wrapper listFree(
+		const BedQuery::Wrapper& query, const std::string& userId);
     // Assign(reserve) a bed. Returns the new record id, or "" on failure/duplicate.
     std::string assignBed(const BedAssignAddDTO::Wrapper& dto, const PayloadDTO& payload);
 };

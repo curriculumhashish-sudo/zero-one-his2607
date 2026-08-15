@@ -28,19 +28,22 @@ class CostSummaryDTO : public oatpp::DTO {
 	DTO_INIT(CostSummaryDTO, DTO);
 
 	// type code
-	API_DTO_FIELD(String, typeCode, ZH_WORDS_GETTER("chargedetails.field.typeCode"), true, "");
+	API_DTO_FIELD_REQUIRE(String, typeCode, ZH_WORDS_GETTER("chargedetails.field.typeCode"), true);
 	// type name
-	API_DTO_FIELD(String, typeName, ZH_WORDS_GETTER("chargedetails.field.typeName"), true, "");
+	API_DTO_FIELD_REQUIRE(String, typeName, ZH_WORDS_GETTER("chargedetails.field.typeName"), true);
 	// total amount
-	API_DTO_FIELD(Float64, totalAmount, ZH_WORDS_GETTER("chargedetails.field.totalAmount"), true, 0.0);
+	API_DTO_FIELD_REQUIRE(Float64, totalAmount, ZH_WORDS_GETTER("chargedetails.field.totalAmount"), true);
 	// count
-	API_DTO_FIELD(Int64, count, ZH_WORDS_GETTER("chargedetails.field.count"), true, v_int64(0));
-	// insurance amount
-	API_DTO_FIELD(Float64, insuranceAmount, ZH_WORDS_GETTER("chargedetails.field.insuranceAmount"), true, 0.0);
-	// self-pay amount
-	API_DTO_FIELD(Float64, selfPayAmount, ZH_WORDS_GETTER("chargedetails.field.selfPayAmount"), true, 0.0);
+	API_DTO_FIELD_REQUIRE(Int64, count, ZH_WORDS_GETTER("chargedetails.field.count"), true);
 	// summary date
-	API_DTO_FIELD(String, summaryDate, ZH_WORDS_GETTER("chargedetails.field.summaryDate"), true, "");
+	API_DTO_FIELD_REQUIRE(String, summaryDate, ZH_WORDS_GETTER("chargedetails.field.summaryDate"), true);
+
+public:
+	CostSummaryDTO()
+	{
+		totalAmount = 0.0;
+		count = static_cast<v_int64>(0);
+	}
 };
 
 #include OATPP_CODEGEN_END(DTO)

@@ -117,49 +117,18 @@ class PatientQueueItemDTO : public oatpp::DTO
 public:
 	PatientQueueItemDTO()
 	{
-		accountId = "337907884548657153";
-		accountBalance = 1300.00;
-		accountBalanceDisplayMode = "BALANCE";
-		prepayNetBalance = 1500.00;
-		accountBalanceSubText = ZH_WORDS_GETTER("business-text.encounter.available-balance");
-		accountBalanceSummaryText = ZH_WORDS_GETTER("business-text.sample.balance-summary");
-		availableBalance = 1300.00;
-		admissionTime = "2026-07-21 08:30:00";
-		ageText = ZH_WORDS_GETTER("business-text.sample.age-text");
-		arrearsAmount = 0.00;
-		attendingDoctorName = ZH_WORDS_GETTER("business-text.sample.doctor-name");
-		bedId = "334526696776220672";
-		bedName = ZH_WORDS_GETTER("business-text.sample.bed-name");
-		diagnosisSummary = ZH_WORDS_GETTER("business-text.sample.diagnosis-summary");
 		diagnosisList = List<String>::createShared();
-		diagnosisList->push_back(ZH_WORDS_GETTER("business-text.sample.diagnosis-summary"));
-		encounterBusNo = "ZY202607210001";
-		encounterId = "337907884548657152";
-		endTime = "2026-07-25 10:00:00";
-		genderEnum = "FEMALE";
-		genderEnumText = ZH_WORDS_GETTER("business-text.enum.gender-female");
-		houseName = "301";
-		houseId = "334526640208363520";
+		accountBalance = 0.0;
+		prepayNetBalance = 0.0;
+		availableBalance = 0.0;
+		arrearsAmount = 0.0;
 		lowBalanceWarning = false;
-		organizationId = "327170091059744768";
-		organizationName = ZH_WORDS_GETTER("business-text.sample.department-name");
-		paidAmount = 1500.00;
-		patientId = "326940849401761792";
-		patientName = ZH_WORDS_GETTER("business-text.sample.patient-name");
+		paidAmount = 0.0;
 		pendingAuditCount = 0;
 		pendingExecuteCount = 0;
-		pendingSettlementTotal = 200.00;
-		pinyinCode = "XS";
-		primaryNurseName = ZH_WORDS_GETTER("business-text.sample.nurse-name");
-		priorityEnum = "NORMAL";
+		pendingSettlementTotal = 0.0;
 		recallEnabled = false;
-		startTime = "2026-07-21 08:30:00";
-		statusEnum = "IN_PROGRESS";
-		statusEnumText = ZH_WORDS_GETTER("business-text.enum.encounter-in-hospital");
-		totalAmount = 200.00;
-		wardId = "334526584536674304";
-		wardName = ZH_WORDS_GETTER("business-text.sample.ward-name");
-		wubiCode = "XS";
+		totalAmount = 0.0;
 	}
 };
 
@@ -172,10 +141,9 @@ public:
 	{
 		this->pageIndex = 1;
 		this->pageSize = 10;
-		this->total = 1;
-		this->pages = 1;
+		this->total = static_cast<v_int64>(0);
+		this->pages = static_cast<v_int64>(0);
 		this->rows = List<PatientQueueItemDTO::Wrapper>::createShared();
-		this->rows->push_back(PatientQueueItemDTO::createShared());
 	}
 };
 

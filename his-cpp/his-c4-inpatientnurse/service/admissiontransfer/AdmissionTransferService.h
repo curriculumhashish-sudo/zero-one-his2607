@@ -21,12 +21,20 @@
 #define _ADMISSION_TRANSFER_SERVICE_H_
 #include "domain/dto/admissiontransfer/ExecuteInpatientDischargeDTO.h"
 #include "domain/dto/admissiontransfer/ClearDischargedBedDTO.h"
+#include "domain/dto/admissiontransfer/AdmissionTransferWorkbenchDTO.h"
+#include "domain/query/admissiontransfer/BedBoardQuery.h"
 
 class AdmissionTransferService
 {
 public:
 	ExecuteInpatientDischargeResponseDTO::Wrapper discharge(const ExecuteInpatientDischargeDTO::Wrapper& dto,const std::string& operatorId);
 	ClearDischargedBedResponseDTO::Wrapper clearBed(const ClearDischargedBedDTO::Wrapper& dto,const std::string& operatorId);
+	BedBoardDTO::Wrapper queryBedBoard(
+		const BedBoardQuery::Wrapper& query, const std::string& userId);
+	BedOperationResponseDTO::Wrapper executeBedOperation(const ExecuteBedOperationDTO::Wrapper& dto,const std::string& operatorId);
+	RecallInpatientDischargeResponseDTO::Wrapper recallDischarge(const RecallInpatientDischargeDTO::Wrapper& dto,const std::string& operatorId);
+	oatpp::List<DischargePendingItemDTO::Wrapper> queryPendingExecutions(const std::string& encounterId);
+	oatpp::List<DischargePendingItemDTO::Wrapper> queryPendingMedications(const std::string& encounterId);
 };
 
 #endif // !_ADMISSION_TRANSFER_SERVICE_H_

@@ -23,6 +23,7 @@
 #include "domain/query/nursing/NursingRecordQuery.h"
 #include "domain/dto/nursing/NursingRecordDTO.h"
 #include "domain/vo/nursing/NursingRecordVO.h"
+#include "controller/RequestValidation.h"
 
 using namespace oatpp;
 
@@ -46,9 +47,9 @@ public:
 		API_DEF_ADD_QUERY_PARAMS(String, "patientId",
 			ZH_WORDS_GETTER("nursing.field.patientId"), "326940849401761792", true);
 		API_DEF_ADD_QUERY_PARAMS(String, "recordedAtFrom",
-			ZH_WORDS_GETTER("nursing.field.recordedAtFrom"), "2026-07-01", false);
+			ZH_WORDS_GETTER("nursing.field.recordedAtFrom"), "2026-07-01 00:00:00", false);
 		API_DEF_ADD_QUERY_PARAMS(String, "recordedAtTo",
-			ZH_WORDS_GETTER("nursing.field.recordedAtTo"), "2026-07-24", false);
+			ZH_WORDS_GETTER("nursing.field.recordedAtTo"), "2026-07-24 23:59:59", false);
 		API_DEF_ADD_QUERY_PARAMS(Boolean, "sortAsc",
 			ZH_WORDS_GETTER("nursing.field.sortAsc"), false, false);
 		info->responses[Status::CODE_200].addExample(
@@ -59,7 +60,7 @@ public:
 		"/nursing/list-records",
 		listNursingRecords,
 		NursingRecordQuery,
-		execListNursingRecords(query));
+		execListNursingRecords(query, authObject->getPayload()));
 
 	// Save nursing records in batch
 	API_DEF_ENDPOINT_INFO_AUTH(
@@ -67,7 +68,7 @@ public:
 		saveNursingRecords,
 		NursingRecordSaveJsonVO::Wrapper,
 		API_TAG,
-		info->body.addExample("default", NursingRecordSaveRequestDTO::createShared());
+		info->body.addExample("default", NursingRecordSaveRequestDTO::createExample());
 		info->responses[Status::CODE_200].addExample(
 			"success", NursingRecordSaveJsonVO::createShared());
 	);
@@ -75,8 +76,24 @@ public:
 		API_M_POST,
 		"/nursing/save-records",
 		saveNursingRecords,
-		BODY_DTO(NursingRecordSaveRequestDTO::Wrapper, dto),
-		execSaveNursingRecords(dto));
+		C4_REQUIRED_BODY_DTO(NursingRecordSaveRequestDTO::Wrapper, dto),
+		execSaveNursingRecords(dto, authObject->getPayload()));
+
+	API_DEF_ENDPOINT_INFO_AUTH(
+		ZH_WORDS_GETTER("nursing.delete-record.summary"),
+		deleteNursingRecord,
+		NursingRecordDeleteJsonVO::Wrapper,
+		API_TAG,
+		info->body.addExample("default", NursingRecordDeleteRequestDTO::createExample());
+		info->responses[Status::CODE_200].addExample(
+			"success", NursingRecordDeleteJsonVO::createShared());
+	);
+	API_HANDLER_ENDPOINT_AUTH(
+		API_M_POST,
+		"/nursing/delete-record",
+		deleteNursingRecord,
+		C4_REQUIRED_BODY_DTO(NursingRecordDeleteRequestDTO::Wrapper, dto),
+		execDeleteNursingRecord(dto, authObject->getPayload()));
 
 	API_DEF_ENDPOINT_INFO_AUTH(
 		ZH_WORDS_GETTER("nursing.delete.summary"),
@@ -96,9 +113,9 @@ public:
 
 private:
 	NursingRecordListJsonVO::Wrapper execListNursingRecords(
-		const NursingRecordQuery::Wrapper& query);
+		const NursingRecordQuery::Wrapper& query, const PayloadDTO& payload);
 	NursingRecordSaveJsonVO::Wrapper execSaveNursingRecords(
-		const NursingRecordSaveRequestDTO::Wrapper& dto);
+		const NursingRecordSaveRequestDTO::Wrapper& dto, const PayloadDTO& payload);
 	NursingRecordDeleteJsonVO::Wrapper execDeleteNursingRecord(
 		const NursingRecordDeleteRequestDTO::Wrapper& dto, const PayloadDTO& payload);
 };

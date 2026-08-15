@@ -2,7 +2,7 @@
 /*
  Copyright Zero One Star. All rights reserved.
 
- @Author: his-c4
+ @Author: Swan_Woo
  @Date: 2026/07/18 22:50:00
 
  Licensed under the Apache License, Version 2.0 (the "License");
@@ -30,7 +30,8 @@ class DispenseService
 {
 public:
 	// query summary bill list with pagination (flow: validate -> cache -> db -> assemble)
-	DispenseSummaryPageDTO::Wrapper listSummary(const DispenseSummaryQuery::Wrapper& query);
+	DispenseSummaryPageDTO::Wrapper listSummary(
+		const DispenseSummaryQuery::Wrapper& query, const std::string& userId);
 	// query dispense details by summary bill no
 	oatpp::List<oatpp::Object<DispenseDetailDTO>> listDetail(const std::string& summaryNo);
 };

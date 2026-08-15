@@ -1,7 +1,7 @@
 /*
  Copyright Zero One Star. All rights reserved.
 
- @Author: his-c4
+ @Author: Swan_Woo
  @Date: 2026/07/18 22:50:00
 
  Licensed under the Apache License, Version 2.0 (the "License");
@@ -88,7 +88,8 @@ namespace {
 }
 #endif
 
-DispenseSummaryPageDTO::Wrapper DispenseService::listSummary(const DispenseSummaryQuery::Wrapper& query)
+DispenseSummaryPageDTO::Wrapper DispenseService::listSummary(
+	const DispenseSummaryQuery::Wrapper& query, const std::string& userId)
 {
 #ifdef USE_REDIS
 	auto jsonMapper = oatpp::parser::json::mapping::ObjectMapper::createShared();
@@ -96,8 +97,13 @@ DispenseSummaryPageDTO::Wrapper DispenseService::listSummary(const DispenseSumma
 	// cache key contains all filter and page dimensions
 	string cacheKey = "dispense:summary:" + query->statusEnum.getValue("")
 		+ ":" + query->dispenseDate.getValue("")
+		+ ":" + query->destinationLocationId.getValue("")
+		+ ":" + query->startDate.getValue("")
+		+ ":" + query->endDate.getValue("")
+		+ ":" + query->keyword.getValue("")
 		+ ":" + std::to_string(query->pageIndex.getValue(1))
 		+ ":" + std::to_string(query->pageSize.getValue(10));
+	cacheKey += ":" + userId;
 
 	// cache check (flow-chart step): hit -> assemble from cache directly
 	string cached = cacheGet(cacheKey);
@@ -120,7 +126,7 @@ DispenseSummaryPageDTO::Wrapper DispenseService::listSummary(const DispenseSumma
 
 	// cache miss -> query database (med_medication_dispense)
 	DispenseDAO dao;
-	uint64_t count = dao.countSummary(query);
+	uint64_t count = dao.countSummary(query, userId);
 	if (count <= 0)
 	{
 		return pages;
@@ -129,7 +135,7 @@ DispenseSummaryPageDTO::Wrapper DispenseService::listSummary(const DispenseSumma
 	// query rows with pagination
 	pages->total = count;
 	pages->calcPages();
-	list<DispenseSummaryDO> result = dao.selectSummaryWithPage(query);
+	list<DispenseSummaryDO> result = dao.selectSummaryWithPage(query, userId);
 	// convert DO to DTO
 	for (DispenseSummaryDO& sub : result)
 	{
@@ -137,10 +143,25 @@ DispenseSummaryPageDTO::Wrapper DispenseService::listSummary(const DispenseSumma
 		ZO_STAR_DOMAIN_DO_TO_DTO(dto, sub,
 			summaryNo, SummaryNo,
 			statusEnum, StatusEnum,
+			statusText, StatusText,
 			desLocationId, DesLocationId,
+			desLocationName, DesLocationName,
+			applicantId, ApplicantId,
+			applicantName, ApplicantName,
+			applyTime, ApplyTime,
+			receiverId, ReceiverId,
 			itemCount, ItemCount,
 			plannedDispenseTime, PlannedDispenseTime,
-			dispenseTime, DispenseTime);
+			dispenseTime, DispenseTime,
+			version, Version);
+		if (dto->statusEnum == "PENDING_SUBMIT")
+			dto->statusText = ZH_WORDS_GETTER("business-text.medication-collection.status-pending-submit");
+		else if (dto->statusEnum == "SUBMITTED")
+			dto->statusText = ZH_WORDS_GETTER("business-text.medication-collection.status-submitted");
+		else if (dto->statusEnum == "DISPENSED")
+			dto->statusText = ZH_WORDS_GETTER("business-text.medication-collection.status-dispensed");
+		else if (dto->statusEnum == "CANCELLED")
+			dto->statusText = ZH_WORDS_GETTER("business-text.medication-collection.status-cancelled");
 		pages->addData(dto);
 	}
 
@@ -184,9 +205,14 @@ oatpp::List<oatpp::Object<DispenseDetailDTO>> DispenseService::listDetail(const 
 		auto dto = DispenseDetailDTO::createShared();
 		ZO_STAR_DOMAIN_DO_TO_DTO(dto, sub,
 			id, Id,
+			medicationId, MedicationId,
 			name, Name,
 			quantity, Quantity,
-			unitCode, UnitCode);
+			unitCode, UnitCode,
+			specification, Specification,
+			packageDisplay, PackageDisplay,
+			unitPrice, UnitPrice,
+			totalPrice, TotalPrice);
 		rows->push_back(dto);
 	}
 

@@ -22,13 +22,33 @@
 #include "BaseDAO.h"
 #include "domain/query/medicalorderverification/MedicalOrderVerificationQuery.h"
 #include "domain/dto/medicalorderverification/MedicalOrderVerificationDetailDTO.h"
+#include "domain/dto/medicalorderverification/VerificationDTO.h"
 
 class MedicalOrderVerificationDAO : public BaseDAO
 {
 public:
 	std::list<MedicalOrderVerificationDetailDTO::Wrapper> selectItems(const MedicalVerificationQuery::Wrapper& query);
-	int verify(const std::string& orderType,const std::string& requestId,const std::string& operatorId);
-	int reject(const std::string& orderType,const std::string& requestId,const std::string& reason,const std::string& operatorId);
+	std::list<MedicalOrderVerificationDetailDTO::Wrapper> selectWorkbenchItems(
+		const MedicalVerificationWorkbenchQueryDTO::Wrapper& query);
+	std::string selectEncounterId(const std::string& orderType,
+		const std::string& requestId);
+	std::list<VerificationWriteItemDTO::Wrapper> selectActiveTcmPrescriptionLines(
+		const std::string& requestId, const std::string& encounterId);
+	bool hasWriteState(const std::string& orderType, const std::string& requestId,
+		const std::string& encounterId, const std::string& statusEnum,
+		const std::string& operatorId);
+	int verify(const std::string& orderType,const std::string& requestId,
+		const std::string& encounterId,const oatpp::Int64& expectedVersion,
+		const std::string& operatorId);
+	int reject(const std::string& orderType,const std::string& requestId,
+		const std::string& encounterId,const oatpp::Int64& expectedVersion,
+		const std::string& reason,const std::string& operatorId);
+	std::list<std::string> selectIdempotencyResult(
+		const std::string& operation, const std::string& idempotencyKey);
+	int insertIdempotencyResult(
+		const std::string& auditId, const std::string& operation,
+		const std::string& idempotencyKey, const std::string& operatorId,
+		const std::string& fingerprint, const std::string& resultData);
 };
 
 #endif // !_MEDICAL_ORDER_VERIFICATION_DAO_H_

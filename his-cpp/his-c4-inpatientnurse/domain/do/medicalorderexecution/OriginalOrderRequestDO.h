@@ -5,7 +5,6 @@
 
 #include "../DoInclude.h"
 
-// 药品医嘱和诊疗医嘱共用的原医嘱查询投影对象
 class OriginalOrderRequestDO
 {
 	MYSQL_SYNTHESIZE(string, encounterId, EncounterId);

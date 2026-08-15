@@ -32,6 +32,26 @@ class VerificationWriteItemDTO : public oatpp::DTO
 		ZH_WORDS_GETTER("medicalOrderVerification.field.orderType"), true);
 	API_DTO_FIELD_REQUIRE(String, requestId,
 		ZH_WORDS_GETTER("medicalOrderVerification.field.requestId"), true);
+	API_DTO_FIELD_REQUIRE(String, encounterId,
+		ZH_WORDS_GETTER("medicalOrderVerification.field.encounterId"), false);
+	API_DTO_FIELD_REQUIRE(Int64, expectedVersion,
+		ZH_WORDS_GETTER("medicalOrderVerification.field.expectedVersion"), true);
+};
+
+class VerificationWriteResultDTO : public oatpp::DTO
+{
+	DTO_INIT(VerificationWriteResultDTO, DTO);
+
+	API_DTO_FIELD_REQUIRE(String, orderType,
+		ZH_WORDS_GETTER("medicalOrderVerification.field.orderType"), true);
+	API_DTO_FIELD_REQUIRE(String, requestId,
+		ZH_WORDS_GETTER("medicalOrderVerification.field.requestId"), true);
+	API_DTO_FIELD_REQUIRE(Boolean, success,
+		ZH_WORDS_GETTER("medicalOrderVerification.field.success"), true);
+	API_DTO_FIELD_REQUIRE(String, targetStatusEnum,
+		ZH_WORDS_GETTER("medicalOrderVerification.field.targetStatusEnum"), false);
+	API_DTO_FIELD_REQUIRE(String, message,
+		ZH_WORDS_GETTER("medicalOrderVerification.field.message"), false);
 };
 
 class VerifyPassRequestDTO : public oatpp::DTO
@@ -40,15 +60,22 @@ class VerifyPassRequestDTO : public oatpp::DTO
 
 	API_DTO_FIELD_REQUIRE(List<VerificationWriteItemDTO::Wrapper>, items,
 		ZH_WORDS_GETTER("medicalOrderVerification.field.items"), true);
+	API_DTO_FIELD_REQUIRE(String, idempotencyKey,
+		ZH_WORDS_GETTER("medicalOrderVerification.field.idempotencyKey"), true);
 
 public:
-	VerifyPassRequestDTO()
+	static Wrapper createExample()
 	{
-		items = List<VerificationWriteItemDTO::Wrapper>::createShared();
+		auto dto = createShared();
+		dto->items = List<VerificationWriteItemDTO::Wrapper>::createShared();
 		auto item = VerificationWriteItemDTO::createShared();
 		item->orderType = "MED_REQUEST";
 		item->requestId = "338131147144708096";
-		items->push_back(item);
+		item->encounterId = "337907884548657152";
+		item->expectedVersion = static_cast<v_int64>(0);
+		dto->items->push_back(item);
+		dto->idempotencyKey = "VERIFY-20260801-0001";
+		return dto;
 	}
 };
 
@@ -60,12 +87,15 @@ class VerifyPassResponseDTO : public oatpp::DTO
 		ZH_WORDS_GETTER("medicalOrderVerification.field.success"), false);
 	API_DTO_FIELD_REQUIRE(Int32, processedCount,
 		ZH_WORDS_GETTER("medicalOrderVerification.field.processedCount"), false);
+	API_DTO_FIELD_REQUIRE(List<VerificationWriteResultDTO::Wrapper>, results,
+		ZH_WORDS_GETTER("medicalOrderVerification.field.results"), false);
 
 public:
 	VerifyPassResponseDTO()
 	{
-		success = true;
-		processedCount = 1;
+		success = false;
+		processedCount = 0;
+		results = List<VerificationWriteResultDTO::Wrapper>::createShared();
 	}
 };
 
@@ -76,17 +106,24 @@ class RejectOrdersRequestDTO : public oatpp::DTO
 	API_DTO_FIELD_REQUIRE(List<VerificationWriteItemDTO::Wrapper>, items,
 		ZH_WORDS_GETTER("medicalOrderVerification.field.items"), true);
 	API_DTO_FIELD_REQUIRE(String, reason,
-		ZH_WORDS_GETTER("medicalOrderVerification.field.reason"), false);
+		ZH_WORDS_GETTER("medicalOrderVerification.field.reason"), true);
+	API_DTO_FIELD_REQUIRE(String, idempotencyKey,
+		ZH_WORDS_GETTER("medicalOrderVerification.field.idempotencyKey"), true);
 
 public:
-	RejectOrdersRequestDTO()
+	static Wrapper createExample()
 	{
-		items = List<VerificationWriteItemDTO::Wrapper>::createShared();
+		auto dto = createShared();
+		dto->items = List<VerificationWriteItemDTO::Wrapper>::createShared();
 		auto item = VerificationWriteItemDTO::createShared();
 		item->orderType = "MED_REQUEST";
 		item->requestId = "338131147144708096";
-		items->push_back(item);
-		reason = "Insufficient patient information";
+		item->encounterId = "337907884548657152";
+		item->expectedVersion = static_cast<v_int64>(0);
+		dto->items->push_back(item);
+		dto->reason = "Insufficient patient information";
+		dto->idempotencyKey = "REJECT-20260801-0001";
+		return dto;
 	}
 };
 
@@ -98,12 +135,15 @@ class RejectOrdersResponseDTO : public oatpp::DTO
 		ZH_WORDS_GETTER("medicalOrderVerification.field.success"), false);
 	API_DTO_FIELD_REQUIRE(Int32, processedCount,
 		ZH_WORDS_GETTER("medicalOrderVerification.field.processedCount"), false);
+	API_DTO_FIELD_REQUIRE(List<VerificationWriteResultDTO::Wrapper>, results,
+		ZH_WORDS_GETTER("medicalOrderVerification.field.results"), false);
 
 public:
 	RejectOrdersResponseDTO()
 	{
-		success = true;
-		processedCount = 1;
+		success = false;
+		processedCount = 0;
+		results = List<VerificationWriteResultDTO::Wrapper>::createShared();
 	}
 };
 

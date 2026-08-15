@@ -23,20 +23,40 @@
 #include "../../domain/do/admissiontransfer/LocationDO.h"
 #include "../../domain/do/admissiontransfer/BedReservationDO.h"
 #include "../../domain/query/admissiontransfer/BedQuery.h"
+#include "domain/dto/admissiontransfer/BedDTO.h"
 
 // Bed DAO: query free beds + reserve(assign) a bed
 class BedDAO : public BaseDAO
 {
 private:
     // Build the shared WHERE clause (free-bed condition)
-    inline std::string queryConditionBuilder(const BedQuery::Wrapper& query, SqlParams& params);
+	inline std::string queryConditionBuilder(const BedQuery::Wrapper& query,
+		const std::string& userId, SqlParams& params);
 public:
     // Count free beds
-    uint64_t countFree(const BedQuery::Wrapper& query);
+	uint64_t countFree(const BedQuery::Wrapper& query, const std::string& userId);
     // Query free beds with pagination
-    std::list<LocationDO> selectFreeWithPage(const BedQuery::Wrapper& query);
+	std::list<BedDTO::Wrapper> selectFreeWithPage(
+		const BedQuery::Wrapper& query, const std::string& userId);
+    bool canReserve(
+        const std::string& patientId,
+        const std::string& locationId,
+        const std::string& intendedAdmissionDate);
     // Insert a reservation record (assign). Returns affected rows.
     int reserve(const BedReservationDO& data);
+	std::string resolveEncounterId(
+		const std::string& appointmentId, const std::string& patientId);
+	std::string selectEncounterStatusForUpdate(const std::string& encounterId);
+	std::string selectActiveBedForUpdate(const std::string& encounterId);
+	std::string selectBedOperationalStatusForUpdate(const std::string& bedId);
+	int occupyBed(const std::string& bedId, const std::string& operatorId);
+	int createBedTrack(const std::string& encounterId, const std::string& bedId,
+		const std::string& operatorId);
+	int markEncounterAdmitted(const std::string& encounterId,
+		const std::string& operatorId);
+	int consumeReservation(const std::string& appointmentId,
+		const std::string& patientId, const std::string& bedId,
+		const std::string& operatorId);
 };
 
 #endif // !_BED_DAO_

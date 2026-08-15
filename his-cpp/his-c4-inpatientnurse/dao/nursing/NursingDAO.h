@@ -57,13 +57,28 @@ public:
     std::list<VitalSignDO> selectBySlot(const std::string& encounterId, const std::string& patientId,
                                          const std::string& recordDate, const std::string& recordTime);
 
+	std::list<VitalSignDO> selectRecord(const std::string& vitalSignId,
+		const std::string& encounterId, const std::string& patientId);
+
     int softDeleteById(const std::string& id);
 
+	int updateMainRecord(const VitalSignDO& data, int64_t expectedVersion);
+
     int deleteByVitalSignId(const std::string& vitalSignId);
-	int softDeleteOwnedRecord(const std::string& id, const std::string& encounterId,
-		const std::string& patientId, int version, const std::string& operatorId,
+
+	int softDeleteRecord(const std::string& vitalSignId,
+		const std::string& encounterId, const std::string& patientId,
+		int64_t expectedVersion, const std::string& operatorId,
 		const std::string& reason);
-	int softDeleteDetails(const std::string& vitalSignId, const std::string& operatorId);
+	bool validRecordedAt(const std::string& encounterId,
+		const std::string& patientId, const std::string& recordedAt);
+	std::list<std::string> selectIdempotencyResult(
+		const std::string& operation, const std::string& idempotencyKey);
+	int insertIdempotencyResult(const std::string& auditId,
+		const std::string& operation, const std::string& idempotencyKey,
+		const std::string& operatorId, const std::string& fingerprint,
+		const std::string& resultData);
+	std::string selectOperatorDisplay(const std::string& userId);
 };
 
 #endif // !_NURSING_DAO_

@@ -55,9 +55,7 @@ public:
 		data->typeName = resultSet->getString(2).asStdString();
 		data->totalAmount = resultSet->getDouble(3);
 		data->count = resultSet->getInt64(4);
-		data->insuranceAmount = resultSet->getDouble(5);
-		data->selfPayAmount = resultSet->getDouble(6);
-		data->summaryDate = resultSet->getString(7).asStdString();
+		data->summaryDate = resultSet->getString(5).asStdString();
 		return data;
 	}
 };
@@ -66,14 +64,24 @@ std::string CostDetailDAO::queryConditionBuilder(const CostDetailQuery::Wrapper&
 {
 	std::stringstream sql;
 	sql << " WHERE i.is_deleted = 0";
+	sql << " AND COALESCE(i.status_enum,'') NOT IN ('CANCEL','CANCELLED','VOID','REVOKED')";
 	sql << " AND i.patient_id = ?";
 	SQLPARAMS_PUSH(params, "s", std::string, query->patientId.getValue(""));
 	sql << " AND i.encounter_id = ?";
 	SQLPARAMS_PUSH(params, "s", std::string, query->encounterId.getValue(""));
-	sql << " AND i.occurrence_time >= ?";
-	SQLPARAMS_PUSH(params, "s", std::string, query->startDate.getValue(""));
-	sql << " AND i.occurrence_time <= ?";
-	SQLPARAMS_PUSH(params, "s", std::string, query->endDate.getValue(""));
+	if (query->startDate && !query->startDate->empty()) {
+		sql << " AND i.occurrence_time >= ?";
+		SQLPARAMS_PUSH(params, "s", std::string, query->startDate.getValue(""));
+	}
+	if (query->endDate && !query->endDate->empty()) {
+		if (query->endDate->size() == 10) {
+			sql << " AND i.occurrence_time < DATE_ADD(?, INTERVAL 1 DAY)";
+		}
+		else {
+			sql << " AND i.occurrence_time <= ?";
+		}
+		SQLPARAMS_PUSH(params, "s", std::string, query->endDate.getValue(""));
+	}
 	if (query->typeCode && !query->typeCode->empty()) {
 		sql << " AND d.type_code = ?";
 		SQLPARAMS_PUSH(params, "s", std::string, query->typeCode.getValue(""));
@@ -97,12 +105,19 @@ std::list<CostDetailDTO::Wrapper> CostDetailDAO::selectWithPage(const CostDetail
 {
 	SqlParams params;
 	std::string sql =
-		"SELECT i.id, i.patient_id, i.encounter_id, d.charge_name, d.type_code, "
+		"SELECT i.id, i.patient_id, i.encounter_id, "
+		"COALESCE(NULLIF(d.charge_name,''),medication.name,activity.name,''), d.type_code, "
 		"i.unit_price, i.quantity_value, i.quantity_unit, i.total_price, "
 		"i.base_amount, i.discount_amount, i.occurrence_time, "
 		"i.performing_org_id, i.status_enum, i.bus_no "
 		"FROM adm_charge_item i "
-		"LEFT JOIN adm_charge_item_definition d ON i.definition_id = d.id ";
+		"LEFT JOIN adm_charge_item_definition d ON i.definition_id = d.id "
+		"LEFT JOIN med_medication_definition medication "
+		"ON i.product_table='med_medication_definition' AND medication.id=i.product_id "
+		"AND medication.is_deleted=0 "
+		"LEFT JOIN wkf_activity_definition activity "
+		"ON i.product_table='wkf_activity_definition' AND activity.id=i.product_id "
+		"AND activity.is_deleted=0 ";
 	sql += queryConditionBuilder(query, params);
 	sql += " ORDER BY i.occurrence_time DESC ";
 	sql += " LIMIT " + std::to_string((query->pageIndex - 1) * query->pageSize) + "," + std::to_string(query->pageSize);
@@ -113,19 +128,31 @@ std::list<CostSummaryDTO::Wrapper> CostDetailDAO::selectSummary(const CostSummar
 {
 	SqlParams params;
 	std::string sql =
-		"SELECT d.type_code, d.type_code, "
-		"COALESCE(SUM(i.total_price), 0), COUNT(*), 0, COALESCE(SUM(i.total_price), 0), "
+		"SELECT d.type_code, COALESCE(tc.display,d.type_code), "
+		"COALESCE(SUM(i.total_price), 0), COUNT(*), "
 		"DATE(i.occurrence_time) "
 		"FROM adm_charge_item i "
 		"LEFT JOIN adm_charge_item_definition d ON i.definition_id = d.id "
+		"LEFT JOIN ter_concept tc ON tc.code_system_id='236' AND tc.code=d.type_code AND tc.is_deleted=0 "
 		"WHERE i.is_deleted = 0 "
-		"AND i.encounter_id = ? "
-		"AND i.occurrence_time >= ? "
-		"AND i.occurrence_time <= ? "
-		"GROUP BY d.type_code, DATE(i.occurrence_time) "
-		"ORDER BY d.type_code";
+		"AND COALESCE(i.status_enum,'') NOT IN ('CANCEL','CANCELLED','VOID','REVOKED') "
+		"AND i.patient_id = ? "
+		"AND i.encounter_id = ? ";
+	SQLPARAMS_PUSH(params, "s", std::string, query->patientId.getValue(""));
 	SQLPARAMS_PUSH(params, "s", std::string, query->encounterId.getValue(""));
-	SQLPARAMS_PUSH(params, "s", std::string, query->startDate.getValue(""));
-	SQLPARAMS_PUSH(params, "s", std::string, query->endDate.getValue(""));
+	if (query->startDate && !query->startDate->empty()) {
+		sql += "AND i.occurrence_time >= ? ";
+		SQLPARAMS_PUSH(params, "s", std::string, query->startDate.getValue(""));
+	}
+	if (query->endDate && !query->endDate->empty()) {
+		if (query->endDate->size() == 10) {
+			sql += "AND i.occurrence_time < DATE_ADD(?, INTERVAL 1 DAY) ";
+		}
+		else {
+			sql += "AND i.occurrence_time <= ? ";
+		}
+		SQLPARAMS_PUSH(params, "s", std::string, query->endDate.getValue(""));
+	}
+	sql += "GROUP BY d.type_code,tc.display,DATE(i.occurrence_time) ORDER BY d.type_code";
 	return sqlSession->executeQuery<CostSummaryDTO::Wrapper>(sql, CostSummaryMapper(), params);
 }

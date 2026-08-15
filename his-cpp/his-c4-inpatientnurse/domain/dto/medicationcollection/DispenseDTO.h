@@ -2,7 +2,7 @@
 /*
  Copyright Zero One Star. All rights reserved.
 
- @Author: his-c4
+ @Author: Swan_Woo
  @Date: 2026/07/18 22:00:00
 
  Licensed under the Apache License, Version 2.0 (the "License");
@@ -35,24 +35,34 @@ class DispenseSummaryDTO : public oatpp::DTO
 		ZH_WORDS_GETTER("dispense.field.summary-no"), true);
 	API_DTO_FIELD_REQUIRE(String, statusEnum,
 		ZH_WORDS_GETTER("dispense.field.status-enum"), true);
+	API_DTO_FIELD_REQUIRE(String, statusText,
+		ZH_WORDS_GETTER("dispense.field.status-text"), true);
 	API_DTO_FIELD_REQUIRE(String, desLocationId,
 		ZH_WORDS_GETTER("dispense.field.des-location-id"), true);
+	API_DTO_FIELD_REQUIRE(String, desLocationName,
+		ZH_WORDS_GETTER("dispense.field.des-location-name"), false);
+	API_DTO_FIELD_REQUIRE(String, applicantId,
+		ZH_WORDS_GETTER("dispense.field.applicant-id"), false);
+	API_DTO_FIELD_REQUIRE(String, applicantName,
+		ZH_WORDS_GETTER("dispense.field.applicant-name"), false);
+	API_DTO_FIELD_REQUIRE(String, applyTime,
+		ZH_WORDS_GETTER("dispense.field.apply-time"), false);
+	API_DTO_FIELD_REQUIRE(String, receiverId,
+		ZH_WORDS_GETTER("dispense.field.receiver-id"), false);
 	API_DTO_FIELD_REQUIRE(Int32, itemCount,
 		ZH_WORDS_GETTER("dispense.field.item-count"), true);
 	API_DTO_FIELD_REQUIRE(String, plannedDispenseTime,
 		ZH_WORDS_GETTER("dispense.field.planned-dispense-time"), true);
 	API_DTO_FIELD_REQUIRE(String, dispenseTime,
 		ZH_WORDS_GETTER("dispense.field.dispense-time"), false);
+	API_DTO_FIELD_REQUIRE(Int64, version,
+		ZH_WORDS_GETTER("dispense.field.version"), true);
 
 public:
 	DispenseSummaryDTO()
 	{
-		summaryNo = "SUM20260719001";
-		statusEnum = "WAIT_REVIEW";
-		desLocationId = "LOC-WARD-0301";
-		itemCount = 3;
-		plannedDispenseTime = "2026-07-19 09:30:00";
-		dispenseTime = "2026-07-19 10:05:21";
+		itemCount = 0;
+		version = static_cast<v_int64>(0);
 	}
 };
 
@@ -68,10 +78,9 @@ public:
 	{
 		this->pageIndex = 1;
 		this->pageSize = 10;
-		this->total = 1;
-		this->pages = 1;
+		this->total = static_cast<v_int64>(0);
+		this->pages = static_cast<v_int64>(0);
 		this->rows = List<DispenseSummaryDTO::Wrapper>::createShared();
-		this->rows->push_back(DispenseSummaryDTO::createShared());
 	}
 };
 
@@ -85,20 +94,29 @@ class DispenseDetailDTO : public oatpp::DTO
 
 	API_DTO_FIELD_REQUIRE(String, id,
 		ZH_WORDS_GETTER("dispense.field.detail-id"), true);
+	API_DTO_FIELD_REQUIRE(String, medicationId,
+		ZH_WORDS_GETTER("dispense.field.medication-id"), true);
 	API_DTO_FIELD_REQUIRE(String, name,
 		ZH_WORDS_GETTER("dispense.field.medication-name"), true);
 	API_DTO_FIELD_REQUIRE(Float64, quantity,
 		ZH_WORDS_GETTER("dispense.field.quantity"), true);
 	API_DTO_FIELD_REQUIRE(String, unitCode,
 		ZH_WORDS_GETTER("dispense.field.unit-code"), true);
+	API_DTO_FIELD_REQUIRE(String, specification,
+		ZH_WORDS_GETTER("dispense.field.specification"), false);
+	API_DTO_FIELD_REQUIRE(String, packageDisplay,
+		ZH_WORDS_GETTER("dispense.field.package-display"), false);
+	API_DTO_FIELD_REQUIRE(Float64, unitPrice,
+		ZH_WORDS_GETTER("dispense.field.unit-price"), false);
+	API_DTO_FIELD_REQUIRE(Float64, totalPrice,
+		ZH_WORDS_GETTER("dispense.field.total-price"), false);
 
 public:
 	DispenseDetailDTO()
 	{
-		id = "1";
-		name = ZH_WORDS_GETTER("dispense.mock.med1-name");
-		quantity = 2.0;
-		unitCode = ZH_WORDS_GETTER("dispense.mock.med1-unit");
+		quantity = 0.0;
+		unitPrice = 0.0;
+		totalPrice = 0.0;
 	}
 };
 

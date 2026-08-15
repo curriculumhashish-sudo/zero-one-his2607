@@ -20,21 +20,28 @@
 #ifndef _BED_MAPPER_
 #define _BED_MAPPER_
 #include "Mapper.h"
-#include "../../domain/do/admissiontransfer/LocationDO.h"
+#include "domain/dto/admissiontransfer/BedDTO.h"
 
 // Mapper for adm_location free-bed query
-class BedMapper : public Mapper<LocationDO>
+class BedMapper : public Mapper<BedDTO::Wrapper>
 {
 public:
-    LocationDO mapper(ResultSet* resultSet) const override
+    BedDTO::Wrapper mapper(ResultSet* resultSet) const override
     {
-        LocationDO data;
-        data.setId(resultSet->getString(1));
-        data.setName(resultSet->getString(2));
-        data.setParent_id(resultSet->getString(3));
-        data.setForm_enum(resultSet->getString(4));
-        data.setStatus_enum(resultSet->getString(5));
-        data.setOrganization_id(resultSet->getString(6));
+		auto data = BedDTO::createShared();
+		data->id = resultSet->getString("bed_id").asStdString();
+		data->name = resultSet->getString("bed_name").asStdString();
+		data->parent_id = resultSet->getString("parent_id").asStdString();
+		data->form_enum = resultSet->getString("form_enum").asStdString();
+		data->status_enum = resultSet->getString("status_enum").asStdString();
+		data->organization_id = resultSet->getString("organization_id").asStdString();
+		data->operational_enum = resultSet->getString("operational_enum").asStdString();
+		data->version = resultSet->getInt64("version");
+		data->display_order = resultSet->getInt("display_order");
+		data->house_id = resultSet->getString("house_id").asStdString();
+		data->house_name = resultSet->getString("house_name").asStdString();
+		data->ward_id = resultSet->getString("ward_id").asStdString();
+		data->ward_name = resultSet->getString("ward_name").asStdString();
         return data;
     }
 };

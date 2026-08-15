@@ -32,10 +32,10 @@ class PatientStatisticsQuery : public oatpp::DTO
 		ZH_WORDS_GETTER("encountermanage.field.keyword"), false);
 	API_DTO_FIELD_REQUIRE(String, wardId,
 		ZH_WORDS_GETTER("encountermanage.field.wardId"), false);
-	API_DTO_FIELD_REQUIRE(String, houseId,
-		ZH_WORDS_GETTER("encountermanage.field.houseId"), false);
 	API_DTO_FIELD_REQUIRE(String, wardIds,
 		ZH_WORDS_GETTER("encountermanage.field.wardIds"), false);
+	API_DTO_FIELD_REQUIRE(String, houseId,
+		ZH_WORDS_GETTER("encountermanage.field.houseId"), false);
 	API_DTO_FIELD_REQUIRE(String, houseIds,
 		ZH_WORDS_GETTER("encountermanage.field.houseIds"), false);
 	API_DTO_FIELD_REQUIRE(String, nurseStationExecutionDate,
@@ -44,6 +44,10 @@ class PatientStatisticsQuery : public oatpp::DTO
 		ZH_WORDS_GETTER("encountermanage.field.nurseStationTaskFilter"), false);
 	API_DTO_FIELD_REQUIRE(String, nurseStationStatusFilter,
 		ZH_WORDS_GETTER("encountermanage.field.nurseStationStatusFilter"), false);
+	API_DTO_FIELD_REQUIRE(String, startDate,
+		ZH_WORDS_GETTER("encountermanage.field.startDate"), false);
+	API_DTO_FIELD_REQUIRE(String, endDate,
+		ZH_WORDS_GETTER("encountermanage.field.endDate"), false);
 };
 
 #include OATPP_CODEGEN_END(DTO)

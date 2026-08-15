@@ -2,7 +2,7 @@
 /*
  Copyright Zero One Star. All rights reserved.
 
- @Author: awei
+ @Author: Swan_Woo
  @Date: 2026/07/20 10:00:00
 
  Licensed under the Apache License, Version 2.0 (the "License");
@@ -25,7 +25,6 @@
     #include OATPP_CODEGEN_BEGIN(DTO)
 
 /**
- * 体温单 JsonVO —— 包装单张体温单查询响应。
  */
 class TemperatureJsonVO : public JsonVO<TemperatureDetailDTO::Wrapper>
 {

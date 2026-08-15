@@ -2,7 +2,7 @@
 /*
  Copyright Zero One Star. All rights reserved.
 
- @Author: awei
+ @Author: Swan_Woo
  @Date: 2026/07/19 10:00:00
 
  Licensed under the Apache License, Version 2.0 (the "License");
@@ -25,7 +25,6 @@
     #include OATPP_CODEGEN_BEGIN(DTO)
 
 /**
- *  护理记录 JsonVO（用于单条记录的查询响应）
  */
 class NursingJsonVO : public JsonVO<NursingDetailDTO::Wrapper>
 {
@@ -33,7 +32,6 @@ class NursingJsonVO : public JsonVO<NursingDetailDTO::Wrapper>
 };
 
 /**
- *  护理记录分页 JsonVO（用于分页查询响应）
  */
 class NursingPageJsonVO : public JsonVO<NursingPageDTO::Wrapper>
 {

@@ -29,28 +29,20 @@ class CostDetailQuery : public PageQuery {
 	DTO_INIT(CostDetailQuery, PageQuery);
 
 	// patient id
-	API_DTO_FIELD_REQUIRE(String, patientId, ZH_WORDS_GETTER("chargedetails.field.patientId"), false);
+	API_DTO_FIELD_REQUIRE(String, patientId, ZH_WORDS_GETTER("chargedetails.field.patientId"), true);
 	// encounter id
-	API_DTO_FIELD_REQUIRE(String, encounterId, ZH_WORDS_GETTER("chargedetails.field.encounterId"), false);
+	API_DTO_FIELD_REQUIRE(String, encounterId, ZH_WORDS_GETTER("chargedetails.field.encounterId"), true);
 	// start date
-	API_DTO_FIELD_REQUIRE(String, startDate, ZH_WORDS_GETTER("chargedetails.field.startDate"), false);
+	API_DTO_FIELD_REQUIRE(String, startDate, ZH_WORDS_GETTER("chargedetails.field.startDate"), true);
 	// end date
-	API_DTO_FIELD_REQUIRE(String, endDate, ZH_WORDS_GETTER("chargedetails.field.endDate"), false);
+	API_DTO_FIELD_REQUIRE(String, endDate, ZH_WORDS_GETTER("chargedetails.field.endDate"), true);
 	// type code
 	API_DTO_FIELD_REQUIRE(String, typeCode, ZH_WORDS_GETTER("chargedetails.field.typeCode"), false);
 	// bus no
 	API_DTO_FIELD_REQUIRE(String, busNo, ZH_WORDS_GETTER("chargedetails.field.busNo"), false);
 
 public:
-	CostDetailQuery()
-	{
-		patientId = "326940849401761792";
-		encounterId = "337907884548657152";
-		startDate = "2026-07-01";
-		endDate = "2026-07-24";
-		typeCode = "DRUG";
-		busNo = "CHG202607240001";
-	}
+	CostDetailQuery() = default;
 };
 
 #include OATPP_CODEGEN_END(DTO)

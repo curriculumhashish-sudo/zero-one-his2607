@@ -30,7 +30,19 @@
 #define DETAIL_COLUMNS \
     "id, tenant_id, created_at, updated_at, created_by, " \
     "updated_by, is_deleted, deleted_at, deleted_by, version, " \
-    "vital_sign_id, term_code, item_code, item_value, units, remark"
+	    "vital_sign_id, term_code, item_code, item_value, units, remark"
+
+namespace
+{
+	class NursingStringMapper : public Mapper<std::string>
+	{
+	public:
+		std::string mapper(ResultSet* resultSet) const override
+		{
+			return resultSet->getString(1);
+		}
+	};
+}
 
 std::string NursingDAO::queryConditionBuilder(const NursingRecordQuery::Wrapper& query, SqlParams& params)
 {
@@ -100,7 +112,7 @@ std::shared_ptr<PaperHeaderData> NursingDAO::selectPaperHeader(const std::string
     }
 
     SqlParams params;
-    std::string sql =
+    const std::string sql =
         "SELECT "
         "  p.bus_no AS inpatient_no, "
         "  p.name AS patient_name, "
@@ -108,19 +120,17 @@ std::shared_ptr<PaperHeaderData> NursingDAO::selectPaperHeader(const std::string
         "  TIMESTAMPDIFF(YEAR, p.birth_date, CURDATE()) AS age, "
         "  e.start_time AS admit_at, "
         "  e.end_time AS discharge_at, "
-        "  loc_room.name AS ward_name, "
-        "  loc_bed.name AS bed_no "
-        "FROM adm_patient p "
-        "LEFT JOIN adm_encounter e ON e.id = ? "
-        "LEFT JOIN adm_encounter_location el_room "
-        "  ON e.id = el_room.encounter_id "
-        "  AND el_room.form_enum = 'ROOM' AND el_room.status_enum = 'ACTIVE' "
-        "LEFT JOIN adm_location loc_room ON el_room.location_id = loc_room.id "
-        "LEFT JOIN adm_encounter_location el_bed "
-        "  ON e.id = el_bed.encounter_id "
-        "  AND el_bed.form_enum = 'BED' AND el_bed.status_enum = 'ACTIVE' "
-        "LEFT JOIN adm_location loc_bed ON el_bed.location_id = loc_bed.id "
-        "WHERE p.id = ?";
+        "  ward.name AS ward_name, "
+        "  bed.name AS bed_no "
+        "FROM adm_encounter e "
+        "JOIN adm_patient p ON p.id=e.patient_id AND p.is_deleted=0 "
+        "LEFT JOIN adm_encounter_location bed_rel "
+        "  ON bed_rel.encounter_id=e.id AND bed_rel.form_enum='BED' "
+        "  AND bed_rel.status_enum='ACTIVE' AND bed_rel.is_deleted=0 "
+        "LEFT JOIN adm_location bed ON bed.id=bed_rel.location_id AND bed.is_deleted=0 "
+        "LEFT JOIN adm_location house ON house.id=bed.parent_id AND house.is_deleted=0 "
+        "LEFT JOIN adm_location ward ON ward.id=house.parent_id AND ward.is_deleted=0 "
+        "WHERE e.id=? AND e.patient_id=? AND e.is_deleted=0 LIMIT 1";
 
     SQLPARAMS_PUSH(params, "s", std::string, encounterId);
     SQLPARAMS_PUSH(params, "s", std::string, patientId);
@@ -193,6 +203,21 @@ std::list<VitalSignDO> NursingDAO::selectBySlot(const std::string& encounterId,
     return sqlSession->executeQuery<VitalSignDO>(sql, NursingMapper(), params);
 }
 
+std::list<VitalSignDO> NursingDAO::selectRecord(
+	const std::string& vitalSignId, const std::string& encounterId,
+	const std::string& patientId)
+{
+	SqlParams params;
+	SQLPARAMS_PUSH(params, "s", std::string, vitalSignId);
+	SQLPARAMS_PUSH(params, "s", std::string, encounterId);
+	SQLPARAMS_PUSH(params, "s", std::string, patientId);
+	return sqlSession->executeQuery<VitalSignDO>(
+		"SELECT " NURSING_COLUMNS " FROM dia_vital_sign "
+		"WHERE id=? AND encounter_id=? AND patient_id=? "
+		"AND type_enum='NURSING_RECORD' AND is_deleted=0 LIMIT 1",
+		NursingMapper(), params);
+}
+
 // ---------------------------------------------------------------------------
 // softDeleteById — soft-delete a main record; BaseDAO delete marks is_deleted
 // ---------------------------------------------------------------------------
@@ -202,13 +227,94 @@ int NursingDAO::softDeleteById(const std::string& id)
     return sqlSession->executeUpdate(sql, "%s", id);
 }
 
+int NursingDAO::updateMainRecord(const VitalSignDO& data, int64_t expectedVersion)
+{
+	SqlParams params;
+	SQLPARAMS_PUSH(params,"s",std::string,data.getPatientId());
+	SQLPARAMS_PUSH(params,"s",std::string,data.getEncounterId());
+	SQLPARAMS_PUSH(params,"dt",std::string,data.getRecordedAt());
+	SQLPARAMS_PUSH(params,"s",std::string,data.getTypeEnum());
+	SQLPARAMS_PUSH(params,"s",std::string,data.getBusNo());
+	SQLPARAMS_PUSH(params,"s",std::string,data.getCreatedBy());
+	SQLPARAMS_PUSH(params,"s",std::string,data.getRecorderId());
+	SQLPARAMS_PUSH(params,"s",std::string,data.getRemark());
+	SQLPARAMS_PUSH(params,"s",std::string,data.getId());
+	SQLPARAMS_PUSH(params,"ll",int64_t,expectedVersion);
+	return sqlSession->executeUpdate(
+        "UPDATE dia_vital_sign SET patient_id=?,encounter_id=?,recorded_at=?,type_enum=?,"
+        "bus_no=?,updated_at=NOW(6),updated_by=?,is_deleted=0,deleted_at=NULL,deleted_by=NULL,"
+		"recorder_id=?,remark=?,version=version+1 WHERE id=? AND version=? AND is_deleted=0",
+		params);
+}
+
 // ---------------------------------------------------------------------------
 // deleteByVitalSignId — FK-based delete not covered by BaseDAO (PK-only)
 // ---------------------------------------------------------------------------
 int NursingDAO::deleteByVitalSignId(const std::string& vitalSignId)
 {
-    std::string sql = "DELETE FROM dia_vital_sign_detail WHERE vital_sign_id = ?";
-    return sqlSession->executeUpdate(sql, "%s", vitalSignId);
+	std::string sql = "UPDATE dia_vital_sign_detail SET is_deleted=1,deleted_at=NOW(6),"
+		"updated_at=NOW(6),version=version+1 WHERE vital_sign_id=? AND is_deleted=0";
+	return sqlSession->executeUpdate(sql, "%s", vitalSignId);
+}
+
+int NursingDAO::softDeleteRecord(
+	const std::string& vitalSignId,const std::string& encounterId,
+	const std::string& patientId,int64_t expectedVersion,
+	const std::string& operatorId,const std::string& reason)
+{
+	return sqlSession->executeUpdate(
+		"UPDATE dia_vital_sign SET is_deleted=1,deleted_at=NOW(6),deleted_by=?,"
+		"updated_at=NOW(6),updated_by=?,remark=CASE WHEN ?='' THEN remark ELSE ? END,"
+		"version=version+1 WHERE id=? AND encounter_id=? AND patient_id=? "
+		"AND type_enum='NURSING_RECORD' AND version=? AND is_deleted=0",
+		"%s%s%s%s%s%s%s%lld",operatorId,operatorId,reason,reason,vitalSignId,
+		encounterId,patientId,expectedVersion);
+}
+
+bool NursingDAO::validRecordedAt(const std::string& encounterId,
+	const std::string& patientId, const std::string& recordedAt)
+{
+	return sqlSession->executeQueryNumerical(R"SQL(
+		SELECT COUNT(*) FROM adm_encounter
+		WHERE id=? AND patient_id=? AND class_enum='IMP' AND is_deleted=0
+			AND start_time<=? AND ?<=NOW()
+			AND (end_time IS NULL OR ?<=end_time)
+	)SQL", "%s%s%dt%dt%dt", encounterId, patientId,
+		recordedAt, recordedAt, recordedAt) == 1;
+}
+
+std::list<std::string> NursingDAO::selectIdempotencyResult(
+	const std::string& operation, const std::string& idempotencyKey)
+{
+	return sqlSession->executeQuery<std::string>(R"SQL(
+		SELECT changes FROM whale_audit_logs
+		WHERE entity_type='NURSE_STATION_NURSING_RECORD'
+			AND entity_id=? AND operation_type=?
+		ORDER BY created_at DESC LIMIT 1
+	)SQL", NursingStringMapper(), "%s%s", idempotencyKey, operation);
+}
+
+int NursingDAO::insertIdempotencyResult(const std::string& auditId,
+	const std::string& operation, const std::string& idempotencyKey,
+	const std::string& operatorId, const std::string& fingerprint,
+	const std::string& resultData)
+{
+	return sqlSession->executeUpdate(R"SQL(
+		INSERT INTO whale_audit_logs(
+			id,entity_type,entity_id,operation_type,user_id,changes,created_at)
+		VALUES(?,'NURSE_STATION_NURSING_RECORD',?,?,?,?,NOW())
+	)SQL", "%s%s%s%s%s", auditId, idempotencyKey, operation, operatorId,
+		fingerprint + "\n--RESULT--\n" + resultData);
+}
+
+std::string NursingDAO::selectOperatorDisplay(const std::string& userId)
+{
+	const auto value = sqlSession->executeQueryOne<std::string>(R"SQL(
+		SELECT COALESCE(NULLIF(name,''),id) FROM adm_practitioner
+		WHERE user_id=? AND is_deleted=0 AND active_flag=1
+		ORDER BY id LIMIT 1
+	)SQL", NursingStringMapper(), "%s", userId);
+	return value.empty() ? userId : value;
 }
 
 int NursingDAO::softDeleteOwnedRecord(const std::string& id, const std::string& encounterId,

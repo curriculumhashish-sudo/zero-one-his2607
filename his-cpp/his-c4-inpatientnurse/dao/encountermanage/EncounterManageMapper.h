@@ -14,16 +14,15 @@ public:
 		dto->accountId = rs->getString("account_id").asStdString();
 		dto->accountBalance = rs->getDouble("account_balance");
 		dto->availableBalance = rs->getDouble("available_balance");
-		dto->prepayNetBalance = rs->getDouble("account_balance");
+		dto->prepayNetBalance = nullptr;
 		dto->pendingSettlementTotal = rs->getDouble("pending_settlement_total");
-		dto->totalAmount = rs->getDouble("settled_total");
-		dto->paidAmount = dto->accountBalance;
+		dto->totalAmount = rs->getDouble("settled_total") + dto->pendingSettlementTotal.getValue(0);
+		dto->paidAmount = nullptr;
 		dto->arrearsAmount = dto->availableBalance < 0 ? -dto->availableBalance : 0;
 		dto->lowBalanceWarning = dto->availableBalance < 0;
 		dto->accountBalanceDisplayMode = "BALANCE";
-		dto->accountBalanceSubText = ZH_WORDS_GETTER("business-text.encounter.available-balance");
-		dto->accountBalanceSummaryText = std::string(ZH_WORDS_GETTER("business-text.encounter.balance-prefix")) +
-			std::to_string(dto->availableBalance.getValue(0)) + ZH_WORDS_GETTER("business-text.encounter.currency-suffix");
+		dto->accountBalanceSubText = nullptr;
+		dto->accountBalanceSummaryText = nullptr;
 		dto->encounterId = rs->getString("encounter_id").asStdString();
 		dto->encounterBusNo = rs->getString("encounter_bus_no").asStdString();
 		dto->patientId = rs->getString("patient_id").asStdString();
@@ -35,9 +34,16 @@ public:
 		dto->pinyinCode = rs->getString("pinyin_code").asStdString();
 		dto->wubiCode = rs->getString("wubi_code").asStdString();
 		dto->statusEnum = rs->getString("status_enum").asStdString();
-		dto->statusEnumText = dto->statusEnum == "COMPLETED" ? ZH_WORDS_GETTER("business-text.enum.encounter-discharged") :
-			(dto->statusEnum == "DISCHARGE_PROCESSING" ? ZH_WORDS_GETTER("business-text.enum.encounter-pending-discharge") :
-			 ZH_WORDS_GETTER("business-text.enum.encounter-in-hospital"));
+		if (dto->statusEnum == "REGISTERED")
+			dto->statusEnumText = ZH_WORDS_GETTER("business-text.enum.encounter-registered");
+		else if (dto->statusEnum == "PENDING")
+			dto->statusEnumText = ZH_WORDS_GETTER("business-text.enum.encounter-pending-discharge");
+		else if (dto->statusEnum == "COMPLETED")
+			dto->statusEnumText = ZH_WORDS_GETTER("business-text.enum.encounter-settled");
+		else if (dto->statusEnum == "DISCHARGED")
+			dto->statusEnumText = ZH_WORDS_GETTER("business-text.enum.encounter-discharged");
+		else
+			dto->statusEnumText = ZH_WORDS_GETTER("business-text.enum.encounter-in-hospital");
 		dto->priorityEnum = rs->getString("priority_enum").asStdString();
 		dto->startTime = rs->getString("start_time").asStdString();
 		dto->admissionTime = dto->startTime;
@@ -57,7 +63,35 @@ public:
 		dto->primaryNurseName = rs->getString("nurse_name").asStdString();
 		dto->pendingAuditCount = rs->getInt("pending_audit_count");
 		dto->pendingExecuteCount = rs->getInt("pending_execute_count");
-		dto->recallEnabled = dto->statusEnum == "COMPLETED";
+		dto->recallEnabled = dto->statusEnum == "PENDING" || dto->statusEnum == "COMPLETED"
+			|| dto->statusEnum == "DISCHARGED";
+		return dto;
+	}
+};
+
+class WardNodeMapper : public Mapper<WardNodeDTO::Wrapper>
+{
+public:
+	WardNodeDTO::Wrapper mapper(ResultSet* rs) const override
+	{
+		auto dto = WardNodeDTO::createShared();
+		dto->wardId = rs->getString("ward_id").asStdString();
+		dto->wardName = rs->getString("ward_name").asStdString();
+		dto->displayOrder = rs->getInt("display_order");
+		dto->houseNodes = oatpp::List<HouseNodeDTO::Wrapper>::createShared();
+		return dto;
+	}
+};
+
+class HouseNodeMapper : public Mapper<HouseNodeDTO::Wrapper>
+{
+public:
+	HouseNodeDTO::Wrapper mapper(ResultSet* rs) const override
+	{
+		auto dto = HouseNodeDTO::createShared();
+		dto->houseId = rs->getString("house_id").asStdString();
+		dto->houseName = rs->getString("house_name").asStdString();
+		dto->displayOrder = rs->getInt("display_order");
 		return dto;
 	}
 };

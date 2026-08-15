@@ -32,9 +32,11 @@ class ClearDischargedBedDTO : public oatpp::DTO
 		ZH_WORDS_GETTER("admissiontransfer.field.encounterId"), true);
 
 public:
-	ClearDischargedBedDTO()
+	static Wrapper createExample()
 	{
-		encounterId = "337907884548657152";
+		auto dto = createShared();
+		dto->encounterId = "337907884548657152";
+		return dto;
 	}
 };
 
@@ -46,12 +48,19 @@ class ClearDischargedBedResponseDTO : public oatpp::DTO
 		ZH_WORDS_GETTER("admissiontransfer.field.encounterId"), true);
 	API_DTO_FIELD_REQUIRE(Boolean, succeeded,
 		ZH_WORDS_GETTER("admissiontransfer.field.succeeded"), true);
+	API_DTO_FIELD_REQUIRE(String, previousStatusEnum, ZH_WORDS_GETTER("admissiontransfer.field.previousStatusEnum"), true);
+	API_DTO_FIELD_REQUIRE(String, targetStatusEnum, ZH_WORDS_GETTER("admissiontransfer.field.targetStatusEnum"), true);
+	API_DTO_FIELD_REQUIRE(Boolean, bedReleased, ZH_WORDS_GETTER("admissiontransfer.field.bedReleased"), true);
+	API_DTO_FIELD_REQUIRE(String, errorCode,
+		ZH_WORDS_GETTER("admissiontransfer.field.errorCode"), false);
+	API_DTO_FIELD_REQUIRE(String, errorMessage,
+		ZH_WORDS_GETTER("admissiontransfer.field.errorMessage"), false);
 
 public:
 	ClearDischargedBedResponseDTO()
 	{
-		encounterId = "337907884548657152";
-		succeeded = true;
+		succeeded = false;
+		bedReleased = false;
 	}
 };
 

@@ -111,4 +111,31 @@ public:
     }
 };
 
+class TemperaturePaperHeaderMapper : public Mapper<std::shared_ptr<TemperaturePaperHeaderData>>
+{
+public:
+	std::shared_ptr<TemperaturePaperHeaderData> mapper(ResultSet* resultSet) const override
+	{
+		auto data = std::make_shared<TemperaturePaperHeaderData>();
+		data->inpatientNo = resultSet->getString("inpatient_no").asStdString();
+		data->patientName = resultSet->getString("patient_name").asStdString();
+		data->gender = resultSet->getString("gender").asStdString();
+		data->age = resultSet->getString("age").asStdString();
+		data->admitAt = resultSet->getString("admit_at").asStdString();
+		data->dischargeAt = resultSet->getString("discharge_at").asStdString();
+		data->wardName = resultSet->getString("ward_name").asStdString();
+		data->bedNo = resultSet->getString("bed_no").asStdString();
+		return data;
+	}
+};
+
+class TemperatureStringMapper : public Mapper<std::string>
+{
+public:
+	std::string mapper(ResultSet* resultSet) const override
+	{
+		return resultSet->getString(1);
+	}
+};
+
 #endif // !_TEMPERATURE_MAPPER_

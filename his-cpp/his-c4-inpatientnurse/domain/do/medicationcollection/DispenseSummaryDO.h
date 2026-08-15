@@ -31,14 +31,21 @@ class DispenseSummaryDO
 	MYSQL_SYNTHESIZE(string, summaryNo, SummaryNo);
 	// bill status enum
 	MYSQL_SYNTHESIZE(string, statusEnum, StatusEnum);
+	MYSQL_SYNTHESIZE(string, statusText, StatusText);
 	// destination location id
 	MYSQL_SYNTHESIZE(string, desLocationId, DesLocationId);
+	MYSQL_SYNTHESIZE(string, desLocationName, DesLocationName);
+	MYSQL_SYNTHESIZE(string, applicantId, ApplicantId);
+	MYSQL_SYNTHESIZE(string, applicantName, ApplicantName);
+	MYSQL_SYNTHESIZE(string, applyTime, ApplyTime);
+	MYSQL_SYNTHESIZE(string, receiverId, ReceiverId);
 	// drug item count
 	MYSQL_SYNTHESIZE(int, itemCount, ItemCount);
 	// planned dispense time
 	MYSQL_SYNTHESIZE(string, plannedDispenseTime, PlannedDispenseTime);
 	// dispense time
 	MYSQL_SYNTHESIZE(string, dispenseTime, DispenseTime);
+	MYSQL_SYNTHESIZE(int64_t, version, Version);
 };
 
 #endif // !_DISPENSESUMMARY_DO_

@@ -23,6 +23,7 @@
 #include "domain/vo/JsonVO.h"
 #include "domain/dto/PageDTO.h"
 #include "domain/dto/medicalorderexecution/MedicalOrderItemDTO.h"
+#include "domain/dto/medicalorderexecution/MedicalOrderExecutionDTO.h"
 
 #include OATPP_CODEGEN_BEGIN(DTO)
 
@@ -81,11 +82,35 @@ public:
         auto page = PageDTO<MedicalOrderItemDTO::Wrapper>::createShared();
         page->pageIndex = 1;
         page->pageSize = 10;
-        page->total = 1;
-        page->pages = 1;
-        page->rows = {MedicalOrderItemDTO::createShared()};
+		page->total = static_cast<v_int64>(0);
+		page->pages = static_cast<v_int64>(0);
+		page->rows = List<MedicalOrderItemDTO::Wrapper>::createShared();
         data = page;
     }
+};
+
+class OrderExecutionWorkbenchJsonVO : public JsonVO<OrderExecutionWorkbenchDTO::Wrapper>
+{
+	DTO_INIT(OrderExecutionWorkbenchJsonVO,
+		JsonVO<OrderExecutionWorkbenchDTO::Wrapper>);
+
+public:
+	OrderExecutionWorkbenchJsonVO()
+	{
+		data = OrderExecutionWorkbenchDTO::createShared();
+	}
+};
+
+class BatchOrderExecutionJsonVO : public JsonVO<BatchOrderExecutionResponseDTO::Wrapper>
+{
+	DTO_INIT(BatchOrderExecutionJsonVO,
+		JsonVO<BatchOrderExecutionResponseDTO::Wrapper>);
+
+public:
+	BatchOrderExecutionJsonVO()
+	{
+		data = BatchOrderExecutionResponseDTO::createShared();
+	}
 };
 
 // Single item response: JsonVO<MedicalOrderItemDTO>

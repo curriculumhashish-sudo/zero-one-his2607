@@ -37,6 +37,8 @@ class NursingRecordRowDTO : public oatpp::DTO
 	API_DTO_FIELD_REQUIRE(String, recordDate, ZH_WORDS_GETTER("nursing.field.recordDate"), false);
 	// Record time (HH:mm)
 	API_DTO_FIELD_REQUIRE(String, recordTime, ZH_WORDS_GETTER("nursing.field.recordTime"), false);
+	API_DTO_FIELD_REQUIRE(String, clientRowId,
+		ZH_WORDS_GETTER("nursing.field.clientRowId"), false);
 
 	// ======================== Record Metadata ========================
 	// Patient identifier
@@ -55,6 +57,11 @@ class NursingRecordRowDTO : public oatpp::DTO
 	API_DTO_FIELD_REQUIRE(String, recorderId, ZH_WORDS_GETTER("nursing.field.recorderId"), true);
 	// Remark
 	API_DTO_FIELD_REQUIRE(String, remark, ZH_WORDS_GETTER("nursing.field.remark"), false);
+	API_DTO_FIELD_REQUIRE(Int64, version, ZH_WORDS_GETTER("nursing.field.version"), true);
+	API_DTO_FIELD_REQUIRE(String, createdBy, ZH_WORDS_GETTER("nursing.field.createdBy"), false);
+	API_DTO_FIELD_REQUIRE(String, createdAt, ZH_WORDS_GETTER("nursing.field.createdAt"), false);
+	API_DTO_FIELD_REQUIRE(String, updatedBy, ZH_WORDS_GETTER("nursing.field.updatedBy"), false);
+	API_DTO_FIELD_REQUIRE(String, updatedAt, ZH_WORDS_GETTER("nursing.field.updatedAt"), false);
 
 	// ======================== Core Nursing Measurement Fields (15 fields) ========================
 	// Temperature (unit: C)
@@ -65,6 +72,7 @@ class NursingRecordRowDTO : public oatpp::DTO
 	API_DTO_FIELD_REQUIRE(String, heartRate, ZH_WORDS_GETTER("nursing.field.heartRate"), false);
 	// Respiration (unit: breaths/min)
 	API_DTO_FIELD_REQUIRE(String, respiration, ZH_WORDS_GETTER("nursing.field.respiration"), false);
+	API_DTO_FIELD_REQUIRE(String, respiratory, ZH_WORDS_GETTER("nursing.field.respiratory"), false);
 	// Blood pressure (unit: mmHg)
 	API_DTO_FIELD_REQUIRE(String, bloodPressure, ZH_WORDS_GETTER("nursing.field.bloodPressure"), false);
 	// Consciousness status
@@ -77,44 +85,33 @@ class NursingRecordRowDTO : public oatpp::DTO
 	API_DTO_FIELD_REQUIRE(String, intakeName, ZH_WORDS_GETTER("nursing.field.intakeName"), false);
 	// Intake volume (unit: ml)
 	API_DTO_FIELD_REQUIRE(String, intakeVolume, ZH_WORDS_GETTER("nursing.field.intakeVolume"), false);
+	API_DTO_FIELD_REQUIRE(String, intakeAmount, ZH_WORDS_GETTER("nursing.field.intakeAmount"), false);
 	// Output name (e.g. urine, drainage)
 	API_DTO_FIELD_REQUIRE(String, outputName, ZH_WORDS_GETTER("nursing.field.outputName"), false);
 	// Output volume (unit: ml)
 	API_DTO_FIELD_REQUIRE(String, outputVolume, ZH_WORDS_GETTER("nursing.field.outputVolume"), false);
+	API_DTO_FIELD_REQUIRE(String, outputAmount, ZH_WORDS_GETTER("nursing.field.outputAmount"), false);
 	// Output color
 	API_DTO_FIELD_REQUIRE(String, outputColor, ZH_WORDS_GETTER("nursing.field.outputColor"), false);
 	// Condition observation and nursing record
 	API_DTO_FIELD_REQUIRE(String, observation, ZH_WORDS_GETTER("nursing.field.observation"), false);
 	// Nurse signature
 	API_DTO_FIELD_REQUIRE(String, nurseSignature, ZH_WORDS_GETTER("nursing.field.nurseSignature"), false);
-	API_DTO_FIELD_REQUIRE(Int64, version, ZH_WORDS_GETTER("nursing.field.version"), false);
-	API_DTO_FIELD_REQUIRE(String, createdBy, ZH_WORDS_GETTER("nursing.field.createdBy"), false);
-	API_DTO_FIELD_REQUIRE(String, createdAt, ZH_WORDS_GETTER("nursing.field.createdAt"), false);
-	API_DTO_FIELD_REQUIRE(String, updatedBy, ZH_WORDS_GETTER("nursing.field.updatedBy"), false);
-	API_DTO_FIELD_REQUIRE(String, updatedAt, ZH_WORDS_GETTER("nursing.field.updatedAt"), false);
+	API_DTO_FIELD_REQUIRE(String, oxygenSaturation, ZH_WORDS_GETTER("nursing.field.oxygenSaturation"), false);
+	API_DTO_FIELD_REQUIRE(String, oxygenFlow, ZH_WORDS_GETTER("nursing.field.oxygenFlow"), false);
+	API_DTO_FIELD_REQUIRE(String, oxygenMode, ZH_WORDS_GETTER("nursing.field.oxygenMode"), false);
+	API_DTO_FIELD_REQUIRE(String, oxygenRate, ZH_WORDS_GETTER("nursing.field.oxygenRate"), false);
+	API_DTO_FIELD_REQUIRE(String, skinStatus, ZH_WORDS_GETTER("nursing.field.skinStatus"), false);
+	API_DTO_FIELD_REQUIRE(String, conditionMeasure, ZH_WORDS_GETTER("nursing.field.conditionMeasure"), false);
+	API_DTO_FIELD_REQUIRE(String, tubeCare, ZH_WORDS_GETTER("nursing.field.tubeCare"), false);
+	API_DTO_FIELD_REQUIRE(String, intakeRoute, ZH_WORDS_GETTER("nursing.field.intakeRoute"), false);
+	API_DTO_FIELD_REQUIRE(String, outputColorCharacter, ZH_WORDS_GETTER("nursing.field.outputColorCharacter"), false);
 
 public:
 	NursingRecordRowDTO()
 	{
-		dateTime = "07-24 08:30";
-		vitalSignId = "338131147144708099";
-		recordDate = "2026-07-24";
-		recordTime = "08:30";
-		temperature = "36.5";
-		pulse = "80";
-		heartRate = "80";
-		respiration = "18";
-		bloodPressure = "120/80";
-		consciousness = "Clear";
-		pupilLeft = "3.0";
-		pupilRight = "3.0";
-		intakeName = "Glucose";
-		intakeVolume = "500";
-		outputName = "Urine";
-		outputVolume = "400";
-		outputColor = "Yellow";
-		observation = "Stable";
-		nurseSignature = "Nurse Zhang";
+		babyNo = 0;
+		version = static_cast<v_int64>(0);
 	}
 };
 
@@ -154,7 +151,6 @@ public:
 	{
 		paperHeader = NursingRecordPaperHeaderDTO::createShared();
 		rows = List<NursingRecordRowDTO::Wrapper>::createShared();
-		rows->push_back(NursingRecordRowDTO::createShared());
 	}
 };
 
@@ -175,7 +171,7 @@ class NursingRecordSaveItemDTO : public oatpp::DTO
 	API_DTO_FIELD_REQUIRE(String, recordDate,
 		ZH_WORDS_GETTER("nursing.field.recordDate"), true);
 	API_DTO_FIELD_REQUIRE(String, recordTime,
-		ZH_WORDS_GETTER("nursing.field.recordTime"), false);
+		ZH_WORDS_GETTER("nursing.field.recordTime"), true);
 
 	// ======================== Core Nursing Measurement Fields (15 fields) ========================
 	API_DTO_FIELD_REQUIRE(String, temperature,
@@ -186,6 +182,8 @@ class NursingRecordSaveItemDTO : public oatpp::DTO
 		ZH_WORDS_GETTER("nursing.field.heartRate"), false);
 	API_DTO_FIELD_REQUIRE(String, respiration,
 		ZH_WORDS_GETTER("nursing.field.respiration"), false);
+	API_DTO_FIELD_REQUIRE(String, respiratory,
+		ZH_WORDS_GETTER("nursing.field.respiratory"), false);
 	API_DTO_FIELD_REQUIRE(String, bloodPressure,
 		ZH_WORDS_GETTER("nursing.field.bloodPressure"), false);
 	API_DTO_FIELD_REQUIRE(String, consciousness,
@@ -198,40 +196,45 @@ class NursingRecordSaveItemDTO : public oatpp::DTO
 		ZH_WORDS_GETTER("nursing.field.intakeName"), false);
 	API_DTO_FIELD_REQUIRE(String, intakeVolume,
 		ZH_WORDS_GETTER("nursing.field.intakeVolume"), false);
+	API_DTO_FIELD_REQUIRE(String, intakeAmount,
+		ZH_WORDS_GETTER("nursing.field.intakeAmount"), false);
 	API_DTO_FIELD_REQUIRE(String, outputName,
 		ZH_WORDS_GETTER("nursing.field.outputName"), false);
 	API_DTO_FIELD_REQUIRE(String, outputVolume,
 		ZH_WORDS_GETTER("nursing.field.outputVolume"), false);
+	API_DTO_FIELD_REQUIRE(String, outputAmount,
+		ZH_WORDS_GETTER("nursing.field.outputAmount"), false);
 	API_DTO_FIELD_REQUIRE(String, outputColor,
 		ZH_WORDS_GETTER("nursing.field.outputColor"), false);
 	API_DTO_FIELD_REQUIRE(String, observation,
 		ZH_WORDS_GETTER("nursing.field.observation"), false);
 	API_DTO_FIELD_REQUIRE(String, nurseSignature,
 		ZH_WORDS_GETTER("nursing.field.nurseSignature"), false);
+	API_DTO_FIELD_REQUIRE(String, clientRowId,
+		ZH_WORDS_GETTER("nursing.field.clientRowId"), true);
+	API_DTO_FIELD_REQUIRE(Int64, expectedVersion,
+		ZH_WORDS_GETTER("nursing.field.expectedVersion"), false);
+	API_DTO_FIELD_REQUIRE(String, oxygenSaturation,
+		ZH_WORDS_GETTER("nursing.field.oxygenSaturation"), false);
+	API_DTO_FIELD_REQUIRE(String, oxygenFlow,
+		ZH_WORDS_GETTER("nursing.field.oxygenFlow"), false);
+	API_DTO_FIELD_REQUIRE(String, oxygenMode,
+		ZH_WORDS_GETTER("nursing.field.oxygenMode"), false);
+	API_DTO_FIELD_REQUIRE(String, oxygenRate,
+		ZH_WORDS_GETTER("nursing.field.oxygenRate"), false);
+	API_DTO_FIELD_REQUIRE(String, skinStatus,
+		ZH_WORDS_GETTER("nursing.field.skinStatus"), false);
+	API_DTO_FIELD_REQUIRE(String, conditionMeasure,
+		ZH_WORDS_GETTER("nursing.field.conditionMeasure"), false);
+	API_DTO_FIELD_REQUIRE(String, tubeCare,
+		ZH_WORDS_GETTER("nursing.field.tubeCare"), false);
+	API_DTO_FIELD_REQUIRE(String, intakeRoute,
+		ZH_WORDS_GETTER("nursing.field.intakeRoute"), false);
+	API_DTO_FIELD_REQUIRE(String, outputColorCharacter,
+		ZH_WORDS_GETTER("nursing.field.outputColorCharacter"), false);
 
 public:
-	NursingRecordSaveItemDTO()
-	{
-		dateTime = "07-24 08:30";
-		clientRowId = "row-001";
-		recordDate = "2026-07-24";
-		recordTime = "08:30";
-		temperature = "36.5";
-		pulse = "80";
-		heartRate = "80";
-		respiration = "18";
-		bloodPressure = "120/80";
-		consciousness = "Clear";
-		pupilLeft = "3.0";
-		pupilRight = "3.0";
-		intakeName = "Glucose";
-		intakeVolume = "500";
-		outputName = "Urine";
-		outputVolume = "400";
-		outputColor = "Yellow";
-		observation = "Stable";
-		nurseSignature = "Nurse Zhang";
-	}
+	NursingRecordSaveItemDTO() = default;
 };
 
 class NursingRecordSaveRequestDTO : public oatpp::DTO
@@ -246,15 +249,60 @@ class NursingRecordSaveRequestDTO : public oatpp::DTO
 		ZH_WORDS_GETTER("nursing.field.idempotencyKey"), true);
 	API_DTO_FIELD_REQUIRE(List<NursingRecordSaveItemDTO::Wrapper>, records,
 		ZH_WORDS_GETTER("nursing.field.records"), true);
+	API_DTO_FIELD_REQUIRE(String, idempotencyKey,
+		ZH_WORDS_GETTER("nursing.field.idempotencyKey"), true);
 
 public:
-	NursingRecordSaveRequestDTO()
+	NursingRecordSaveRequestDTO() = default;
+
+	static Wrapper createExample()
 	{
-		encounterId = "337907884548657152";
-		patientId = "326940849401761792";
-		idempotencyKey = "nursing-save-20260724-0001";
-		records = List<NursingRecordSaveItemDTO::Wrapper>::createShared();
-		records->push_back(NursingRecordSaveItemDTO::createShared());
+		auto example = createShared();
+		example->encounterId = "337907884548657152";
+		example->patientId = "326940849401761792";
+		example->idempotencyKey = "NURSING-SAVE-20260724-001";
+		example->records = List<NursingRecordSaveItemDTO::Wrapper>::createShared();
+		auto record = NursingRecordSaveItemDTO::createShared();
+		record->clientRowId = "ROW-001";
+		record->recordDate = "2026-07-24";
+		record->recordTime = "08:30";
+		record->temperature = "36.5";
+		record->pulse = "80";
+		record->heartRate = "80";
+		record->respiration = "18";
+		record->bloodPressure = "120/80";
+		record->oxygenSaturation = "98";
+		record->observation = "Stable";
+		record->nurseSignature = "NURSE001";
+		example->records->push_back(record);
+		return example;
+	}
+};
+
+class NursingRecordSaveItemResultDTO : public oatpp::DTO
+{
+	DTO_INIT(NursingRecordSaveItemResultDTO, DTO);
+
+	API_DTO_FIELD_REQUIRE(String, clientRowId,
+		ZH_WORDS_GETTER("nursing.field.clientRowId"), true);
+	API_DTO_FIELD_REQUIRE(String, vitalSignId,
+		ZH_WORDS_GETTER("nursing.field.vitalSignId"), false);
+	API_DTO_FIELD_REQUIRE(Int64, version,
+		ZH_WORDS_GETTER("nursing.field.version"), false);
+	API_DTO_FIELD_REQUIRE(Boolean, success,
+		ZH_WORDS_GETTER("nursing.field.success"), true);
+	API_DTO_FIELD_REQUIRE(String, errorCode,
+		ZH_WORDS_GETTER("nursing.field.errorCode"), false);
+	API_DTO_FIELD_REQUIRE(String, message,
+		ZH_WORDS_GETTER("nursing.field.resultMessage"), false);
+	API_DTO_FIELD_REQUIRE(NursingRecordRowDTO::Wrapper, record,
+		ZH_WORDS_GETTER("nursing.field.savedRecord"), false);
+
+public:
+	NursingRecordSaveItemResultDTO()
+	{
+		version = static_cast<v_int64>(0);
+		success = false;
 	}
 };
 
@@ -266,13 +314,15 @@ class NursingRecordSaveResponseDTO : public oatpp::DTO
 		ZH_WORDS_GETTER("nursing.field.rows"), false);
 	API_DTO_FIELD_REQUIRE(Int32, savedCount,
 		ZH_WORDS_GETTER("nursing.field.savedCount"), false);
+	API_DTO_FIELD_REQUIRE(List<NursingRecordSaveItemResultDTO::Wrapper>, results,
+		ZH_WORDS_GETTER("nursing.field.results"), true);
 
 public:
 	NursingRecordSaveResponseDTO()
 	{
-		savedCount = 1;
+		savedCount = 0;
 		rows = List<NursingRecordRowDTO::Wrapper>::createShared();
-		rows->push_back(NursingRecordRowDTO::createShared());
+		results = List<NursingRecordSaveItemResultDTO::Wrapper>::createShared();
 	}
 };
 
@@ -286,21 +336,26 @@ class NursingRecordDeleteRequestDTO : public oatpp::DTO
 		ZH_WORDS_GETTER("nursing.field.patientId"), true);
 	API_DTO_FIELD_REQUIRE(String, vitalSignId,
 		ZH_WORDS_GETTER("nursing.field.vitalSignId"), true);
-	API_DTO_FIELD_REQUIRE(String, idempotencyKey,
-		ZH_WORDS_GETTER("nursing.field.idempotencyKey"), true);
 	API_DTO_FIELD_REQUIRE(Int64, expectedVersion,
 		ZH_WORDS_GETTER("nursing.field.expectedVersion"), true);
+	API_DTO_FIELD_REQUIRE(String, idempotencyKey,
+		ZH_WORDS_GETTER("nursing.field.idempotencyKey"), true);
 	API_DTO_FIELD_REQUIRE(String, reason,
-		ZH_WORDS_GETTER("nursing.field.reason"), false);
+		ZH_WORDS_GETTER("nursing.field.deleteReason"), false);
 
 public:
-	NursingRecordDeleteRequestDTO()
+	NursingRecordDeleteRequestDTO() = default;
+
+	static Wrapper createExample()
 	{
-		encounterId = "337907884548657152";
-		patientId = "326940849401761792";
-		vitalSignId = "338131147144708099";
-		idempotencyKey = "nursing-delete-20260724-0001";
-		expectedVersion = static_cast<v_int64>(0);
+		auto example = createShared();
+		example->encounterId = "337907884548657152";
+		example->patientId = "326940849401761792";
+		example->vitalSignId = "338131147144708099";
+		example->expectedVersion = static_cast<v_int64>(0);
+		example->idempotencyKey = "NURSING-DELETE-338131147144708099";
+		example->reason = "Duplicate entry";
+		return example;
 	}
 };
 
@@ -310,15 +365,20 @@ class NursingRecordDeleteResponseDTO : public oatpp::DTO
 
 	API_DTO_FIELD_REQUIRE(Boolean, success,
 		ZH_WORDS_GETTER("nursing.field.success"), true);
-	API_DTO_FIELD_REQUIRE(String, vitalSignId,
-		ZH_WORDS_GETTER("nursing.field.vitalSignId"), false);
 	API_DTO_FIELD_REQUIRE(String, statusEnum,
 		ZH_WORDS_GETTER("nursing.field.statusEnum"), false);
+	API_DTO_FIELD_REQUIRE(Int64, version,
+		ZH_WORDS_GETTER("nursing.field.version"), false);
+	API_DTO_FIELD_REQUIRE(String, errorCode,
+		ZH_WORDS_GETTER("nursing.field.errorCode"), false);
+	API_DTO_FIELD_REQUIRE(String, message,
+		ZH_WORDS_GETTER("nursing.field.resultMessage"), false);
 
 public:
 	NursingRecordDeleteResponseDTO()
 	{
-		success = true;
+		success = false;
+		version = static_cast<v_int64>(0);
 	}
 };
 

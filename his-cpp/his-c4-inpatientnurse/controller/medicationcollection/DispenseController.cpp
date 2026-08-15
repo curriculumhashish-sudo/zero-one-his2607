@@ -1,7 +1,7 @@
 /*
  Copyright Zero One Star. All rights reserved.
 
- @Author: his-c4
+ @Author: Swan_Woo
  @Date: 2026/07/18 22:00:00
 
  Licensed under the Apache License, Version 2.0 (the "License");
@@ -19,13 +19,19 @@
 #include "stdafx.h"
 #include "DispenseController.h"
 #include "../../service/medicationcollection/DispenseService.h"
+#include "dao/common/NurseStationAccessDAO.h"
 
-DispenseSummaryPageJsonVO::Wrapper DispenseController::execQuerySummaryList(const DispenseSummaryQuery::Wrapper& query)
+DispenseSummaryPageJsonVO::Wrapper DispenseController::execQuerySummaryList(
+	const DispenseSummaryQuery::Wrapper& query, const PayloadDTO& payload)
 {
 	auto vo = DispenseSummaryPageJsonVO::createShared();
 
 	// params validate (flow-chart step: invalid input returns to caller)
-	if (!query->pageIndex || query->pageIndex < 1 || !query->pageSize || query->pageSize < 1)
+	if (!query || !inpatientnurse::validation::validPage(query->pageIndex, query->pageSize)
+		|| !inpatientnurse::validation::validDate(query->dispenseDate)
+		|| !inpatientnurse::validation::validDateOnlyRange(query->startDate, query->endDate)
+		|| !inpatientnurse::validation::oneOf(query->statusEnum,
+			{"PENDING_SUBMIT", "SUBMITTED", "DISPENSED", "CANCELLED"}))
 	{
 		vo->init(nullptr, RS_PARAMS_INVALID);
 		return vo;
@@ -33,18 +39,25 @@ DispenseSummaryPageJsonVO::Wrapper DispenseController::execQuerySummaryList(cons
 
 	// query summary bill list through service
 	DispenseService service;
-	vo->success(service.listSummary(query));
+	vo->success(service.listSummary(query, payload.getId()));
 	return vo;
 }
 
-DispenseDetailListJsonVO::Wrapper DispenseController::execQueryDetail(const DispenseDetailQuery::Wrapper& query)
+DispenseDetailListJsonVO::Wrapper DispenseController::execQueryDetail(
+	const DispenseDetailQuery::Wrapper& query, const PayloadDTO& payload)
 {
 	auto vo = DispenseDetailListJsonVO::createShared();
 
 	// Validate the required summary bill number.
-	if (!query || !query->summaryNo || query->summaryNo->empty())
+	if (!query || !inpatientnurse::validation::present(query->summaryNo))
 	{
 		vo->init(nullptr, RS_PARAMS_INVALID);
+		return vo;
+	}
+	if (!NurseStationAccessDAO().canAccessMedicationSummary(
+		payload.getId(), query->summaryNo.getValue("")))
+	{
+		vo->init(nullptr, RS_UNAUTHORIZED);
 		return vo;
 	}
 

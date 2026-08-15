@@ -1,16 +1,15 @@
 ﻿#include "stdafx.h"
 #include "OrderExecuteControlController.h"
 #include "../../service/medicalorderexecution/OrderExecuteControlService.h"
+#include "dao/common/NurseStationAccessDAO.h"
 
 StringJsonVO::Wrapper OrderExecuteControlController::execSkipOrderExecution(const List<OrderNotExecuteDTO::Wrapper>& dtolist, const PayloadDTO& payload)
 {
 	auto res = StringJsonVO::createShared();
-	//检查整个列表参数，非空，列表长度不能>50
 	if (!dtolist || dtolist->size() == 0 || dtolist->size() > 50) {
 		res->init(ZH_WORDS_GETTER("medical_advice.notexecute.failreason.listnotvalid"), RS_PARAMS_INVALID);
 		return res;
 	}
-	//遍历每条不执行医嘱DTO，检查参数是否合法
 	for (auto& dto : *dtolist)
 	{
 		auto checkinfo = OrderNotExecuteDTO::validate(dto);
@@ -33,7 +32,6 @@ CancelExecutionJsonVO::Wrapper OrderExecuteControlController::execCancelOrderExe
 {
 	auto res = CancelExecutionJsonVO::createShared();
 
-	//基础数据校验
 	if (!dto)
 	{
 		auto result = CancelExecutionResultDTO::createShared();
@@ -52,10 +50,67 @@ CancelExecutionJsonVO::Wrapper OrderExecuteControlController::execCancelOrderExe
 		return res;
 	}
 
-	//调用业务层函数
 	auto result = OrderExecuteControlService().cancelOrderExecution(dto, payload);
 
 
 	res->success(result);
 	return res;
+}
+
+BatchOrderExecutionJsonVO::Wrapper
+OrderExecuteControlController::execSkipOrderExecutionBatch(
+	const BatchSkipOrderRequestDTO::Wrapper& dto, const PayloadDTO& payload)
+{
+	auto vo = BatchOrderExecutionJsonVO::createShared();
+	if (!dto || !inpatientnurse::validation::present(dto->idempotencyKey)
+		|| !dto->items || dto->items->empty() || dto->items->size() > 50
+		|| (inpatientnurse::validation::present(dto->reason) && dto->reason->size() > 500)) {
+		vo->init(nullptr, RS_PARAMS_INVALID);
+		return vo;
+	}
+	std::set<std::string> unique;
+	for (const auto& item : *dto->items) {
+		if (!item || !inpatientnurse::validation::present(item->orderId)
+			|| !inpatientnurse::validation::oneOf(
+				item->orderType, {"MED_REQUEST", "SERVICE_REQUEST"}, false)
+			|| !inpatientnurse::validation::validDateTime(item->planTime, false)
+			|| !unique.insert(item->orderType.getValue("") + ":"
+				+ item->orderId.getValue("") + ":" + item->planTime.getValue("")).second) {
+			vo->init(nullptr, RS_PARAMS_INVALID);
+			return vo;
+		}
+	}
+	auto result = OrderExecuteControlService().skipBatch(dto, payload);
+	result->success ? vo->success(result) : vo->fail(result);
+	return vo;
+}
+
+BatchOrderExecutionJsonVO::Wrapper
+OrderExecuteControlController::execCancelOrderExecutionBatch(
+	const BatchCancelExecutionRequestDTO::Wrapper& dto, const PayloadDTO& payload)
+{
+	auto vo = BatchOrderExecutionJsonVO::createShared();
+	if (!dto || !inpatientnurse::validation::present(dto->idempotencyKey)
+		|| !inpatientnurse::validation::present(dto->reason) || dto->reason->size() > 500
+		|| !dto->items || dto->items->empty() || dto->items->size() > 50) {
+		vo->init(nullptr, RS_PARAMS_INVALID);
+		return vo;
+	}
+	std::set<std::string> unique;
+	for (const auto& item : *dto->items) {
+		if (!item || !inpatientnurse::validation::present(item->encounterId)
+			|| !inpatientnurse::validation::present(item->procedureId)
+			|| !unique.insert(item->procedureId.getValue("")).second) {
+			vo->init(nullptr, RS_PARAMS_INVALID);
+			return vo;
+		}
+		if (!NurseStationAccessDAO().canAccessEncounter(
+			payload.getId(), item->encounterId.getValue(""))) {
+			vo->init(nullptr, RS_UNAUTHORIZED);
+			return vo;
+		}
+	}
+	auto result = OrderExecuteControlService().cancelBatch(dto, payload);
+	result->success ? vo->success(result) : vo->fail(result);
+	return vo;
 }

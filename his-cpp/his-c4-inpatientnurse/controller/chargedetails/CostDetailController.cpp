@@ -18,16 +18,51 @@
 */
 #include "CostDetailController.h"
 #include "service/chargedetails/CostDetailService.h"
+#include "dao/common/NurseStationAccessDAO.h"
 
-CostDetailPageJsonVO::Wrapper CostDetailController::execQueryAll(const CostDetailQuery::Wrapper& query) {
+CostDetailPageJsonVO::Wrapper CostDetailController::execQueryAll(
+	const CostDetailQuery::Wrapper& query, const PayloadDTO& payload) {
 	auto jvo = CostDetailPageJsonVO::createShared();
+	if (!query || !inpatientnurse::validation::present(query->patientId)
+		|| !inpatientnurse::validation::present(query->encounterId)
+		|| !inpatientnurse::validation::present(query->startDate)
+		|| !inpatientnurse::validation::present(query->endDate)
+		|| !inpatientnurse::validation::validPage(query->pageIndex, query->pageSize)
+		|| query->pageSize.getValue(0) > 100
+		|| !inpatientnurse::validation::validDateOnlyRange(query->startDate, query->endDate))
+	{
+		jvo->init(nullptr, RS_PARAMS_INVALID);
+		return jvo;
+	}
+	if (!NurseStationAccessDAO().canAccessEncounterPatient(
+		payload.getId(), query->encounterId.getValue(""),
+		query->patientId.getValue(""))) {
+		jvo->init(nullptr, RS_UNAUTHORIZED);
+		return jvo;
+	}
 	auto result = CostDetailService().queryDetails(query);
 	jvo->success(result);
 	return jvo;
 }
 
-CostSummaryListJsonVO::Wrapper CostDetailController::execSummaryByEncounter(const CostSummaryQuery::Wrapper& query) {
+CostSummaryListJsonVO::Wrapper CostDetailController::execSummaryByEncounter(
+	const CostSummaryQuery::Wrapper& query, const PayloadDTO& payload) {
 	auto jvo = CostSummaryListJsonVO::createShared();
+	if (!query || !inpatientnurse::validation::present(query->patientId)
+		|| !inpatientnurse::validation::present(query->encounterId)
+		|| !inpatientnurse::validation::present(query->startDate)
+		|| !inpatientnurse::validation::present(query->endDate)
+		|| !inpatientnurse::validation::validDateOnlyRange(query->startDate, query->endDate))
+	{
+		jvo->init(nullptr, RS_PARAMS_INVALID);
+		return jvo;
+	}
+	if (!NurseStationAccessDAO().canAccessEncounterPatient(
+		payload.getId(), query->encounterId.getValue(""),
+		query->patientId.getValue(""))) {
+		jvo->init(nullptr, RS_UNAUTHORIZED);
+		return jvo;
+	}
 	auto result = CostDetailService().querySummary(query);
 	jvo->success(result);
 	return jvo;

@@ -389,6 +389,39 @@ int OrderExecuteControlDAO::releaseCompletedProcedureSlotsNoTransaction(const st
 	return sqlSession->executeUpdate(updateSql, params);
 }
 
+int OrderExecuteControlDAO::rollbackOriginalOrderExecutionsNoTransaction(
+	const std::list<PtrClnProcedureDO>& procedures,
+	const std::string& operatorId)
+{
+	int rows = 0;
+	std::map<std::pair<std::string, std::string>, int> cancelledCounts;
+	for (const auto& procedure : procedures)
+	{
+		if (!procedure) continue;
+		cancelledCounts[{procedure->getRequestTable(), procedure->getRequestId()}]++;
+	}
+	for (const auto& entry : cancelledCounts)
+	{
+		const auto& table = entry.first.first;
+		const auto& requestId = entry.first.second;
+		const int cancelledCount = entry.second;
+		const std::string countColumn = table == "med_medication_request"
+			? "execute_num" : (table == "wkf_service_request" ? "execution_count" : "");
+		if (countColumn.empty()) continue;
+		rows += sqlSession->executeUpdate(
+			"UPDATE " + table + " request_row SET " + countColumn
+			+ "=GREATEST(COALESCE(" + countColumn + ",0)-?,0),"
+			+ "status_enum=CASE WHEN therapy_enum='TEMPORARY' AND NOT EXISTS("
+			+ "SELECT 1 FROM cln_procedure active_row WHERE active_row.request_id=request_row.id "
+			+ "AND active_row.request_table=? AND active_row.status_enum='COMPLETED' "
+			+ "AND active_row.occurrence_slot_active=1 AND active_row.is_deleted=0) "
+			+ "THEN 'VERIFIED' ELSE status_enum END,updated_at=NOW(),updated_by=?,version=version+1 "
+			+ "WHERE id=? AND is_deleted=0",
+			"%i%s%s%s", cancelledCount, table, operatorId, requestId);
+	}
+	return rows;
+}
+
 bool OrderExecuteControlDAO::existsBlockingChargeItemsForCancellation(
 	const std::list<std::string>& procedureIds,
 	const std::list<std::string>& serviceRequestIds)
