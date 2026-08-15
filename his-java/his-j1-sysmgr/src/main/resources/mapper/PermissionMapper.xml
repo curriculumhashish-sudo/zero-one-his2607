@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zeroone.star.sysmgr.mapper.permission.PermissionMapper">
+
+    <select id="selectChildNames" resultType="string">
+        SELECT name
+        FROM whale_permissions
+        WHERE parent_name = #{parentName}
+          AND (tenant_id = #{tenantId} OR tenant_id IS NULL)
+          AND is_deleted = 0
+    </select>
+
+    <select id="selectParentName" resultType="string">
+        SELECT parent_name
+        FROM whale_permissions
+        WHERE name = #{name}
+          AND (tenant_id = #{tenantId} OR tenant_id IS NULL)
+          AND is_deleted = 0
+    </select>
+
+    <update id="batchDeletePermissions">
+        UPDATE whale_permissions
+        SET is_deleted = 1,
+            deleted_at = NOW(6),
+            deleted_by = #{deletedBy}
+        WHERE name IN
+        <foreach collection="names" item="name" open="(" separator="," close=")">
+            #{name}
+        </foreach>
+          AND (tenant_id = #{tenantId} OR tenant_id IS NULL)
+          AND is_deleted = 0
+    </update>
+
+    <update id="batchDeleteGrants">
+        UPDATE whale_permission_grants
+        SET is_deleted = 1,
+            deleted_at = NOW(6),
+            deleted_by = #{deletedBy}
+        WHERE permission_name IN
+        <foreach collection="permissionNames" item="pn" open="(" separator="," close=")">
+            #{pn}
+        </foreach>
+          AND tenant_id = #{tenantId}
+          AND is_deleted = 0
+    </update>
+
+    <select id="countByName" resultType="long">
+        SELECT COUNT(1)
+        FROM whale_permissions
+        WHERE name = #{name}
+          AND (tenant_id = #{tenantId} OR tenant_id IS NULL)
+          AND is_deleted = 0
+    </select>
+
+</mapper>

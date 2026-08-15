@@ -34,11 +34,11 @@ class MenuTreeNodMapper implements TreeNodeMapper<Menu> {
             treeNode.setTnPid(menu.getParentMenuId().toString());
         }
         // 设置扩展属性
-        treeNode.setId(menu.getId());
+        treeNode.setId(String.valueOf(menu.getId()));
         treeNode.setIcon(menu.getIcon());
         treeNode.setText(menu.getName());
         treeNode.setHref(menu.getPath());
-        treeNode.setPid(menu.getParentMenuId());
+        treeNode.setPid(String.valueOf(menu.getParentMenuId()));
         return treeNode;
     }
 }

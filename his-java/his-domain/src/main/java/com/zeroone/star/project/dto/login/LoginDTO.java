@@ -1,6 +1,7 @@
 package com.zeroone.star.project.dto.login;
 
 import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -23,17 +24,26 @@ public class LoginDTO {
      * 用户名
      */
     @Schema(description = "用户名", example = "admin", requiredMode = Schema.RequiredMode.REQUIRED)
+    @NotBlank(message = "用户名不能为空")
     private String username;
 
     /**
      * 密码
      */
     @Schema(description = "密码", example = "123456", requiredMode = Schema.RequiredMode.REQUIRED)
+    @NotBlank(message = "密码不能为空")
     private String password;
+
+    /**
+     * 验证码UUID
+     */
+    @Schema(description = "验证码UUID（调用 /api/captcha/generate 获取）", example = "a1b2c3d4e5f6")
+    private String captchaUuid;
 
     /**
      * 验证码
      */
-    @Schema(description = "验证码", example = "999818")
+    @Schema(description = "验证码", example = "8")
+    @NotBlank(message = "验证码不能为空")
     private String code;
 }

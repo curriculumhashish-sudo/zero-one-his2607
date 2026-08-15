@@ -85,7 +85,7 @@
                 <artifactId>docker-maven-plugin</artifactId>
                 <configuration>
                     <!-- Docker 远程管理地址-->
-                    <dockerHost>https://192.168.220.128:2375</dockerHost>
+                    <dockerHost>https://120.55.15.33:3456</dockerHost>
                     <!-- CA 证书位置 -->
                     <certPath>/home/docker-ca</certPath>
                     <!-- 镜像设置 -->
@@ -120,7 +120,7 @@
                                     <JAVA_OPTS>-Xms256m -Xmx256m</JAVA_OPTS>
                                     <!-- 启动替换参数 -->
                                     <SPRING_ARGS>
-                                        --spring.profiles.active=test --spring.cloud.nacos.discovery.ip=192.168.220.128
+                                        --spring.profiles.active=test --spring.cloud.nacos.discovery.ip=120.55.15.33
                                     </SPRING_ARGS>
                                 </env>
                             </run>
@@ -135,15 +135,15 @@
                     <!-- 数据库连接信息配置 -->
                     <dbConfig>
                         <!-- 数据库主机地址 -->
-                        <host>192.168.220.128</host>
+                        <host>8.137.103.174</host>
                         <!-- 数据库端口 -->
                         <port>3306</port>
                         <!-- 数据库名称 -->
-                        <dbname>test</dbname>
+                        <dbname>zo_his</dbname>
                         <!-- 数据库用户名 -->
-                        <username>root</username>
+                        <username>his_app</username>
                         <!-- 数据库密码 -->
-                        <password>123456</password>
+                        <password>LvvJ7Db@2026_Q8mR4xK2</password>
                     </dbConfig>
                     <!-- 生成代码输出根目录 -->
                     <outDir>${project.basedir}/src/main/java</outDir>

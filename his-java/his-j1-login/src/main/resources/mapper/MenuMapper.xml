@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zeroone.star.sysmgr.mapper.menu.MenuMapper">
+
+    <sql id="Base_Column_List">
+        id, code, name, display_name, icon, path, component,
+        permission_name, parent_id, sort_order, is_enabled, is_hidden,
+        tenant_id, created_at, updated_at, is_deleted
+    </sql>
+
+    <!-- 根据角色查授权菜单，递归补齐父菜单 -->
+    <select id="selectMenusByRoles" resultType="com.zeroone.star.sysmgr.entity.menu.MenuDO">
+        WITH RECURSIVE authorized_menus AS (
+            SELECT DISTINCT m.id, m.code, m.name, m.display_name, m.icon, m.path, m.component,
+                   m.permission_name, m.parent_id, m.sort_order, m.is_enabled, m.is_hidden,
+                   m.tenant_id, m.created_at, m.updated_at, m.is_deleted
+            FROM whale_menus m
+            INNER JOIN whale_permissions p ON m.permission_name = p.name AND p.is_deleted = 0
+            INNER JOIN whale_permission_grants pg ON pg.permission_name = p.name
+                AND pg.provider_name = 'R' AND pg.is_deleted = 0
+            INNER JOIN whale_roles r ON r.id = pg.provider_key AND r.is_deleted = 0
+            WHERE m.is_deleted = 0 AND m.is_enabled = 1
+              AND (r.id IN
+                <foreach collection="roles" item="role" open="(" separator="," close=")">#{role}</foreach>
+                OR r.code IN
+                <foreach collection="roles" item="role" open="(" separator="," close=")">#{role}</foreach>
+                OR r.name IN
+                <foreach collection="roles" item="role" open="(" separator="," close=")">#{role}</foreach>
+              )
+
+            UNION DISTINCT
+
+            SELECT parent.id, parent.code, parent.name, parent.display_name, parent.icon, parent.path, parent.component,
+                   parent.permission_name, parent.parent_id, parent.sort_order, parent.is_enabled, parent.is_hidden,
+                   parent.tenant_id, parent.created_at, parent.updated_at, parent.is_deleted
+            FROM whale_menus parent
+            INNER JOIN authorized_menus child ON child.parent_id = parent.id
+            WHERE parent.is_deleted = 0 AND parent.is_enabled = 1
+        )
+        SELECT DISTINCT *
+        FROM authorized_menus
+        ORDER BY sort_order, id
+    </select>
+
+</mapper>

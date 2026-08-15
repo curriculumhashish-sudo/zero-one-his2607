@@ -5,13 +5,21 @@ zo:
       - "http://localhost:3001"
       - "https://app.apifox.com"
     mgr-id: "project-manager"
+    mgr-secret: "WarfhT2N_BY_NY9JJTSTgNAZYgaltrVSbfLisHZhYAQ"
     user-id: "project-app"
 
 server:
-  port: ${sp.auth}
+  port: ${sp.auth:10400}
 spring:
   application:
     name: ${sn.auth}
+  cloud:
+    nacos:
+      discovery:
+        # Docker 容器部署时默认注册容器内网 IP（如 172.17.0.x），外部服务无法访问；
+        # 必须指定宿主机公网 IP（120.55.15.33），与容器端口映射 -p 10400:10400 配合使用。
+        # 本地开发启动如需覆盖：设置环境变量 NACOS_DISCOVERY_IP 或加 -Dspring.cloud.nacos.discovery.ip=<本机IP>
+        ip: ${NACOS_DISCOVERY_IP:120.55.15.33}
   session:
     # session超时时间
     timeout: 3600s
@@ -28,12 +36,19 @@ spring:
             registration:
               # 客户端id
               client-id: ${zo.oauth2.mgr-id}
-              # 认证模式，授权码模式配置none
+              # 客户端密钥（password 授权模式强制要求客户端认证）
+              # 注意：此处须填写 BCryptPasswordEncoder 生成的哈希值（非明文），
+              # 由 his-j1-login 使用真实明文密钥以 client_secret_post 方式提交。
+              # 已替换为 BCryptPasswordEncoder(strength=10) 对 zo.oauth2.mgr-secret 明文生成的哈希（无 {bcrypt} 前缀）
+              client-secret: "$2a$10$hqWloD5D3oLElX3q5CF0IuR8Kxh2eeil/KEKmHzNqGT1GlNUyk.YO"
+              # 认证模式：管理端 his-j1-login 作为后端机密客户端（Confidential Client），
+              # 在 password 授权模式下使用 client_secret_post 完成客户端认证。
               client-authentication-methods:
-                - "none"
-              # 授权模式
+                - "client_secret_post"
+              # 授权模式：授权码 + 密码模式
               authorization-grant-types:
                 - "authorization_code"
+                - "password"
               # 登录成功前端回调地址
               redirect-uris:
                 - "http://localhost:3000/signin-callback"

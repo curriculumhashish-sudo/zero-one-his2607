@@ -65,10 +65,15 @@ public class UserHolder {
 //        userJsonObject.putOnce("roles", roles);
 
         // FIXME: 如果要扩展用户信息，需要修改这里的代码
+        String username = userJsonObject.getStr("user_name");
+        if (!StringUtils.hasText(username)) {
+            username = userJsonObject.getStr("sub");
+        }
+        Byte isEnabled = Convert.toByte(userJsonObject.get("is_active"));
         return UserDTO.builder()
                 .id(Convert.toStr(userJsonObject.get("id")))
-                .username(userJsonObject.getStr("sub"))
-                .isEnabled(Convert.toByte(1))
+                .username(username)
+                .isEnabled(isEnabled == null ? (byte) 1 : isEnabled)
                 .roles(Convert.toList(String.class, userJsonObject.get("roles")))
                 .name(userJsonObject.getStr("name"))
                 .organizationUnits(Convert.toMap(String.class, String.class, userJsonObject.get("organizationUnits")))

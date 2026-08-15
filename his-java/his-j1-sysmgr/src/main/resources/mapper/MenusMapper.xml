@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zeroone.star.sysmgr.mapper.menu.MenusMapper">
+
+    <resultMap id="BaseResultMap" type="com.zeroone.star.sysmgr.entity.menu.MenuDO">
+            <id property="id" column="id" />
+            <result property="code" column="code" />
+            <result property="name" column="name" />
+            <result property="displayName" column="display_name" />
+            <result property="icon" column="icon" />
+            <result property="path" column="path" />
+            <result property="component" column="component" />
+            <result property="permissionName" column="permission_name" />
+            <result property="parentId" column="parent_id" />
+            <result property="sortOrder" column="sort_order" />
+            <result property="isEnabled" column="is_enabled" />
+            <result property="isHidden" column="is_hidden" />
+            <result property="isExternal" column="is_external" />
+            <result property="externalUrl" column="external_url" />
+            <result property="menuType" column="menu_type" />
+            <result property="remark" column="remark" />
+            <result property="tenantId" column="tenant_id" />
+            <result property="createdAt" column="created_at" />
+            <result property="updatedAt" column="updated_at" />
+            <result property="createdBy" column="created_by" />
+            <result property="updatedBy" column="updated_by" />
+            <result property="isDeleted" column="is_deleted" />
+            <result property="deletedAt" column="deleted_at" />
+            <result property="deletedBy" column="deleted_by" />
+            <result property="keepAlive" column="keep_alive" />
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        id,code,`name`,display_name,icon,`path`,
+        component,permission_name,parent_id,sort_order,is_enabled,
+        is_hidden,is_external,external_url,menu_type,remark,
+        tenant_id,created_at,updated_at,created_by,updated_by,
+        is_deleted,deleted_at,deleted_by,keep_alive
+    </sql>
+
+    <!-- 根据角色集合查询授权菜单，递归补齐所有父级菜单 -->
+    <select id="selectMenusByRoles" resultMap="BaseResultMap">
+        WITH RECURSIVE authorized_menus AS (
+        -- 锚点查询：查询角色直接绑定权限的菜单
+        SELECT DISTINCT m.*
+        FROM whale_menus m
+        INNER JOIN whale_permissions p ON m.permission_name = p.name AND p.is_deleted = 0
+        INNER JOIN whale_permission_grants pg ON pg.permission_name = p.name
+        AND pg.provider_name = 'R'
+        AND pg.is_deleted = 0
+        INNER JOIN whale_roles r ON r.id = pg.provider_key
+        AND r.is_deleted = 0
+        WHERE m.is_deleted = 0
+        AND m.is_enabled = 1
+        AND (
+        r.id IN
+        <foreach collection="roles" item="role" open="(" separator="," close=")">#{role}</foreach>
+        OR r.code IN
+        <foreach collection="roles" item="role" open="(" separator="," close=")">#{role}</foreach>
+        OR r.name IN
+        <foreach collection="roles" item="role" open="(" separator="," close=")">#{role}</foreach>
+        )
+
+        UNION DISTINCT
+
+        -- 递归向上查找所有父菜单
+        SELECT parent.*
+        FROM whale_menus parent
+        INNER JOIN authorized_menus child ON child.parent_id = parent.id
+        WHERE parent.is_deleted = 0
+        AND parent.is_enabled = 1
+        )
+        SELECT DISTINCT
+        id, code, name, display_name, icon, path, component, permission_name,
+        parent_id, sort_order, is_enabled, is_hidden, is_external, external_url, menu_type,
+        remark, tenant_id, created_at, updated_at, created_by, updated_by, keep_alive
+        FROM authorized_menus
+        ORDER BY sort_order, id
+    </select>
+</mapper>

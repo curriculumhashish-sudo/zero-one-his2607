@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zeroone.star.sysmgr.mapper.role.RoleMapper">
+
+    <select id="countByName" resultType="long">
+        SELECT COUNT(1)
+        FROM whale_roles
+        WHERE name = #{name}
+    </select>
+
+    <update id="updateBasicInfo">
+        UPDATE whale_roles
+        SET display_name = #{displayName},
+            description = #{description},
+            is_default = #{isDefault},
+            updated_at = NOW(6),
+            updated_by = #{updatedBy}
+        WHERE id = #{roleId}
+          AND (tenant_id = #{tenantId} OR tenant_id IS NULL)
+          AND is_deleted = 0
+    </update>
+
+    <select id="countActiveUserRoles" resultType="long">
+        SELECT COUNT(1)
+        FROM whale_user_roles
+        WHERE role_id = #{roleId}
+          AND is_deleted = 0
+    </select>
+
+    <select id="countActivePositionAssignments" resultType="long">
+        SELECT COUNT(1)
+        FROM adm_pr_assign
+        WHERE role_id = #{roleId}
+          AND is_deleted = 0
+    </select>
+
+    <update id="softDeletePermissionGrants">
+        UPDATE whale_permission_grants
+        SET is_deleted = 1,
+            updated_at = NOW(6),
+            updated_by = #{deletedBy},
+            deleted_at = NOW(6),
+            deleted_by = #{deletedBy}
+        WHERE provider_name = 'R'
+          AND provider_key = #{roleId}
+          AND is_deleted = 0
+    </update>
+
+    <update id="softDeleteRole">
+        UPDATE whale_roles
+        SET is_deleted = 1,
+            updated_at = NOW(6),
+            updated_by = #{deletedBy},
+            deleted_at = NOW(6),
+            deleted_by = #{deletedBy}
+        WHERE id = #{roleId}
+          AND tenant_id = #{tenantId}
+          AND is_static = 0
+          AND is_deleted = 0
+    </update>
+
+</mapper>

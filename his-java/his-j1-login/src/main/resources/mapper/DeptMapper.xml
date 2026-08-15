@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zeroone.star.sysmgr.mapper.dept.DeptMapper">
+
+    <select id="selectUserDeptList" resultType="com.zeroone.star.sysmgr.entity.dept.WhaleOrganizationUnitDO">
+        SELECT
+        ou.id,
+        ou.display_name AS displayName,
+        ou.code,
+        ou.parent_id AS parentId,
+        ou.remark
+        FROM whale_organization_units ou
+        INNER JOIN whale_user_organization_units rel ON ou.id = rel.organization_unit_id
+        WHERE
+        rel.user_id = #{userId}
+        AND ou.tenant_id = #{tenantId}
+        AND ou.is_deleted = 0
+        AND ou.is_enabled = 1
+        <if test="query.displayName != null and query.displayName != ''">
+            AND ou.display_name LIKE CONCAT('%', #{query.displayName}, '%')
+        </if>
+        <if test="query.code != null and query.code != ''">
+            AND ou.code = #{query.code}
+        </if>
+    </select>
+
+
+</mapper>
