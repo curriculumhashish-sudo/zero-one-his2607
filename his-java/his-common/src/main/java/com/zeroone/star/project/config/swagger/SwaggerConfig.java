@@ -6,9 +6,11 @@ import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.info.Contact;
 import io.swagger.v3.oas.models.info.Info;
 import io.swagger.v3.oas.models.info.License;
+import io.swagger.v3.oas.models.parameters.Parameter;
 import io.swagger.v3.oas.models.security.SecurityRequirement;
 import io.swagger.v3.oas.models.security.SecurityScheme;
 import org.springdoc.core.customizers.GlobalOpenApiCustomizer;
+import org.springdoc.core.customizers.GlobalOperationCustomizer;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpHeaders;
@@ -49,12 +51,32 @@ public class SwaggerConfig {
             // 全局添加鉴权参数
             if (openApi.getPaths() != null) {
                 openApi.getPaths().forEach((s, pathItem) -> {
-                    // 为所有接口添加鉴权
                     pathItem.readOperations().forEach(operation -> {
                         operation.addSecurityItem(new SecurityRequirement().addList(HttpHeaders.AUTHORIZATION));
                     });
                 });
             }
+        };
+    }
+
+    /**
+     * 全局操作定制器 - 为所有接口添加请求头参数
+     * Authorization 已通过 SecurityScheme 全局配置，此处仅添加 Accept-Language
+     * @return GlobalOperationCustomizer
+     */
+    @Bean
+    public GlobalOperationCustomizer globalHeaderOperationCustomizer() {
+        return (operation, handlerMethod) -> {
+            // 添加 Accept-Language 请求头
+            Parameter langHeader = new Parameter()
+                    .name("Accept-Language")
+                    .description("语言标识")
+                    .required(false)
+                    .in("header")
+                    .example("zh-CN");
+            operation.addParametersItem(langHeader);
+
+            return operation;
         };
     }
 
@@ -68,8 +90,13 @@ public class SwaggerConfig {
                 .info(createApiInfo())
                 // 添加全局安全认证
                 .addSecurityItem(new SecurityRequirement().addList(HttpHeaders.AUTHORIZATION))
-                .components(new Components().addSecuritySchemes(HttpHeaders.AUTHORIZATION,
-                        new SecurityScheme().name(HttpHeaders.AUTHORIZATION).type(SecurityScheme.Type.HTTP).scheme("bearer")));
+                .components(new Components()
+                        .addSecuritySchemes(HttpHeaders.AUTHORIZATION,
+                                new SecurityScheme()
+                                        .name(HttpHeaders.AUTHORIZATION)
+                                        .type(SecurityScheme.Type.HTTP)
+                                        .scheme("bearer")
+                                        .description("Bearer Token 认证")));
     }
 
     /**

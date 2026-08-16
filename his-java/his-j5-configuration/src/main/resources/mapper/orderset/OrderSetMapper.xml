@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zeroone.star.configuration.mapper.OrderSetMapper">
+
+    <update id="updateContentByVersion">
+        UPDATE cus_order_template
+        SET scene_enum = #{entity.sceneEnum},
+            template_code = #{entity.templateCode},
+            name = #{entity.name},
+            description = #{entity.description},
+            sort_weight = #{entity.sortWeight},
+            remark = #{entity.remark},
+            default_chinese_herbs_dose_quantity = #{entity.defaultChineseHerbsDoseQuantity},
+            default_suffering_flag = #{entity.defaultSufferingFlag},
+            updated_at = NOW(6),
+            updated_by = #{entity.updatedBy},
+            version = version + 1
+        WHERE id = #{entity.id}
+          <if test="entity.tenantId != null and entity.tenantId != ''">
+          AND tenant_id = #{entity.tenantId}
+          </if>
+          AND is_deleted = 0
+          AND version = #{expectedVersion}
+    </update>
+
+    <update id="updateStatusByVersion">
+        UPDATE cus_order_template
+        SET status_enum = #{status},
+            updated_at = NOW(6),
+            updated_by = #{updatedBy},
+            version = version + 1
+        WHERE id = #{id}
+          <if test="tenantId != null and tenantId != ''">
+          AND tenant_id = #{tenantId}
+          </if>
+          AND is_deleted = 0
+          AND version = #{expectedVersion}
+    </update>
+
+    <update id="softDeleteByVersion">
+        UPDATE cus_order_template
+        SET is_deleted = 1,
+            deleted_at = NOW(6),
+            deleted_by = #{deletedBy},
+            updated_at = NOW(6),
+            updated_by = #{deletedBy},
+            version = version + 1
+        WHERE id = #{id}
+          <if test="tenantId != null and tenantId != ''">
+          AND tenant_id = #{tenantId}
+          </if>
+          AND is_deleted = 0
+          AND version = #{expectedVersion}
+    </update>
+</mapper>

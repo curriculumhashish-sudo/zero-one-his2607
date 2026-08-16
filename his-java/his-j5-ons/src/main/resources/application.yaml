@@ -1,0 +1,66 @@
+server:
+  port: 10500
+  servlet:
+    context-path: /j5-ons
+
+# 微服务变量（小组前缀避免冲突）
+sn: J5ONS
+sp: 10500
+
+management:
+  server:
+    servlet:
+      context-path: /j5-ons
+spring:
+  application:
+    name: his-j5-ons
+  profiles:
+    active: dev
+  cloud:
+    nacos:
+      server-addr: 121.43.236.176:8848
+      username: nacos
+      password: nacos
+      discovery:
+        namespace: his-test
+        group: DEFAULT_GROUP
+        # 注册公网 IP，避免 Docker 内部 IP
+        ip: 121.199.54.234
+      config:
+        namespace: his-test
+        group: DEFAULT_GROUP
+        file-extension: yaml
+        remote-first: true
+        shared-configs:
+          - data-id: j5-data-source.yaml
+            group: DEFAULT_GROUP
+            refresh: true
+  datasource:
+    url: jdbc:mysql://8.137.103.174:23306/zo_his?useSSL=false&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true
+    username: his_app
+    password: LvvJ7Db@2026_Q8mR4xK2
+    driver-class-name: com.mysql.cj.jdbc.Driver
+
+springdoc:
+  api-docs:
+    path: /v3/api-docs
+  group-configs:
+    - group: 'default'
+      display-name: ${spring.application.name}
+      paths-to-match: '/**'
+      packages-to-scan: com.zeroone.star.ons
+
+knife4j:
+  enable: true
+  setting:
+    language: zh_cn
+  documents:
+    - group: 'default'
+      name: '门诊护士站接口文档'
+      locations: classpath:docs/
+
+mybatis-plus:
+  configuration:
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+    map-underscore-to-camel-case: true
+  mapper-locations: classpath:mapper/*.xml

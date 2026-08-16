@@ -51,6 +51,8 @@
         <module>his-j3-fee</module>
         <module>his-j3-register</module>
         <module>his-j4-basedata</module>
+        <module>his-j5-ons</module>
+        <module>his-j5-configuration</module>
     </modules>
     <properties>
         <!-- 项目版本号 -->
