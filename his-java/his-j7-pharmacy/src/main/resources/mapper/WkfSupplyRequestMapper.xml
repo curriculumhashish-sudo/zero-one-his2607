@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zeroone.star.pharmacy.mapper.WkfSupplyRequestMapper">
+
+    <select id="getPharmacyStockTakeList" resultType="com.zeroone.star.pharmacy.entity.WkfSupplyRequest">
+        SELECT * FROM wkf_supply_request
+        <where>
+            is_deleted = 0
+            <if test="busNo != null and busNo != ''">
+                AND bus_no = #{busNo}
+            </if>
+        </where>
+    </select>
+
+    <update id="updateStatusForSubmit">
+        UPDATE wkf_supply_request
+        SET status_enum = #{statusEnum},
+            applicant_id = #{applicantId},
+            apply_time = #{applyTime},
+            version = version + 1
+        WHERE bus_no = #{busNo}
+          AND is_deleted = 0
+    </update>
+
+    <update id="updateStatusForApprove">
+        UPDATE wkf_supply_request
+        SET status_enum = #{statusEnum},
+            approver_id = #{approverId},
+            approval_time = #{approvalTime},
+            version = version + 1
+        WHERE bus_no = #{busNo}
+          AND is_deleted = 0
+    </update>
+
+    <update id="updateStatusForWithdraw">
+        UPDATE wkf_supply_request
+        SET status_enum = #{statusEnum},
+            apply_time = NULL,
+            version = version + 1
+        WHERE bus_no = #{busNo}
+          AND is_deleted = 0
+    </update>
+
+</mapper>

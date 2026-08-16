@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zeroone.star.dispense.mapper.OutpatientDispenseRecordMapper">
+
+    <sql id="outpatientDispenseColumns">
+        d.bus_no AS record_no,
+        d.status_enum AS status_enum,
+        COALESCE(NULLIF(r.prescription_no, ''), r.bus_no, d.bus_no) AS prescription_no,
+        CASE WHEN UPPER(d.dispense_enum) IN ('REFUND', 'RETURN') THEN '退药'
+             ELSE '发药'
+        END AS record_type_name,
+        p.name AS patient_name,
+        e.bus_no AS clinic_no,
+        dept_loc.name AS dept_name,
+        d.dispense_time,
+        location.name AS pharmacy_name,
+        practitioner.name AS dispenser_name,
+        practitioner.name AS operator_account,
+        m.name AS drug_name,
+        m.total_volume AS spec,
+        COALESCE(d.dispense_quantity, d.quantity) AS quantity,
+        d.unit_code AS unit,
+        d.lot_number AS lot_number,
+        COALESCE(d.dosage_instruction, r.dosage_instruction) AS dosage_instruction,
+        d.dose AS dose,
+        d.dose_unit_code AS dose_unit_code,
+        COALESCE(d.frequency_code, r.rate_code) AS frequency_code,
+        m.manufacturer_text AS manufacturer_text
+    </sql>
+
+    <sql id="outpatientDispenseFrom">
+        FROM med_medication_dispense d
+        INNER JOIN adm_encounter e ON e.id = d.encounter_id AND e.is_deleted = 0
+        INNER JOIN adm_patient p ON p.id = d.patient_id AND p.is_deleted = 0
+        LEFT JOIN med_medication_request r ON r.id = d.med_req_id AND r.is_deleted = 0
+        LEFT JOIN med_medication_definition m ON m.id = d.medication_id AND m.is_deleted = 0
+        LEFT JOIN adm_practitioner practitioner ON practitioner.id = d.practitioner_id AND practitioner.is_deleted = 0
+        LEFT JOIN adm_location dept_loc ON dept_loc.id = r.location_id AND dept_loc.is_deleted = 0
+        LEFT JOIN adm_location location ON location.id = d.location_id AND location.is_deleted = 0
+    </sql>
+
+    <sql id="outpatientDispenseWhere">
+        WHERE d.is_deleted = 0
+          AND UPPER(e.class_enum) IN ('OUTPATIENT', 'AMB')
+        <if test="query.startDate != null and query.startDate != ''">
+            AND d.dispense_time &gt;= #{query.startDate}
+        </if>
+        <if test="query.endDate != null and query.endDate != ''">
+            AND d.dispense_time &lt;= #{query.endDate}
+        </if>
+        <if test="query.recordType != null and query.recordType != ''">
+            AND d.dispense_enum = #{query.recordType}
+        </if>
+        <if test="query.locationId != null and query.locationId != ''">
+            AND d.location_id = #{query.locationId}
+        </if>
+        <if test="query.drugKeyword != null and query.drugKeyword != ''">
+            AND (m.name LIKE CONCAT('%', #{query.drugKeyword}, '%')
+                 OR m.py_str LIKE CONCAT('%', #{query.drugKeyword}, '%')
+                 OR m.wb_str LIKE CONCAT('%', #{query.drugKeyword}, '%'))
+        </if>
+        <if test="query.patientKeyword != null and query.patientKeyword != ''">
+            AND (p.name LIKE CONCAT('%', #{query.patientKeyword}, '%')
+                 OR p.py_str LIKE CONCAT('%', #{query.patientKeyword}, '%')
+                 OR p.wb_str LIKE CONCAT('%', #{query.patientKeyword}, '%'))
+        </if>
+        <if test="query.practitionerKeyword != null and query.practitionerKeyword != ''">
+            AND (practitioner.name LIKE CONCAT('%', #{query.practitionerKeyword}, '%')
+                 OR practitioner.py_str LIKE CONCAT('%', #{query.practitionerKeyword}, '%')
+                 OR practitioner.wb_str LIKE CONCAT('%', #{query.practitionerKeyword}, '%'))
+        </if>
+        <if test="query.projectType != null and query.projectType != ''">
+            AND r.rx_type_code = #{query.projectType}
+        </if>
+    </sql>
+
+    <select id="selectOutpatientDispensePage"
+            resultType="com.zeroone.star.project.dto.j7.dispense.DispenseFlatDTO">
+        SELECT
+        <include refid="outpatientDispenseColumns"/>
+        <include refid="outpatientDispenseFrom"/>
+        <include refid="outpatientDispenseWhere"/>
+        ORDER BY d.dispense_time DESC, d.id DESC
+    </select>
+
+    <select id="selectOutpatientDispenseFlatList"
+            resultType="com.zeroone.star.project.dto.j7.dispense.DispenseFlatDTO">
+        SELECT
+        <include refid="outpatientDispenseColumns"/>
+        <include refid="outpatientDispenseFrom"/>
+        <include refid="outpatientDispenseWhere"/>
+        ORDER BY d.dispense_time DESC, d.id DESC
+        LIMIT #{limit}
+    </select>
+
+</mapper>

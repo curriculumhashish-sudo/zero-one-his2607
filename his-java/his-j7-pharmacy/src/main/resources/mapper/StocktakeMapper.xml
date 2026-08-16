@@ -1,0 +1,236 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zeroone.star.pharmacy.mapper.StocktakeMapper">
+
+    <!-- 盘点单类型枚举 -->
+    <!-- type_enum = INVENTORY_CHECK / PHARMACY_STOCKTAKE / CABINET_STOCKTAKE 表示盘点单 -->
+
+    <!-- ==================== 分页查询盘点单列表 ==================== -->
+    <!-- 按 bus_no 聚合，关联库房、申请人、审批人 -->
+    <select id="selectStocktakePage" resultType="com.zeroone.star.project.vo.stocktake.StocktakeListVO">
+        SELECT
+            MIN(t.id)                                  AS id,
+            t.bus_no                                   AS busNo,
+            t.status_enum                              AS statusEnum,
+            t.created_by                               AS createdBy,
+            creator.name                               AS createdByName,
+            MIN(t.created_at)                          AS createdAt,
+            t.purpose_location_id                      AS warehouseId,
+            o.name                                     AS warehouseName,
+            o.name                                     AS stocktakePharmacy,
+            IFNULL(SUM(t.total_price), 0)              AS totalPrice,
+            IFNULL(SUM(t.profit_loss_price), 0)        AS profitLossPrice,
+            t.applicant_id                             AS applicantId,
+            app.name                                   AS applicantName,
+            t.apply_time                               AS applyTime,
+            t.approver_id                              AS approverId,
+            appr.name                                  AS approverName,
+            t.approval_time                            AS approvalTime
+        FROM wkf_supply_request t
+        LEFT JOIN adm_organization o
+            ON o.id = t.purpose_location_id AND o.is_deleted = 0
+        LEFT JOIN adm_practitioner creator
+            ON creator.id = t.created_by AND creator.is_deleted = 0
+        LEFT JOIN adm_practitioner app
+            ON app.id = t.applicant_id AND app.is_deleted = 0
+        LEFT JOIN adm_practitioner appr
+            ON appr.id = t.approver_id AND appr.is_deleted = 0
+        WHERE t.is_deleted = 0
+          AND t.type_enum IN ('INVENTORY_CHECK', 'PHARMACY_STOCKTAKE', 'CABINET_STOCKTAKE')
+        <if test="busNo != null and busNo != ''">
+            AND t.bus_no LIKE CONCAT('%', #{busNo}, '%')
+        </if>
+        <if test="statusEnum != null and statusEnum != ''">
+            AND t.status_enum = #{statusEnum}
+        </if>
+        <if test="warehouseId != null and warehouseId != ''">
+            AND t.purpose_location_id = #{warehouseId}
+        </if>
+        <if test="warehouseName != null and warehouseName != ''">
+            AND o.name LIKE CONCAT('%', #{warehouseName}, '%')
+        </if>
+        <if test="applicantId != null and applicantId != ''">
+            AND t.applicant_id = #{applicantId}
+        </if>
+        <if test="startTime != null and startTime != ''">
+            AND t.created_at &gt;= #{startTime}
+        </if>
+        <if test="endTime != null and endTime != ''">
+            AND t.created_at &lt;= #{endTime}
+        </if>
+        GROUP BY t.bus_no, t.status_enum, t.created_by, creator.name,
+                 t.purpose_location_id, o.name,
+                 t.applicant_id, app.name, t.approver_id, appr.name,
+                 t.apply_time, t.approval_time
+        ORDER BY MIN(t.created_at) DESC, t.bus_no DESC
+    </select>
+
+    <!-- ==================== 查询盘点单汇总信息 ==================== -->
+    <!-- 根据 bus_no 聚合一行，含总数、总金额等 -->
+    <select id="selectStocktakeDetail" resultType="com.zeroone.star.project.vo.stocktake.StocktakeDetailVO">
+        SELECT
+            t.bus_no                                   AS id,
+            t.bus_no                                   AS busNo,
+            t.status_enum                              AS statusEnum,
+            CASE t.status_enum
+                WHEN 'DRAFT'            THEN '草稿'
+                WHEN 'PENDING_APPROVAL' THEN '待审批'
+                WHEN 'APPROVAL'         THEN '审核中'
+                WHEN 'APPROVED'         THEN '已审批'
+                WHEN 'AGREE'            THEN '已通过'
+                WHEN 'REJECTED'         THEN '已驳回'
+                WHEN 'REJECT'           THEN '已驳回'
+                WHEN 'WITHDRAWN'        THEN '已撤回'
+                WHEN 'COMPLETED'        THEN '已完成'
+                ELSE t.status_enum
+            END                                        AS statusDesc,
+            t.purpose_location_id                      AS warehouseId,
+            o.name                                     AS warehouseName,
+            o.name                                     AS stocktakePharmacy,
+            CASE t.type_enum
+                WHEN 'CABINET_STOCKTAKE'   THEN 'WAREHOUSE'
+                WHEN 'PHARMACY_STOCKTAKE'  THEN 'PHARMACY'
+                ELSE 'INVENTORY'
+            END                                        AS stocktakeType,
+            IFNULL(SUM(t.total_price), 0)              AS totalPrice,
+            SUM(CASE WHEN t.profit_loss_price &gt; 0 THEN t.profit_loss_price ELSE 0 END) AS totalProfitPrice,
+            SUM(CASE WHEN t.profit_loss_price &lt; 0 THEN ABS(t.profit_loss_price) ELSE 0 END) AS totalLossPrice,
+            IFNULL(SUM(t.profit_loss_price), 0)        AS profitLossPrice,
+            COUNT(*)                                   AS itemCount,
+            t.created_by                               AS createdBy,
+            creator.name                               AS createdByName,
+            t.applicant_id                             AS applicantId,
+            app.name                                   AS applicantName,
+            t.apply_time                               AS applyTime,
+            t.approver_id                              AS approverId,
+            appr.name                                  AS approverName,
+            t.approval_time                            AS approvalTime,
+            t.remake                                   AS remark,
+            MIN(t.created_at)                          AS createdAt
+        FROM wkf_supply_request t
+        LEFT JOIN adm_organization o
+            ON o.id = t.purpose_location_id AND o.is_deleted = 0
+        LEFT JOIN adm_practitioner creator
+            ON creator.id = t.created_by AND creator.is_deleted = 0
+        LEFT JOIN adm_practitioner app
+            ON app.id = t.applicant_id AND app.is_deleted = 0
+        LEFT JOIN adm_practitioner appr
+            ON appr.id = t.approver_id AND appr.is_deleted = 0
+        WHERE t.is_deleted = 0
+          AND t.type_enum IN ('INVENTORY_CHECK', 'PHARMACY_STOCKTAKE', 'CABINET_STOCKTAKE')
+          AND (t.bus_no = #{busNo} OR t.id = #{busNo})
+        GROUP BY t.bus_no, t.status_enum, t.type_enum, t.purpose_location_id, o.name,
+                 t.created_by, creator.name,
+                 t.applicant_id, app.name, t.apply_time,
+                 t.approver_id, appr.name, t.approval_time, t.remake
+        LIMIT 1
+    </select>
+
+    <!-- ==================== 查询盘点单明细列表 ==================== -->
+    <!-- 根据 bus_no 查询所有明细行，关联药品定义；仅引用 wkf_supply_request 真实存在的列 -->
+    <select id="selectStocktakeItems" resultType="com.zeroone.star.project.vo.stocktake.StocktakeItemVO">
+        SELECT t.id,
+               t.item_id                    AS itemId,
+               md.name                      AS itemName,
+               md.name                      AS drugName,
+               md.total_volume              AS specification,
+               md.total_volume              AS spec,
+               md.manufacturer_text         AS manufacturer,
+               t.lot_number                 AS lotNumber,
+               (IFNULL(t.total_quantity, 0) - IFNULL(t.item_quantity, 0)) AS bookQuantity,
+               t.total_quantity             AS totalQuantity,
+               t.item_quantity              AS itemQuantity,
+               t.unit_code                  AS unitCode,
+               t.price                      AS price,
+               t.total_price                AS totalPrice,
+               t.profit_loss_price          AS profitLossPrice,
+               t.remake                     AS remark
+        FROM wkf_supply_request t
+                 LEFT JOIN med_medication_definition md ON md.id = t.item_id AND md.is_deleted = 0
+        WHERE t.bus_no = #{busNo}
+          AND t.is_deleted = 0
+          AND t.type_enum IN ('INVENTORY_CHECK', 'PHARMACY_STOCKTAKE', 'CABINET_STOCKTAKE')
+        ORDER BY t.id ASC
+    </select>
+
+    <!-- ==================== 根据 bus_no 查询任意一行（校验用） ==================== -->
+    <select id="selectOneByBusNo" resultType="com.zeroone.star.pharmacy.entity.WkfSupplyRequest">
+        SELECT
+            id, tenant_id, created_at, updated_at, created_by, updated_by,
+            is_deleted, deleted_at, deleted_by, version,
+            bus_no, original_bus_no, type_enum, status_enum, category_enum,
+            intent_enum, priority_enum, summary_id, deliver_id, patient_id,
+            item_table, item_quantity, total_quantity, item_id, unit_code,
+            occurrence_time, practitioner_id, supplier_id, reason,
+            source_type_enum, source_location_id, purpose_type_enum, purpose_location_id,
+            approver_id, approval_time, applicant_id, apply_time,
+            start_time, end_time, lot_number, trace_no,
+            price, total_price, remake, profit_loss_price
+        FROM wkf_supply_request
+        WHERE is_deleted = 0
+          AND type_enum IN ('INVENTORY_CHECK', 'PHARMACY_STOCKTAKE', 'CABINET_STOCKTAKE')
+          AND bus_no = #{busNo}
+        LIMIT 1
+    </select>
+
+    <!-- ==================== 库房标识归一（ID/名称 → 机构ID） ==================== -->
+    <select id="resolveLocationId" resultType="java.lang.String">
+        SELECT id
+        FROM adm_organization
+        WHERE is_deleted = 0
+          AND (id = #{warehouse} OR name = #{warehouse})
+        LIMIT 1
+    </select>
+
+    <!-- ==================== 查询药品定义的库存单位编码（unit_code 回填兜底） ==================== -->
+    <select id="findStockUnitCodeByItemId" resultType="java.lang.String">
+        SELECT stock_unit_code
+        FROM med_medication_definition
+        WHERE id = #{itemId}
+          AND is_deleted = 0
+        LIMIT 1
+    </select>
+
+    <!-- ==================== 统计盘点单明细行数 ==================== -->
+    <select id="countItemsByBusNo" resultType="java.lang.Long">
+        SELECT COUNT(*)
+        FROM wkf_supply_request
+        WHERE is_deleted = 0
+          AND type_enum IN ('INVENTORY_CHECK', 'PHARMACY_STOCKTAKE', 'CABINET_STOCKTAKE')
+          AND bus_no = #{busNo}
+    </select>
+
+    <!-- ==================== 批量更新盘点单状态（提交审批） ==================== -->
+    <!-- 同一 bus_no 下所有行共享审批状态，需要全部更新 -->
+    <update id="updateStatusByBusNo">
+        UPDATE wkf_supply_request
+        SET status_enum = #{statusEnum},
+            applicant_id = #{applicantId},
+            apply_time = #{applyTime},
+            <if test="remark != null and remark != ''">
+                remake = #{remark},
+            </if>
+            updated_by = #{updatedBy},
+            updated_at = #{updatedAt},
+            version = version + 1
+        WHERE is_deleted = 0
+          AND type_enum IN ('INVENTORY_CHECK', 'PHARMACY_STOCKTAKE', 'CABINET_STOCKTAKE')
+          AND bus_no = #{busNo}
+    </update>
+
+    <!-- ==================== 软删除盘点单（按 bus_no 批量） ==================== -->
+    <update id="softDeleteByBusNo">
+        UPDATE wkf_supply_request
+        SET is_deleted = 1,
+            deleted_at = #{deletedAt},
+            deleted_by = #{deletedBy},
+            updated_at = #{deletedAt},
+            updated_by = #{deletedBy},
+            version = version + 1
+        WHERE bus_no = #{busNo}
+          AND is_deleted = 0
+          AND type_enum IN ('INVENTORY_CHECK', 'PHARMACY_STOCKTAKE', 'CABINET_STOCKTAKE')
+    </update>
+
+</mapper>

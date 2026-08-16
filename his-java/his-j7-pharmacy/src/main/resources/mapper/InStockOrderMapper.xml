@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zeroone.star.pharmacy.mapper.InStockOrderMapper">
+
+    <update id="softDeleteByBusNo">
+        UPDATE wkf_supply_request
+        SET is_deleted = 1,
+            deleted_at = #{deletedAt},
+            deleted_by = #{deletedBy},
+            updated_at = #{deletedAt},
+            updated_by = #{deletedBy},
+            version = version + 1
+        WHERE bus_no = #{busNo}
+          AND is_deleted = 0
+    </update>
+
+    <select id="selectPurchaseInboundPage" resultType="com.zeroone.star.project.vo.j7.pharmacy.PurchaseInboundListVO">
+        SELECT
+            MIN(t.id) AS id,
+            t.bus_no AS busNo,
+            CASE t.status_enum
+                WHEN 'DRAFT' THEN '编辑中'
+                WHEN 'PENDING' THEN '待审批'
+                WHEN 'PENDING_APPROVAL' THEN '待审批'
+                WHEN 'APPROVAL' THEN '审批中'
+                WHEN 'APPROVED' THEN '已审批'
+                WHEN 'AGREE' THEN '已通过'
+                WHEN 'REJECTED' THEN '已驳回'
+                WHEN 'REJECT' THEN '已驳回'
+                WHEN 'WITHDRAWN' THEN '已撤回'
+                WHEN 'WITHDRAW' THEN '已撤回'
+                ELSE t.status_enum
+            END AS statusName,
+            creator.name AS createByName,
+            approver.name AS approverName,
+            COALESCE(t.apply_time, MIN(t.created_at)) AS applyTime,
+            CONCAT(IFNULL(source_org.name, '未知来源'), ' → ', IFNULL(purpose_org.name, '未知目的')) AS transferPath,
+            IFNULL(SUM(CASE WHEN t.item_quantity &gt; 0 THEN t.total_price ELSE 0 END), 0) AS totalPrice
+        FROM wkf_supply_request t
+        LEFT JOIN adm_practitioner creator
+            ON creator.id = t.created_by AND creator.is_deleted = 0
+        LEFT JOIN adm_practitioner approver
+            ON approver.id = t.approver_id AND approver.is_deleted = 0
+        LEFT JOIN adm_organization source_org
+            ON source_org.id = t.source_location_id AND source_org.is_deleted = 0
+        LEFT JOIN adm_organization purpose_org
+            ON purpose_org.id = t.purpose_location_id AND purpose_org.is_deleted = 0
+        WHERE t.is_deleted = 0
+          AND t.type_enum IN ('CABINET_INBOUND_RECEIPT', 'PHARMACY_STOCK_IN', 'INVENTORY_IN')
+        <if test="busNo != null and busNo != ''">
+            AND t.bus_no LIKE CONCAT('%', #{busNo}, '%')
+        </if>
+        <if test="sourceLocationId != null and sourceLocationId != ''">
+            AND t.source_location_id = #{sourceLocationId}
+        </if>
+        <if test="purposeLocationId != null and purposeLocationId != ''">
+            AND t.purpose_location_id = #{purposeLocationId}
+        </if>
+        <if test="statusEnum != null and statusEnum != ''">
+            AND t.status_enum = #{statusEnum}
+        </if>
+        <if test="startTime != null">
+            AND t.apply_time &gt;= #{startTime}
+        </if>
+        <if test="endTime != null">
+            AND t.apply_time &lt;= #{endTime}
+        </if>
+        GROUP BY t.bus_no, t.status_enum, creator.name, approver.name,
+                 t.apply_time, source_org.name, purpose_org.name
+        ORDER BY COALESCE(t.apply_time, MIN(t.created_at)) DESC, t.bus_no DESC
+    </select>
+
+</mapper>

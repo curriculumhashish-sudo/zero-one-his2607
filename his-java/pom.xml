@@ -55,6 +55,8 @@
         <module>his-j5-configuration</module>
         <module>his-j6-pharmacy</module>
         <module>his-j6-report</module>
+        <module>his-j7-dispense</module>
+        <module>his-j7-pharmacy</module>
     </modules>
     <properties>
         <!-- 项目版本号 -->
