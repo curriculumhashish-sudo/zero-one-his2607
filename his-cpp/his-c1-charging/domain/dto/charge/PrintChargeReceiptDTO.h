@@ -7,113 +7,113 @@
 
 #include OATPP_CODEGEN_BEGIN(DTO)
 /*
-   æ‰“å°é—¨è¯Šæ”¶è´¹å°ç¥¨è¯·æ±‚
+   ´òÓ¡ÃÅÕïÊÕ·ÑĞ¡Æ±ÇëÇó
 */
 class PrintChargeReceiptRequestDTO : public oatpp::DTO
 {
     DTO_INIT(PrintChargeReceiptRequestDTO, DTO);
 
-    // å°±è¯Šä¸»é”®ï¼ˆä¸ paymentId è‡³å°‘ä¼ ä¸€ä¸ªï¼‰
+    // ¾ÍÕïÖ÷¼ü£¨Óë paymentId ÖÁÉÙ´«Ò»¸ö£©
     API_DTO_FIELD(String, encounterId, ZH_WORDS_GETTER("lhfc.charging.charge.PrintChargeReceiptRequestDTO.encounterId.description"), false, "");
 
-    // æ”¯ä»˜æµæ°´ä¸»é”®ï¼ˆä¸ encounterId è‡³å°‘ä¼ ä¸€ä¸ªï¼›ä¸ºç©ºæ—¶è‡ªåŠ¨å–è¯¥å°±è¯Šæœ€è¿‘ä¸€æ¬¡æˆåŠŸæ”¯ä»˜ï¼‰
+    // Ö§¸¶Á÷Ë®Ö÷¼ü£¨Óë encounterId ÖÁÉÙ´«Ò»¸ö£»Îª¿ÕÊ±×Ô¶¯È¡¸Ã¾ÍÕï×î½üÒ»´Î³É¹¦Ö§¸¶£©
     API_DTO_FIELD(String, paymentId, ZH_WORDS_GETTER("lhfc.charging.charge.PrintChargeReceiptRequestDTO.paymentId.description"), false, "");
 };
 
 /*
-   æ”¶è´¹é¡¹ç›®é€è¡Œï¼ˆchargeItemLines å­å¯¹è±¡ï¼‰
+   ÊÕ·ÑÏîÄ¿ÖğĞĞ£¨chargeItemLines ×Ó¶ÔÏó£©
 */
 class ChargeReceiptChargeLineDTO : public oatpp::DTO
 {
     DTO_INIT(ChargeReceiptChargeLineDTO, DTO);
 
-    // é¡¹ç›®åç§°
+    // ÏîÄ¿Ãû³Æ
     API_DTO_FIELD(String, itemName, ZH_WORDS_GETTER("lhfc.charging.charge.ChargeReceiptChargeLineDTO.itemName.description"), true, ZH_WORDS_GETTER("lhfc.charging.charge.ChargeReceiptChargeLineDTO.itemName.value"));
 
-    // æ•°é‡å±•ç¤ºï¼ˆå¦‚ "1 æ¬¡"ï¼‰
+    // ÊıÁ¿Õ¹Ê¾£¨Èç "1 ´Î"£©
     API_DTO_FIELD(String, quantityText, ZH_WORDS_GETTER("lhfc.charging.charge.ChargeReceiptChargeLineDTO.quantityText.description"), true, ZH_WORDS_GETTER("lhfc.charging.charge.ChargeReceiptChargeLineDTO.quantityText.value"));
 
-    // é‡‘é¢å±•ç¤ºï¼ˆä¿ç•™ 2 ä½å°æ•°ï¼‰
+    // ½ğ¶îÕ¹Ê¾£¨±£Áô 2 Î»Ğ¡Êı£©
     API_DTO_FIELD(String, amountText, ZH_WORDS_GETTER("lhfc.charging.charge.ChargeReceiptChargeLineDTO.amountText.description"), true, "7.97");
 
-    // è´¹ç”¨ç±»åˆ«ï¼ˆå­—å…¸ç¿»è¯‘ï¼Œå¦‚ "è¥¿è¯è´¹"/"æ£€æŸ¥è´¹"ï¼‰
+    // ·ÑÓÃÀà±ğ£¨×Öµä·­Òë£¬Èç "Î÷Ò©·Ñ"/"¼ì²é·Ñ"£©
     API_DTO_FIELD(String, chargeCategoryText, ZH_WORDS_GETTER("lhfc.charging.charge.ChargeReceiptChargeLineDTO.chargeCategoryText.description"), true, "1001");
 };
 
 /*
-   å°ç¥¨æ‰“å°æ•°æ®ï¼ˆslip å­å¯¹è±¡ï¼‰
+   Ğ¡Æ±´òÓ¡Êı¾İ£¨slip ×Ó¶ÔÏó£©
 */
 class SlipDTO : public oatpp::DTO
 {
     DTO_INIT(SlipDTO, DTO);
 
-    // --- æ‚£è€…å’Œæœºæ„ä¿¡æ¯ ---
-    // å°±è¯Š ID
+    // --- »¼ÕßºÍ»ú¹¹ĞÅÏ¢ ---
+    // ¾ÍÕï ID
     API_DTO_FIELD(String, encounterId, ZH_WORDS_GETTER("lhfc.charging.charge.SlipDTO.encounterId.description"), false, "337209205188464640");
 
-    // æ‚£è€…å§“å
+    // »¼ÕßĞÕÃû
     API_DTO_FIELD(String, patientName, ZH_WORDS_GETTER("lhfc.charging.charge.SlipDTO.patientName.description"), true, ZH_WORDS_GETTER("lhfc.charging.charge.SlipDTO.patientName.value"));
 
-    // æœºæ„åç§°ï¼ˆtypeEnum=HOSPITALï¼ŒstatusEnum=ACTIVEï¼‰
+    // »ú¹¹Ãû³Æ£¨typeEnum=HOSPITAL£¬statusEnum=ACTIVE£©
     API_DTO_FIELD(String, hospitalName, ZH_WORDS_GETTER("lhfc.charging.charge.SlipDTO.hospitalName.description"), true, ZH_WORDS_GETTER("lhfc.charging.charge.SlipDTO.hospitalName.value"));
 
-    // æ€§åˆ«å±•ç¤º
+    // ĞÔ±ğÕ¹Ê¾
     API_DTO_FIELD(String, genderEnumText, ZH_WORDS_GETTER("lhfc.charging.charge.SlipDTO.genderEnumText.description"), true, ZH_WORDS_GETTER("lhfc.charging.charge.SlipDTO.genderEnumText.value"));
 
-    // å¹´é¾„æ–‡æœ¬ï¼ˆè®¡ç®—å€¼ï¼‰
+    // ÄêÁäÎÄ±¾£¨¼ÆËãÖµ£©
     API_DTO_FIELD(String, ageText, ZH_WORDS_GETTER("lhfc.charging.charge.SlipDTO.ageText.description"), true, ZH_WORDS_GETTER("lhfc.charging.charge.SlipDTO.ageText.value"));
 
-    // --- è´¹ç”¨å­—æ®µ ---
-    // è´¹ç”¨æ€§è´¨ï¼ˆå–ç¬¬ä¸€é¡¹æ”¶è´¹è¡Œçš„åˆåŒåç§°ï¼›æ— åˆ™å–è‡ªè´¹è´¦æˆ·å…³è”åˆåŒï¼‰
+    // --- ·ÑÓÃ×Ö¶Î ---
+    // ·ÑÓÃĞÔÖÊ£¨È¡µÚÒ»ÏîÊÕ·ÑĞĞµÄºÏÍ¬Ãû³Æ£»ÎŞÔòÈ¡×Ô·ÑÕË»§¹ØÁªºÏÍ¬£©
     API_DTO_FIELD(String, feeNatureText, ZH_WORDS_GETTER("lhfc.charging.charge.SlipDTO.feeNatureText.description"), true, ZH_WORDS_GETTER("lhfc.charging.charge.SlipDTO.feeNatureText.value"));
 
-    // --- è´¹ç”¨åˆ†è§£å­—æ®µ ---
-    // åˆè®¡é‡‘é¢ï¼ˆä¼˜å…ˆå–æ”¯ä»˜æµæ°´ displayAmountï¼Œå¦åˆ™ç´¯åŠ æ”¶è´¹è¡Œï¼‰
+    // --- ·ÑÓÃ·Ö½â×Ö¶Î ---
+    // ºÏ¼Æ½ğ¶î£¨ÓÅÏÈÈ¡Ö§¸¶Á÷Ë® displayAmount£¬·ñÔòÀÛ¼ÓÊÕ·ÑĞĞ£©
     API_DTO_FIELD(String, totalAmountText, ZH_WORDS_GETTER("lhfc.charging.charge.SlipDTO.totalAmountText.description"), true, "17.31");
 
-    // ç»Ÿç­¹æ”¯ä»˜
+    // Í³³ïÖ§¸¶
     API_DTO_FIELD(String, poolingPayText, ZH_WORDS_GETTER("lhfc.charging.charge.SlipDTO.poolingPayText.description"), true, "");
 
-    // åŸºé‡‘æ”¯ä»˜
+    // »ù½ğÖ§¸¶
     API_DTO_FIELD(String, fundPayText, ZH_WORDS_GETTER("lhfc.charging.charge.SlipDTO.fundPayText.description"), true, "");
 
-    // ä¸ªäººè´¦æˆ·æ”¯ä»˜
+    // ¸öÈËÕË»§Ö§¸¶
     API_DTO_FIELD(String, accountPayText, ZH_WORDS_GETTER("lhfc.charging.charge.SlipDTO.accountPayText.description"), true, "");
 
-    // èµ·ä»˜çº¿ï¼ˆå½“å‰å›ºå®šç©ºå­—ç¬¦ä¸²ï¼‰
+    // Æğ¸¶Ïß£¨µ±Ç°¹Ì¶¨¿Õ×Ö·û´®£©
     API_DTO_FIELD(String, deductibleLineText, ZH_WORDS_GETTER("lhfc.charging.charge.SlipDTO.deductibleLineText.description"), true, "");
 
-    // ç°é‡‘æ”¯ä»˜
+    // ÏÖ½ğÖ§¸¶
     API_DTO_FIELD(String, cashPayText, ZH_WORDS_GETTER("lhfc.charging.charge.SlipDTO.cashPayText.description"), true, "17.31");
 
-    // å¾®ä¿¡æ”¯ä»˜
+    // Î¢ĞÅÖ§¸¶
     API_DTO_FIELD(String, wechatPayText, ZH_WORDS_GETTER("lhfc.charging.charge.SlipDTO.wechatPayText.description"), true, "");
 
-    // æ”¯ä»˜å®æ”¯ä»˜
+    // Ö§¸¶±¦Ö§¸¶
     API_DTO_FIELD(String, alipayPayText, ZH_WORDS_GETTER("lhfc.charging.charge.SlipDTO.alipayPayText.description"), true, "");
 
-    // ä¸ªè´¦æ”¯ä»˜åä½™é¢
+    // ¸öÕËÖ§¸¶ºóÓà¶î
     API_DTO_FIELD(String, accountBalanceText, ZH_WORDS_GETTER("lhfc.charging.charge.SlipDTO.accountBalanceText.description"), true, "");
 
-    // --- æ“ä½œäºº&æ—¶é—´å­—æ®µ ---
-    // æ”¶è´¹å‘˜å§“åï¼ˆç”± fin_payment_reconciliation.enterer_id æŸ¥æ‰¾ï¼‰
+    // --- ²Ù×÷ÈË&Ê±¼ä×Ö¶Î ---
+    // ÊÕ·ÑÔ±ĞÕÃû£¨ÓÉ fin_payment_reconciliation.enterer_id ²éÕÒ£©
     API_DTO_FIELD(String, cashierName, ZH_WORDS_GETTER("lhfc.charging.charge.SlipDTO.cashierName.description"), true, "admin");
 
-    // æ”¶è´¹æ—¶é—´æ ¼å¼
+    // ÊÕ·ÑÊ±¼ä¸ñÊ½
     API_DTO_FIELD(String, chargeTimeText, ZH_WORDS_GETTER("lhfc.charging.charge.SlipDTO.chargeTimeText.description"), true, "2026-07-19 20:31:05");
 
-    // --- æ”¶è´¹é¡¹ç›®è¡Œ ---
+    // --- ÊÕ·ÑÏîÄ¿ĞĞ ---
     API_DTO_FIELD(Vector<Object<ChargeReceiptChargeLineDTO>>, chargeItemLines, ZH_WORDS_GETTER("lhfc.charging.charge.SlipDTO.chargeItemLines.description"), true, {Object<ChargeReceiptChargeLineDTO>(ChargeReceiptChargeLineDTO::createShared())});
 };
 
 /*
-   æ‰“å°é—¨è¯Šæ”¶è´¹å°ç¥¨å“åº”
+   ´òÓ¡ÃÅÕïÊÕ·ÑĞ¡Æ±ÏìÓ¦
 */
 class PrintChargeReceiptResponseDTO : public oatpp::DTO
 {
     DTO_INIT(PrintChargeReceiptResponseDTO, DTO);
 
-    // å°ç¥¨æ‰“å°æ•°æ®
+    // Ğ¡Æ±´òÓ¡Êı¾İ
     API_DTO_FIELD(Object<SlipDTO>, slip, ZH_WORDS_GETTER("lhfc.charging.charge.PrintChargeReceiptResponseDTO.slip.description"), true, {});
 };
 

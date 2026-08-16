@@ -7,12 +7,12 @@
 #include OATPP_CODEGEN_BEGIN(DTO)
 
 /**
- * ç¡®è®¤ç¼´è´¹DTO
+ * È·ÈÏ½É·ÑDTO
  */
 class ChargeConfirmDTO : public oatpp::DTO {
     DTO_INIT(ChargeConfirmDTO, DTO);
 
-    // å°±è¯Šå·
+    // ¾ÍÕïºÅ
     DTO_FIELD(String, visitNumber);
     DTO_FIELD_INFO(visitNumber) {
         info->description = ZH_WORDS_GETTER("macchiato.charging.register.visitNumber");
@@ -42,25 +42,25 @@ class ChargeConfirmDTO : public oatpp::DTO {
         info->description = ZH_WORDS_GETTER("macchiato.charging.register.amount");
     }
 
-    // æ”¯ä»˜è‰ç¨¿å· (fin_payment_reconciliation.id)
+    // Ö§¸¶²Ý¸åºÅ (fin_payment_reconciliation.id)
     DTO_FIELD(String, paymentDraft);
     DTO_FIELD_INFO(paymentDraft) {
         info->description = ZH_WORDS_GETTER("macchiato.charging.register.paymentDraft");
     }
 
-    // æ”¶è´¹é¡¹æ ‡è¯† (adm_charge_item.id)
+    // ÊÕ·ÑÏî±êÊ¶ (adm_charge_item.id)
     DTO_FIELD(String, chargeItemId);
     DTO_FIELD_INFO(chargeItemId) {
         info->description = ZH_WORDS_GETTER("macchiato.charging.register.chargeItemId");
     }
 
-    // æŒ‚å·ç±»åž‹
+    // ¹ÒºÅÀàÐÍ
     DTO_FIELD(String, registrationType);
     DTO_FIELD_INFO(registrationType) {
         info->description = ZH_WORDS_GETTER("macchiato.charging.register.registrationType");
     }
 
-    // æ”¯ä»˜æ–¹å¼ 1-cash, 2-wechat, 3-alipay, 4-bankcard
+    // Ö§¸¶·½Ê½ 1-cash, 2-wechat, 3-alipay, 4-bankcard
     DTO_FIELD(Int32, paymentMethod);
     DTO_FIELD_INFO(paymentMethod) {
         info->description = ZH_WORDS_GETTER("macchiato.charging.register.paymentMethod");

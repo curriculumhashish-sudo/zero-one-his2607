@@ -7,17 +7,17 @@
 
 #include OATPP_CODEGEN_BEGIN(DTO)
 /*
-   è·å–æ‚£è€…ç¼´è´¹é¡¹æŸ¥è¯¢å‚æ•°
+   »ñÈ¡»¼Õß½É·ÑÏî²éÑ¯²ÎÊı
 */
 class GetChargeItemsQuery : public oatpp::DTO {
     DTO_INIT(GetChargeItemsQuery, DTO);
 
-    // å°±è¯Šä¸»é”®
+    // ¾ÍÕïÖ÷¼ü
     API_DTO_FIELD(String, encounterId,
         ZH_WORDS_GETTER("lhfc.charging.charge.GetChargeItemsQuery.encounterId.description"),
         true, "");
 
-    // æ˜¯å¦åŠ è½½å®šä»·æ‰©å±•å­—æ®µï¼ˆæˆæœ¬/æŠ˜æ‰£ï¼‰ï¼›true æ—¶é¢å¤–å…³è” adm_charge_item_definition åŠäº§å“è¯»æ¨¡å‹
+    // ÊÇ·ñ¼ÓÔØ¶¨¼ÛÀ©Õ¹×Ö¶Î£¨³É±¾/ÕÛ¿Û£©£»true Ê±¶îÍâ¹ØÁª adm_charge_item_definition ¼°²úÆ·¶ÁÄ£ĞÍ
     API_DTO_FIELD(Boolean, includePriceExtension,
         ZH_WORDS_GETTER("lhfc.charging.charge.GetChargeItemsQuery.includePriceExtension.description"),
         false, false);

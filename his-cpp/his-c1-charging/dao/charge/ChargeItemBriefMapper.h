@@ -7,9 +7,9 @@
 #include "domain/do/charge/ChargeItemBriefDO.h"
 
 /**
- * ChargeItemBriefDO çš„ç»“æœé›†æ˜ å°„å™¨
- * å°†æ”¶è´¹é¡¹å­æŸ¥è¯¢çš„æ¯ä¸€è¡Œæ˜ å°„ä¸º ChargeItemBriefDO å®ä¾‹
- * SQL åˆ—åˆ«åå¿…é¡»ä¸ getString() çš„å‚æ•°åä¸¥æ ¼ä¸€è‡´
+ * ChargeItemBriefDO µÄ½á¹û¼¯Ó³ÉäÆ÷
+ * ½«ÊÕ·ÑÏî×Ó²éÑ¯µÄÃ¿Ò»ĞĞÓ³ÉäÎª ChargeItemBriefDO ÊµÀı
+ * SQL ÁĞ±ğÃû±ØĞëÓë getString() µÄ²ÎÊıÃûÑÏ¸ñÒ»ÖÂ
  */
 class ChargeItemBriefMapper : public Mapper<ChargeItemBriefDO>
 {

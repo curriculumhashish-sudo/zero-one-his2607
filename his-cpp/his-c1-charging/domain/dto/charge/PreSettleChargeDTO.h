@@ -7,174 +7,174 @@
 
 #include OATPP_CODEGEN_BEGIN(DTO)
 /*
-   é¢„ç»“ç®—è¯·æ±‚
+   Ô¤½áËãÇëÇó
 */
 class PreSettleChargeRequestDTO : public oatpp::DTO
 {
     DTO_INIT(PreSettleChargeRequestDTO, DTO);
 
-    // å°±è¯Šä¸»é”®
+    // ¾ÍÕïÖ÷¼ü
     API_DTO_FIELD(String, encounterId,
         ZH_WORDS_GETTER("lhfc.charging.charge.PreSettleChargeRequestDTO.encounterId.description"),
         true, "");
 
-    // ç”¨æˆ·é€‰ä¸­çš„å¾…æ”¶æ”¶è´¹é¡¹ ID åˆ—è¡¨
+    // ÓÃ»§Ñ¡ÖĞµÄ´ıÊÕÊÕ·ÑÏî ID ÁĞ±í
     API_DTO_FIELD(Vector<String>, chargeItemIds,
         ZH_WORDS_GETTER("lhfc.charging.charge.PreSettleChargeRequestDTO.chargeItemIds.description"),
         true, {});
 
-    // è´¹ç”¨æ€§è´¨åˆåŒä¸»é”®ï¼ˆåŒ»ä¿ç»“ç®—æ—¶å¿…ä¼ ï¼‰
+    // ·ÑÓÃĞÔÖÊºÏÍ¬Ö÷¼ü£¨Ò½±£½áËãÊ±±Ø´«£©
     API_DTO_FIELD(String, contractId,
         ZH_WORDS_GETTER("lhfc.charging.charge.PreSettleChargeRequestDTO.contractId.description"),
         false, "");
 
-    // åŒ»ä¿ç±»å‹ç¼–ç 
+    // Ò½±£ÀàĞÍ±àÂë
     API_DTO_FIELD(String, insuranceTypeCode,
         ZH_WORDS_GETTER("lhfc.charging.charge.PreSettleChargeRequestDTO.insuranceTypeCode.description"),
         false, "");
 
-    // ä¸ªäººåŒ»ä¿ç¼–å·
+    // ¸öÈËÒ½±£±àºÅ
     API_DTO_FIELD(String, personalInsuranceNo,
         ZH_WORDS_GETTER("lhfc.charging.charge.PreSettleChargeRequestDTO.personalInsuranceNo.description"),
         false, "");
 
-    // ç¤¾ä¿å¡å·
+    // Éç±£¿¨ºÅ
     API_DTO_FIELD(String, insuranceCardNo,
         ZH_WORDS_GETTER("lhfc.charging.charge.PreSettleChargeRequestDTO.insuranceCardNo.description"),
         false, "");
 };
 
 /*
-   é¢„ç»“ç®—è¡Œé¢„è§ˆï¼ˆpreviews å­å¯¹è±¡ï¼‰
+   Ô¤½áËãĞĞÔ¤ÀÀ£¨previews ×Ó¶ÔÏó£©
 */
 class PreSettleChargeLinePreviewDTO : public oatpp::DTO
 {
     DTO_INIT(PreSettleChargeLinePreviewDTO, DTO);
 
-    // æ”¶è´¹æ˜ç»†ä¸»é”®
+    // ÊÕ·ÑÃ÷Ï¸Ö÷¼ü
     API_DTO_FIELD(String, chargeItemId, ZH_WORDS_GETTER("lhfc.charging.charge.PreSettleChargeLinePreviewDTO.chargeItemId.description"), true, "337209313107906560");
 
-    // é¡¹ç›®å±•ç¤ºåç§°
+    // ÏîÄ¿Õ¹Ê¾Ãû³Æ
     API_DTO_FIELD(String, itemLabel, ZH_WORDS_GETTER("lhfc.charging.charge.PreSettleChargeLinePreviewDTO.itemLabel.description"), true, ZH_WORDS_GETTER("lhfc.charging.charge.PreSettleChargeLinePreviewDTO.itemLabel.value"));
 
-    // æœ¬è¡Œåº”æ”¶é‡‘é¢
+    // ±¾ĞĞÓ¦ÊÕ½ğ¶î
     API_DTO_FIELD(Float64, lineAmount, ZH_WORDS_GETTER("lhfc.charging.charge.PreSettleChargeLinePreviewDTO.lineAmount.description"), true, 7.97);
 
-    // è´¹ç”¨æ€§è´¨å±•ç¤ºï¼ˆè‡ªè´¹/çœåŒ»ä¿/å¸‚åŒ»ä¿ç­‰ï¼‰
+    // ·ÑÓÃĞÔÖÊÕ¹Ê¾£¨×Ô·Ñ/Ê¡Ò½±£/ÊĞÒ½±£µÈ£©
     API_DTO_FIELD(String, feeNatureDisplay, ZH_WORDS_GETTER("lhfc.charging.charge.PreSettleChargeLinePreviewDTO.feeNatureDisplay.description"), false, ZH_WORDS_GETTER("lhfc.charging.charge.PreSettleChargeLinePreviewDTO.feeNatureDisplay.value"));
 };
 
 /*
-   è‡ªè´¹æ±‡æ€»ï¼ˆselfPayRollup å­å¯¹è±¡ï¼‰
+   ×Ô·Ñ»ã×Ü£¨selfPayRollup ×Ó¶ÔÏó£©
 */
 class OpSelfPayRollupDTO : public oatpp::DTO
 {
     DTO_INIT(OpSelfPayRollupDTO, DTO);
 
-    // è‡ªè´¹è´¦æˆ·ä¸»é”®
+    // ×Ô·ÑÕË»§Ö÷¼ü
     API_DTO_FIELD(String, accountId, ZH_WORDS_GETTER("lhfc.charging.charge.OpSelfPayRollupDTO.accountId.description"), false, "");
 
-    // è‡ªè´¹æ”¶è´¹é¡¹ ID åˆ—è¡¨
+    // ×Ô·ÑÊÕ·ÑÏî ID ÁĞ±í
     API_DTO_FIELD(Vector<String>, chargeItemIds, ZH_WORDS_GETTER("lhfc.charging.charge.OpSelfPayRollupDTO.chargeItemIds.description"), true, {"337206129186574336"});
 
-    // è‡ªè´¹åˆè®¡
+    // ×Ô·ÑºÏ¼Æ
     API_DTO_FIELD(Float64, totalAmount, ZH_WORDS_GETTER("lhfc.charging.charge.OpSelfPayRollupDTO.totalAmount.description"), false, 0.0);
 };
 
 /*
-   åŒ»ä¿åˆ†ç»„ï¼ˆinsuranceGroups å­å¯¹è±¡ï¼‰
+   Ò½±£·Ö×é£¨insuranceGroups ×Ó¶ÔÏó£©
 */
 class OpInsurancePreSettleGroupDTO : public oatpp::DTO
 {
     DTO_INIT(OpInsurancePreSettleGroupDTO, DTO);
 
-    // åˆ†ç»„åºå·
+    // ·Ö×éĞòºÅ
     API_DTO_FIELD(Int32, groupIndex, ZH_WORDS_GETTER("lhfc.charging.charge.OpInsurancePreSettleGroupDTO.groupIndex.description"), true, 0);
 
-    // è´¹ç”¨æ€§è´¨åˆåŒä¸»é”®
+    // ·ÑÓÃĞÔÖÊºÏÍ¬Ö÷¼ü
     API_DTO_FIELD(String, contractId, ZH_WORDS_GETTER("lhfc.charging.charge.OpInsurancePreSettleGroupDTO.contractId.description"), false, "");
 
-    // è®°è´¦è´¦æˆ·ä¸»é”®
+    // ¼ÇÕËÕË»§Ö÷¼ü
     API_DTO_FIELD(String, accountId, ZH_WORDS_GETTER("lhfc.charging.charge.OpInsurancePreSettleGroupDTO.accountId.description"), false, "");
 
-    // è¯¥ç»„çš„æ”¶è´¹é¡¹ ID åˆ—è¡¨
+    // ¸Ã×éµÄÊÕ·ÑÏî ID ÁĞ±í
     API_DTO_FIELD(Vector<String>, chargeItemIds, ZH_WORDS_GETTER("lhfc.charging.charge.OpInsurancePreSettleGroupDTO.chargeItemIds.description"), true, {"337206129186574336"});
 
-    // åŒ»ç–—ç±»åˆ« code
+    // Ò½ÁÆÀà±ğ code
     API_DTO_FIELD(String, medType, ZH_WORDS_GETTER("lhfc.charging.charge.OpInsurancePreSettleGroupDTO.medType.description"), false, "");
 
-    // åŒ»ç–—ç±»åˆ«å±•ç¤º
+    // Ò½ÁÆÀà±ğÕ¹Ê¾
     API_DTO_FIELD(String, medTypeDisplay, ZH_WORDS_GETTER("lhfc.charging.charge.OpInsurancePreSettleGroupDTO.medTypeDisplay.description"), false, "");
 
-    // è¯Šæ–­ç¼–ç 
+    // Õï¶Ï±àÂë
     API_DTO_FIELD(String, diseCodg, ZH_WORDS_GETTER("lhfc.charging.charge.OpInsurancePreSettleGroupDTO.diseCodg.description"), false, "");
 
-    // è¯Šæ–­åç§°
+    // Õï¶ÏÃû³Æ
     API_DTO_FIELD(String, diseName, ZH_WORDS_GETTER("lhfc.charging.charge.OpInsurancePreSettleGroupDTO.diseName.description"), false, "");
 
-    // åŒ»ç–—è´¹æ€»é¢
+    // Ò½ÁÆ·Ñ×Ü¶î
     API_DTO_FIELD(Float64, medfeeSumamt, ZH_WORDS_GETTER("lhfc.charging.charge.OpInsurancePreSettleGroupDTO.medfeeSumamt.description"), false, 0.0);
 
-    // ç»Ÿç­¹åŸºé‡‘æ”¯ä»˜
+    // Í³³ï»ù½ğÖ§¸¶
     API_DTO_FIELD(Float64, fundPaySumamt, ZH_WORDS_GETTER("lhfc.charging.charge.OpInsurancePreSettleGroupDTO.fundPaySumamt.description"), false, 0.0);
 
-    // ä¸ªäººè´¦æˆ·æ”¯ä»˜
+    // ¸öÈËÕË»§Ö§¸¶
     API_DTO_FIELD(Float64, acctPay, ZH_WORDS_GETTER("lhfc.charging.charge.OpInsurancePreSettleGroupDTO.acctPay.description"), false, 0.0);
 
-    // ä¸ªäººç°é‡‘æ”¯ä»˜
+    // ¸öÈËÏÖ½ğÖ§¸¶
     API_DTO_FIELD(Float64, psnCashPay, ZH_WORDS_GETTER("lhfc.charging.charge.OpInsurancePreSettleGroupDTO.psnCashPay.description"), false, 0.0);
 
-    // åŒ»ä¿æ”¶è´¹æ‰¹æ¬¡å·â€”â€”æ­¥éª¤ 2 çš„ ybChrgBchnos æ¥æº
+    // Ò½±£ÊÕ·ÑÅú´ÎºÅ¡ª¡ª²½Öè 2 µÄ ybChrgBchnos À´Ô´
     API_DTO_FIELD(String, chrgBchno, ZH_WORDS_GETTER("lhfc.charging.charge.OpInsurancePreSettleGroupDTO.chrgBchno.description"), false, "");
 
-    // åŒ»ä¿é¢„ç»“ç®— ID
+    // Ò½±£Ô¤½áËã ID
     API_DTO_FIELD(String, preSettleId, ZH_WORDS_GETTER("lhfc.charging.charge.OpInsurancePreSettleGroupDTO.preSettleId.description"), false, "");
 
-    // å°±è¯Š IDï¼ˆåŒ»ä¿ä¾§ï¼‰
+    // ¾ÍÕï ID£¨Ò½±£²à£©
     API_DTO_FIELD(String, mdtrtId, ZH_WORDS_GETTER("lhfc.charging.charge.OpInsurancePreSettleGroupDTO.mdtrtId.description"), false, "");
 };
 
 /*
-   é¢„ç»“ç®—å“åº”
+   Ô¤½áËãÏìÓ¦
 */
 class PreSettleChargeResponseDTO : public oatpp::DTO
 {
     DTO_INIT(PreSettleChargeResponseDTO, DTO);
 
-    // æ”¯ä»˜è‰ç¨¿ä¸»é”®â€”â€”æ­¥éª¤ 2 æ­£å¼ç»“ç®—çš„å¿…ä¼ å…¥å‚
+    // Ö§¸¶²İ¸åÖ÷¼ü¡ª¡ª²½Öè 2 ÕıÊ½½áËãµÄ±Ø´«Èë²Î
     API_DTO_FIELD(String, paymentDraftId, ZH_WORDS_GETTER("lhfc.charging.charge.PreSettleChargeResponseDTO.paymentDraftId.description"), true, "337209423854309376");
 
-    // å±•ç¤ºåº”æ”¶é‡‘é¢
+    // Õ¹Ê¾Ó¦ÊÕ½ğ¶î
     API_DTO_FIELD(Float64, displayAmount, ZH_WORDS_GETTER("lhfc.charging.charge.PreSettleChargeResponseDTO.displayAmount.description"), true, 17.31);
 
-    // æ˜¯å¦å·²å®ŒæˆåŒ»ä¿ 2206 é¢„ç»“ç®—
+    // ÊÇ·ñÒÑÍê³ÉÒ½±£ 2206 Ô¤½áËã
     API_DTO_FIELD(Boolean, insurancePreSettled, ZH_WORDS_GETTER("lhfc.charging.charge.PreSettleChargeResponseDTO.insurancePreSettled.description"), true, false);
 
-    // ç»“ç®—æ„æˆï¼šMIXED / INSURANCE_ONLY / SELF_PAY_ONLY
+    // ½áËã¹¹³É£ºMIXED / INSURANCE_ONLY / SELF_PAY_ONLY
     API_DTO_FIELD(String, settlementComposition, ZH_WORDS_GETTER("lhfc.charging.charge.PreSettleChargeResponseDTO.settlementComposition.description"), false, "SELF_PAY_ONLY");
 
-    // åŒ»ä¿æ”¶è´¹æ‰¹æ¬¡å·ï¼ˆå•ç»„å…¼å®¹ï¼‰
+    // Ò½±£ÊÕ·ÑÅú´ÎºÅ£¨µ¥×é¼æÈİ£©
     API_DTO_FIELD(String, ybChrgBchno, ZH_WORDS_GETTER("lhfc.charging.charge.PreSettleChargeResponseDTO.ybChrgBchno.description"), false, "");
 
-    // åŒ»ä¿åŒ»ç–—è´¹æ€»é¢
+    // Ò½±£Ò½ÁÆ·Ñ×Ü¶î
     API_DTO_FIELD(Float64, ybMedfeeSumamt, ZH_WORDS_GETTER("lhfc.charging.charge.PreSettleChargeResponseDTO.ybMedfeeSumamt.description"), false, 0.0);
 
-    // åŒ»ä¿ç»Ÿç­¹æ”¯ä»˜
+    // Ò½±£Í³³ïÖ§¸¶
     API_DTO_FIELD(Float64, ybFundPaySumamt, ZH_WORDS_GETTER("lhfc.charging.charge.PreSettleChargeResponseDTO.ybFundPaySumamt.description"), false, 0.0);
 
-    // åŒ»ä¿ä¸ªè´¦æ”¯ä»˜
+    // Ò½±£¸öÕËÖ§¸¶
     API_DTO_FIELD(Float64, ybAcctPay, ZH_WORDS_GETTER("lhfc.charging.charge.PreSettleChargeResponseDTO.ybAcctPay.description"), false, 0.0);
 
-    // åŒ»ä¿ç°é‡‘è‡ªä»˜
+    // Ò½±£ÏÖ½ğ×Ô¸¶
     API_DTO_FIELD(Float64, ybPsnCashPay, ZH_WORDS_GETTER("lhfc.charging.charge.PreSettleChargeResponseDTO.ybPsnCashPay.description"), false, 0.0);
 
-    // è¡Œé¢„è§ˆåˆ—è¡¨
+    // ĞĞÔ¤ÀÀÁĞ±í
     API_DTO_FIELD(Vector<Object<PreSettleChargeLinePreviewDTO>>, previews, ZH_WORDS_GETTER("lhfc.charging.charge.PreSettleChargeResponseDTO.previews.description"), true, {Object<PreSettleChargeLinePreviewDTO>(PreSettleChargeLinePreviewDTO::createShared())});
 
-    // è‡ªè´¹æ±‡æ€»
+    // ×Ô·Ñ»ã×Ü
     API_DTO_FIELD(Object<OpSelfPayRollupDTO>, selfPayRollup, ZH_WORDS_GETTER("lhfc.charging.charge.PreSettleChargeResponseDTO.selfPayRollup.description"), false, {});
 
-    // åŒ»ä¿åˆ†ç»„åˆ—è¡¨
+    // Ò½±£·Ö×éÁĞ±í
     API_DTO_FIELD(Vector<Object<OpInsurancePreSettleGroupDTO>>, insuranceGroups, ZH_WORDS_GETTER("lhfc.charging.charge.PreSettleChargeResponseDTO.insuranceGroups.description"), false, {Object<OpInsurancePreSettleGroupDTO>(OpInsurancePreSettleGroupDTO::createShared())});
 };
 

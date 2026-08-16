@@ -9,18 +9,18 @@
 #include "domain/dto/charge/ConfirmPrintDTO.h"
 
 /**
- * æ‰“å°æœåŠ¡ï¼ˆæ¥å£4Aæ‰“å°å°ç¥¨ + 4Bå‡†å¤‡æ‰“å° + 4Cç¡®è®¤æ‰“å°ï¼‰
+ * ´òÓ¡·şÎñ£¨½Ó¿Ú4A´òÓ¡Ğ¡Æ± + 4B×¼±¸´òÓ¡ + 4CÈ·ÈÏ´òÓ¡£©
  */
 class PrintChargeReceiptService
 {
 public:
-    // 4A: è·å–å°ç¥¨æ‰“å°æ•°æ®
+    // 4A: »ñÈ¡Ğ¡Æ±´òÓ¡Êı¾İ
     PrintChargeReceiptResponseDTO::Wrapper printChargeReceipt(const PrintChargeReceiptRequestDTO::Wrapper& dto);
 
-    // 4B: è·å–æ‰“å°æ¨¡æ¿
+    // 4B: »ñÈ¡´òÓ¡Ä£°å
     PreparePrintResponseDTO::Wrapper preparePrint(const PreparePrintRequestDTO::Wrapper& dto);
 
-    // 4C: ç¡®è®¤æ‰“å°å®¡è®¡è½åº“
+    // 4C: È·ÈÏ´òÓ¡Éó¼ÆÂä¿â
     ConfirmPrintResponseDTO::Wrapper confirmPrint(const ConfirmPrintRequestDTO::Wrapper& dto);
 };
 

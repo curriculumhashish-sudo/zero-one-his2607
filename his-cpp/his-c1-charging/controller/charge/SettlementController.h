@@ -10,14 +10,14 @@
 
 #define API_TAG ZH_WORDS_GETTER("charging.charge.tag")
 /*
-   ç»“ç®—æ§åˆ¶å™¨
-   è´Ÿè´£é¢„ç»“ç®—ï¼ˆç”Ÿæˆè‰ç¨¿é”å®šæ”¶è´¹é¡¹ï¼‰å’Œæ­£å¼ç»“ç®—ï¼ˆè½è´¦æ”¶è´¹ï¼‰
+   ½áËã¿ØÖÆÆ÷
+   ¸ºÔğÔ¤½áËã£¨Éú³É²İ¸åËø¶¨ÊÕ·ÑÏî£©ºÍÕıÊ½½áËã£¨ÂäÕËÊÕ·Ñ£©
 */
 class SettlementController : public oatpp::web::server::api::ApiController
 {
     API_ACCESS_DECLARE(SettlementController);
 public:
-    // é¢„ç»“ç®—â€”â€”ç”Ÿæˆè‰ç¨¿ï¼Œé”å®šæ”¶è´¹é¡¹
+    // Ô¤½áËã¡ª¡ªÉú³É²İ¸å£¬Ëø¶¨ÊÕ·ÑÏî
     API_DEF_ENDPOINT_INFO_AUTH(
         ZH_WORDS_GETTER("lhfc.charging.charge.PreSettleCharge.summary"),
         preSettleCharge,
@@ -29,7 +29,7 @@ public:
         BODY_DTO(PreSettleChargeRequestDTO::Wrapper, dto), execPreSettleCharge(dto)
     );
 
-    // æ­£å¼ç»“ç®—â€”â€”è½è´¦æ”¶è´¹
+    // ÕıÊ½½áËã¡ª¡ªÂäÕËÊÕ·Ñ
     API_DEF_ENDPOINT_INFO_AUTH(
         ZH_WORDS_GETTER("lhfc.charging.charge.ConfirmSettleCharge.summary"),
         confirmSettleCharge,
@@ -43,9 +43,9 @@ public:
     );
 
 private:
-    // é¢„ç»“ç®—
+    // Ô¤½áËã
     PreSettleChargeVO::Wrapper execPreSettleCharge(const PreSettleChargeRequestDTO::Wrapper& dto);
-    // æ­£å¼ç»“ç®—
+    // ÕıÊ½½áËã
     ConfirmSettleChargeVO::Wrapper execConfirmSettleCharge(
         const ConfirmSettleChargeRequestDTO::Wrapper& dto,
         const PayloadDTO& payload);

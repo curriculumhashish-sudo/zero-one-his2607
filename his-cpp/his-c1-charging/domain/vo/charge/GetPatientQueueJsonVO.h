@@ -7,7 +7,7 @@
 
 #include OATPP_CODEGEN_BEGIN(DTO)
 /*
-	获取患者队列分页数据响应对象
+	��ȡ���߶��з�ҳ������Ӧ����
 */
 class GetPatientQueueJsonVO : public JsonVO<GetPatientQueuePageDTO::Wrapper>
 {

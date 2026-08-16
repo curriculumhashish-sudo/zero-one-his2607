@@ -6,22 +6,22 @@
 #include "../DoInclude.h"
 
 /**
- * æ”¶è´¹é¡¹æ‘˜è¦æ•°æ®å¯¹è±¡
- * ç”¨äºæ‚£è€…é˜Ÿåˆ—å“åº”ä¸­çš„ cashierChargeItems[] å­åˆ—è¡¨
- * å­æŸ¥è¯¢ï¼šadm_charge_item JOIN adm_charge_item_definition
- * BaseDO("") è¡¨ç¤ºè¿™æ˜¯ä¸€ä¸ªåªè¯» DOï¼Œä¸ç»‘å®šå•å¼ æ•°æ®è¡¨
+ * ÊÕ·ÑÏîÕªÒªÊı¾İ¶ÔÏó
+ * ÓÃÓÚ»¼Õß¶ÓÁĞÏìÓ¦ÖĞµÄ cashierChargeItems[] ×ÓÁĞ±í
+ * ×Ó²éÑ¯£ºadm_charge_item JOIN adm_charge_item_definition
+ * BaseDO("") ±íÊ¾ÕâÊÇÒ»¸öÖ»¶Á DO£¬²»°ó¶¨µ¥ÕÅÊı¾İ±í
  */
 class ChargeItemBriefDO : public BaseDO
 {
-    // æ”¶è´¹é¡¹ä¸»é”®
+    // ÊÕ·ÑÏîÖ÷¼ü
     MYSQL_SYNTHESIZE(string, chargeItemId, ChargeItemId);
-    // æ”¶è´¹çŠ¶æ€ç¼–ç ï¼ˆDRAFT / SETTLED / REFUNDED...ï¼‰
+    // ÊÕ·Ñ×´Ì¬±àÂë£¨DRAFT / SETTLED / REFUNDED...£©
     MYSQL_SYNTHESIZE(string, statusCode, StatusCode);
-    // è¡Œæ€»ä»·
+    // ĞĞ×Ü¼Û
     MYSQL_SYNTHESIZE(string, totalPrice, TotalPrice);
-    // æ”¶è´¹é¡¹ç›®å±•ç¤ºåç§°ï¼ˆæ¥è‡ª adm_charge_item_definition.charge_nameï¼‰
+    // ÊÕ·ÑÏîÄ¿Õ¹Ê¾Ãû³Æ£¨À´×Ô adm_charge_item_definition.charge_name£©
     MYSQL_SYNTHESIZE(string, itemLabel, ItemLabel);
-    // å°±è¯ŠIDï¼Œç”¨äºæŒ‰ encounterId åˆ†ç»„ï¼ˆä¸ç›´æ¥æš´éœ²ç»™ DTOï¼‰
+    // ¾ÍÕïID£¬ÓÃÓÚ°´ encounterId ·Ö×é£¨²»Ö±½Ó±©Â¶¸ø DTO£©
     MYSQL_SYNTHESIZE(string, encounterId, EncounterId);
 
 public:

@@ -6,49 +6,49 @@
 #include "../DoInclude.h"
 
 /**
- * æ”¶è´¹é¡¹æ˜ç»†æ•°æ®å¯¹è±¡ï¼ˆæ¥å£2ï¼‰
- * å¯¹åº” adm_charge_item å¤šè¡¨ JOIN æŸ¥è¯¢ç»“æœé›†
- * BaseDO("") è¡¨ç¤ºåªè¯» DOï¼Œä¸ç»‘å®šå•è¡¨
+ * ÊÕ·ÑÏîÃ÷Ï¸Êı¾İ¶ÔÏó£¨½Ó¿Ú2£©
+ * ¶ÔÓ¦ adm_charge_item ¶à±í JOIN ²éÑ¯½á¹û¼¯
+ * BaseDO("") ±íÊ¾Ö»¶Á DO£¬²»°ó¶¨µ¥±í
  */
 class GetChargeItemDO : public BaseDO
 {
-    // æ”¶è´¹é¡¹ä¸»é”®
+    // ÊÕ·ÑÏîÖ÷¼ü
     MYSQL_SYNTHESIZE(string, chargeItemId, ChargeItemId);
-    // æ¥æºä¸šåŠ¡è¡¨å
+    // À´Ô´ÒµÎñ±íÃû
     MYSQL_SYNTHESIZE(string, serviceTable, ServiceTable);
-    // æ¥æºä¸šåŠ¡ä¸»é”®
+    // À´Ô´ÒµÎñÖ÷¼ü
     MYSQL_SYNTHESIZE(string, serviceId, ServiceId);
-    // æ”¶è´¹é¡¹ç›®å±•ç¤ºåç§°ï¼ˆdefinition.charge_nameï¼‰
+    // ÊÕ·ÑÏîÄ¿Õ¹Ê¾Ãû³Æ£¨definition.charge_name£©
     MYSQL_SYNTHESIZE(string, itemName, ItemName);
-    // æ”¶è´¹æ˜ç»†ä¸šåŠ¡æµæ°´å·
+    // ÊÕ·ÑÃ÷Ï¸ÒµÎñÁ÷Ë®ºÅ
     MYSQL_SYNTHESIZE(string, busNo, BusNo);
-    // å•ä»·
+    // µ¥¼Û
     MYSQL_SYNTHESIZE(string, unitPrice, UnitPrice);
-    // æ•°é‡å€¼
+    // ÊıÁ¿Öµ
     MYSQL_SYNTHESIZE(string, quantityValue, QuantityValue);
-    // æ•°é‡å•ä½ code
+    // ÊıÁ¿µ¥Î» code
     MYSQL_SYNTHESIZE(string, quantityUnit, QuantityUnit);
-    // è´¹ç”¨åˆ†ç±»ç¼–ç ï¼ˆäº§å“è¯»æ¨¡å‹.category_code æˆ– definition.type_codeï¼‰
+    // ·ÑÓÃ·ÖÀà±àÂë£¨²úÆ·¶ÁÄ£ĞÍ.category_code »ò definition.type_code£©
     MYSQL_SYNTHESIZE(string, chargeCategoryCode, ChargeCategoryCode);
-    // æ”¶è´¹çŠ¶æ€ç¼–ç 
+    // ÊÕ·Ñ×´Ì¬±àÂë
     MYSQL_SYNTHESIZE(string, statusCode, StatusCode);
-    // è¡Œæ€»ä»·
+    // ĞĞ×Ü¼Û
     MYSQL_SYNTHESIZE(string, totalPrice, TotalPrice);
-    // æ”¶æ¬¾äººç”¨æˆ·IDï¼ˆperformer_idï¼‰
+    // ÊÕ¿îÈËÓÃ»§ID£¨performer_id£©
     MYSQL_SYNTHESIZE(string, cashierUserId, CashierUserId);
-    // æ”¶æ¬¾äººå§“åï¼ˆJOIN adm_practitionerï¼‰
+    // ÊÕ¿îÈËĞÕÃû£¨JOIN adm_practitioner£©
     MYSQL_SYNTHESIZE(string, cashierName, CashierName);
-    // è®°è´¦è´¦æˆ·ä¸»é”®
+    // ¼ÇÕËÕË»§Ö÷¼ü
     MYSQL_SYNTHESIZE(string, accountId, AccountId);
-    // è´¹ç”¨æ€§è´¨åˆåŒåç§°ï¼ˆvia account -> contract_noï¼‰
+    // ·ÑÓÃĞÔÖÊºÏÍ¬Ãû³Æ£¨via account -> contract_no£©
     MYSQL_SYNTHESIZE(string, contractName, ContractName);
-    // è´¹ç”¨æ€§è´¨åˆåŒä¸»é”®
+    // ·ÑÓÃĞÔÖÊºÏÍ¬Ö÷¼ü
     MYSQL_SYNTHESIZE(string, contractId, ContractId);
-    // åŒ»ç–—ç±»åˆ«ï¼ˆvia adm_encounter_diagnosisï¼‰
+    // Ò½ÁÆÀà±ğ£¨via adm_encounter_diagnosis£©
     MYSQL_SYNTHESIZE(string, medTypeCode, MedTypeCode);
-    // åŒ»ä¿ç›®å½•ç¼–ç ï¼ˆäº§å“è¯»æ¨¡å‹.yb_noï¼‰
+    // Ò½±£Ä¿Â¼±àÂë£¨²úÆ·¶ÁÄ£ĞÍ.yb_no£©
     MYSQL_SYNTHESIZE(string, ybNo, YbNo);
-    // å°±è¯ŠIDï¼ˆWHEREæ¡ä»¶ç”¨ï¼Œä¸æš´éœ²ç»™DTOï¼‰
+    // ¾ÍÕïID£¨WHEREÌõ¼şÓÃ£¬²»±©Â¶¸øDTO£©
     MYSQL_SYNTHESIZE(string, encounterId, EncounterId);
 
 public:

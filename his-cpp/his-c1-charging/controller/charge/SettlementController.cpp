@@ -1,7 +1,7 @@
 #include "SettlementController.h"
 #include "service/charge/SettleChargeService.h"
 
-// é¢„ç»“ç®—
+// Ô¤½áËã
 PreSettleChargeVO::Wrapper SettlementController::execPreSettleCharge(const PreSettleChargeRequestDTO::Wrapper& dto)
 {
     auto vo = PreSettleChargeVO::createShared();
@@ -11,12 +11,12 @@ PreSettleChargeVO::Wrapper SettlementController::execPreSettleCharge(const PreSe
     return vo;
 }
 
-// æ­£å¼ç»“ç®—
+// ÕýÊ½½áËã
 ConfirmSettleChargeVO::Wrapper SettlementController::execConfirmSettleCharge(
     const ConfirmSettleChargeRequestDTO::Wrapper& dto,
     const PayloadDTO& payload)
 {
-    // å°†æ“ä½œäººè½½è·æ³¨å…¥DTOï¼Œä¾›Serviceå±‚è¯»å–
+    // ½«²Ù×÷ÈËÔØºÉ×¢ÈëDTO£¬¹©Service²ã¶ÁÈ¡
     dto->setPayload(&payload);
 
     auto vo = ConfirmSettleChargeVO::createShared();

@@ -89,40 +89,40 @@ class RefundGetPatientDTO : public oatpp::DTO
     };
 };
 
-// åˆ†é¡µå“åº” DTO â€” å­—æ®µåä¸ sample-json ä¸¥æ ¼ä¸€ä¸€å¯¹åº”ï¼Œä¸ä½¿ç”¨æ¡†æ¶ PageDTO
-// sample-json å“åº”: {content:[{...}], totalCount:1, pageIndex:1, pageSize:1, pages:1}
+// ·ÖÒ³ÏìÓ¦ DTO ¡ª ×Ö¶ÎÃûÓë sample-json ÑÏ¸ñÒ»Ò»¶ÔÓ¦£¬²»Ê¹ÓÃ¿ò¼Ü PageDTO
+// sample-json ÏìÓ¦: {content:[{...}], totalCount:1, pageIndex:1, pageSize:1, pages:1}
 class RefundGetPatientPageDTO : public oatpp::DTO
 {
     DTO_INIT(RefundGetPatientPageDTO, DTO);
 
-    // å½“å‰é¡µæ•°æ®åˆ—è¡¨ â€” å¯¹åº” sample-json: "content"
+    // µ±Ç°Ò³Êı¾İÁĞ±í ¡ª ¶ÔÓ¦ sample-json: "content"
     DTO_FIELD(oatpp::List<RefundGetPatientDTO::Wrapper>, content);
     DTO_FIELD_INFO(content) {
         info->description = ZH_WORDS_GETTER("xbzml.charging.refund.field.content");
     };
-    // æ€»è®°å½•æ•° â€” å¯¹åº” sample-json: "totalCount"ï¼ˆæ•°å­—ç±»å‹ï¼‰
+    // ×Ü¼ÇÂ¼Êı ¡ª ¶ÔÓ¦ sample-json: "totalCount"£¨Êı×ÖÀàĞÍ£©
     DTO_FIELD(UInt64, totalCount);
     DTO_FIELD_INFO(totalCount) {
         info->description = ZH_WORDS_GETTER("xbzml.charging.refund.field.totalCount");
     };
-    // å½“å‰é¡µç  â€” å¯¹åº” sample-json: "pageIndex"
+    // µ±Ç°Ò³Âë ¡ª ¶ÔÓ¦ sample-json: "pageIndex"
     DTO_FIELD(UInt64, pageIndex) = 1;
     DTO_FIELD_INFO(pageIndex) {
         info->description = ZH_WORDS_GETTER("xbzml.charging.refund.field.pageIndex");
     };
-    // æ¯é¡µæ¡æ•° â€” å¯¹åº” sample-json: "pageSize"
+    // Ã¿Ò³ÌõÊı ¡ª ¶ÔÓ¦ sample-json: "pageSize"
     DTO_FIELD(UInt64, pageSize) = 10;
     DTO_FIELD_INFO(pageSize) {
         info->description = ZH_WORDS_GETTER("xbzml.charging.refund.field.pageSize");
     };
-    // æ€»é¡µæ•° â€” å¯¹åº” sample-json: "pages"
+    // ×ÜÒ³Êı ¡ª ¶ÔÓ¦ sample-json: "pages"
     DTO_FIELD(UInt64, pages);
     DTO_FIELD_INFO(pages) {
         info->description = ZH_WORDS_GETTER("xbzml.charging.refund.field.pages");
     };
 
 public:
-    // è¿½åŠ ä¸€æ¡æ•°æ®ï¼ˆä¾› Service å±‚ä½¿ç”¨ï¼‰
+    // ×·¼ÓÒ»ÌõÊı¾İ£¨¹© Service ²ãÊ¹ÓÃ£©
     void addData(RefundGetPatientDTO::Wrapper one) {
         this->content->push_back(one);
     }

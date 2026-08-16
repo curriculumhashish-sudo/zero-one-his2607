@@ -25,20 +25,20 @@
 
 #include OATPP_CODEGEN_BEGIN(DTO)
 
-// ç¡®è®¤é€€è´¹ â€” æŸ¥è¯¢å‚æ•°
+// È·ÈÏÍË·Ñ ¡ª ²éÑ¯²ÎÊý
 // GET /charging/refund/verify-refund?encounterId=xxx&refundingChargeItemIds=id1,id2
 class RefundVerifyRefundQuery : public PageQuery
 {
     DTO_INIT(RefundVerifyRefundQuery, PageQuery);
 
-    // å°±è¯ŠIDï¼ˆå¿…å¡«ï¼‰
+    // ¾ÍÕïID£¨±ØÌî£©
     DTO_FIELD(String, encounterId);
     DTO_FIELD_INFO(encounterId) {
         info->description = ZH_WORDS_GETTER("xbzml.charging.refund.field.encounterId");
     };
 
-    // å¾…é€€è´¹æ”¶è´¹é¡¹ç›®IDåˆ—è¡¨ï¼ˆé€—å·åˆ†éš”ï¼‰
-    // æ³¨: æ˜¾å¼æŒ‡å®š QUALIFIER ä¸Ž NAME ç›¸åŒï¼Œå¼ºåˆ¶èµ° DTO_FIELD_2 å®å±•å¼€è·¯å¾„
+    // ´ýÍË·ÑÊÕ·ÑÏîÄ¿IDÁÐ±í£¨¶ººÅ·Ö¸ô£©
+    // ×¢: ÏÔÊ½Ö¸¶¨ QUALIFIER Óë NAME ÏàÍ¬£¬Ç¿ÖÆ×ß DTO_FIELD_2 ºêÕ¹¿ªÂ·¾¶
     DTO_FIELD(String, refundingChargeItemIds, "refundingChargeItemIds");
     DTO_FIELD_INFO(refundingChargeItemIds) {
         info->description = ZH_WORDS_GETTER("xbzml.charging.refund.field.refundingChargeItemIds");

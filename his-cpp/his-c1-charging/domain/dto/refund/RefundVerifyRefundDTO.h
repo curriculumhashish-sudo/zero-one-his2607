@@ -24,19 +24,19 @@
 
 #include OATPP_CODEGEN_BEGIN(DTO)
 
-// ç¡®è®¤é€€è´¹å“åº” DTO â€” å­—æ®µåä¸Ž sample-json ä¸¥æ ¼ä¸€ä¸€å¯¹åº”
+// È·ÈÏÍË·ÑÏìÓ¦ DTO ¡ª ×Ö¶ÎÃûÓë sample-json ÑÏ¸ñÒ»Ò»¶ÔÓ¦
 // sample-json: {"allowed":true, "rejectReasonCode":null}
 class RefundVerifyRefundDTO : public oatpp::DTO
 {
     DTO_INIT(RefundVerifyRefundDTO, DTO);
 
-    // æ˜¯å¦å…è®¸é€€è´¹ â€” å¯¹åº” sample-json: "allowed"
+    // ÊÇ·ñÔÊÐíÍË·Ñ ¡ª ¶ÔÓ¦ sample-json: "allowed"
     DTO_FIELD(Boolean, allowed);
     DTO_FIELD_INFO(allowed) {
         info->description = ZH_WORDS_GETTER("xbzml.charging.refund.field.allowed");
     };
-    // æ‹’ç»åŽŸå› ç¼–ç  â€” å¯¹åº” sample-json: "rejectReasonCode"ï¼ˆå¯é€€æ—¶ä¸º nullï¼‰
-    // æ³¨: æ˜¾å¼æŒ‡å®š QUALIFIER ä¸Ž NAME ç›¸åŒï¼Œå¼ºåˆ¶èµ° DTO_FIELD_2 å®å±•å¼€è·¯å¾„
+    // ¾Ü¾øÔ­Òò±àÂë ¡ª ¶ÔÓ¦ sample-json: "rejectReasonCode"£¨¿ÉÍËÊ±Îª null£©
+    // ×¢: ÏÔÊ½Ö¸¶¨ QUALIFIER Óë NAME ÏàÍ¬£¬Ç¿ÖÆ×ß DTO_FIELD_2 ºêÕ¹¿ªÂ·¾¶
     DTO_FIELD(String, rejectReasonCode, "rejectReasonCode");
     DTO_FIELD_INFO(rejectReasonCode) {
         info->description = ZH_WORDS_GETTER("xbzml.charging.refund.field.rejectReasonCode");

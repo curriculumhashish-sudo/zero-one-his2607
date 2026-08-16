@@ -9,7 +9,7 @@
 
 #include OATPP_CODEGEN_BEGIN(DTO)
 /*
-   é¢„ç»“ç®—å“åº”è§†å›¾å¯¹è±¡
+   Ô¤½áËãÏìÓ¦ÊÓÍ¼¶ÔÏó
 */
 class PreSettleChargeVO : public JsonVO<PreSettleChargeResponseDTO::Wrapper>
 {
@@ -17,7 +17,7 @@ class PreSettleChargeVO : public JsonVO<PreSettleChargeResponseDTO::Wrapper>
 };
 
 /*
-   æ­£å¼ç»“ç®—å“åº”è§†å›¾å¯¹è±¡
+   ÕıÊ½½áËãÏìÓ¦ÊÓÍ¼¶ÔÏó
 */
 class ConfirmSettleChargeVO : public JsonVO<ConfirmSettleChargeResponseDTO::Wrapper>
 {

@@ -11,14 +11,14 @@
 
 #define API_TAG ZH_WORDS_GETTER("charging.charge.tag")
 /*
-   æ‰“å°æ§åˆ¶å™¨
-   è´Ÿè´£é—¨è¯Šæ”¶è´¹å°ç¥¨æ‰“å°æµç¨‹ï¼šæ‰“å°å°ç¥¨ã€å‡†å¤‡æ‰“å°æ¨¡æ¿ã€ç¡®è®¤æ‰“å°å®¡è®¡è½åº“
+   ´òÓ¡¿ØÖÆÆ÷
+   ¸ºÔğÃÅÕïÊÕ·ÑĞ¡Æ±´òÓ¡Á÷³Ì£º´òÓ¡Ğ¡Æ±¡¢×¼±¸´òÓ¡Ä£°å¡¢È·ÈÏ´òÓ¡Éó¼ÆÂä¿â
 */
 class PrintController : public oatpp::web::server::api::ApiController
 {
     API_ACCESS_DECLARE(PrintController);
 public:
-    // æ‰“å°é—¨è¯Šæ”¶è´¹å°ç¥¨
+    // ´òÓ¡ÃÅÕïÊÕ·ÑĞ¡Æ±
     API_DEF_ENDPOINT_INFO_AUTH(
         ZH_WORDS_GETTER("lhfc.charging.charge.PrintChargeReceipt.summary"),
         printChargeReceipt,
@@ -30,7 +30,7 @@ public:
         BODY_DTO(PrintChargeReceiptRequestDTO::Wrapper, dto), execPrintChargeReceipt(dto)
     );
 
-    // å‡†å¤‡æ‰“å°ï¼ˆè·å–æ‰“å°æ¨¡æ¿ï¼‰
+    // ×¼±¸´òÓ¡£¨»ñÈ¡´òÓ¡Ä£°å£©
     API_DEF_ENDPOINT_INFO_AUTH(
         ZH_WORDS_GETTER("lhfc.charging.charge.PreparePrint.summary"),
         preparePrint,
@@ -42,7 +42,7 @@ public:
         BODY_DTO(PreparePrintRequestDTO::Wrapper, dto), execPreparePrint(dto)
     );
 
-    // ç¡®è®¤æ‰“å°ï¼ˆå®¡è®¡è½åº“ï¼‰
+    // È·ÈÏ´òÓ¡£¨Éó¼ÆÂä¿â£©
     API_DEF_ENDPOINT_INFO_AUTH(
         ZH_WORDS_GETTER("lhfc.charging.charge.ConfirmPrint.summary"),
         confirmPrint,
@@ -55,11 +55,11 @@ public:
     );
 
 private:
-    // æ‰“å°é—¨è¯Šæ”¶è´¹å°ç¥¨
+    // ´òÓ¡ÃÅÕïÊÕ·ÑĞ¡Æ±
     PrintChargeReceiptVO::Wrapper execPrintChargeReceipt(const PrintChargeReceiptRequestDTO::Wrapper& dto);
-    // å‡†å¤‡æ‰“å°
+    // ×¼±¸´òÓ¡
     PreparePrintVO::Wrapper execPreparePrint(const PreparePrintRequestDTO::Wrapper& dto);
-    // ç¡®è®¤æ‰“å°
+    // È·ÈÏ´òÓ¡
     ConfirmPrintVO::Wrapper execConfirmPrint(const ConfirmPrintRequestDTO::Wrapper& dto);
 };
 #undef API_TAG

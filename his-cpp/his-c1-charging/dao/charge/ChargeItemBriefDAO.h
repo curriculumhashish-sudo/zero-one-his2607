@@ -7,17 +7,17 @@
 #include "domain/do/charge/ChargeItemBriefDO.h"
 
 /**
- * æ”¶è´¹é¡¹æ‘˜è¦æŸ¥è¯¢ DAO
- * æŒ‰å°±è¯ŠIDåˆ—è¡¨æ‰¹é‡æŸ¥è¯¢æ”¶è´¹é¡¹æ‘˜è¦
+ * ÊÕ·ÑÏîÕªÒª²éÑ¯ DAO
+ * °´¾ÍÕïIDÁĞ±íÅúÁ¿²éÑ¯ÊÕ·ÑÏîÕªÒª
  */
 class ChargeItemBriefDAO : public BaseDAO
 {
 public:
     /**
-     * æŒ‰å°±è¯ŠIDåˆ—è¡¨æ‰¹é‡æŸ¥è¯¢æ”¶è´¹é¡¹æ‘˜è¦
-     * ç”¨äºåˆ†é¡µååŠ è½½ cashierChargeItems[] å­åˆ—è¡¨
-     * @param encounterIds ä¸»æŸ¥è¯¢åˆ†é¡µåçš„å°±è¯ŠIDåˆ—è¡¨
-     * @return æ”¶è´¹é¡¹æ‘˜è¦ DO åˆ—è¡¨ï¼ˆè°ƒç”¨æ–¹æŒ‰ encounterId åˆ†ç»„ï¼‰
+     * °´¾ÍÕïIDÁĞ±íÅúÁ¿²éÑ¯ÊÕ·ÑÏîÕªÒª
+     * ÓÃÓÚ·ÖÒ³ºó¼ÓÔØ cashierChargeItems[] ×ÓÁĞ±í
+     * @param encounterIds Ö÷²éÑ¯·ÖÒ³ºóµÄ¾ÍÕïIDÁĞ±í
+     * @return ÊÕ·ÑÏîÕªÒª DO ÁĞ±í£¨µ÷ÓÃ·½°´ encounterId ·Ö×é£©
      */
     std::list<ChargeItemBriefDO> selectByEncounterIds(const std::list<std::string>& encounterIds);
 };

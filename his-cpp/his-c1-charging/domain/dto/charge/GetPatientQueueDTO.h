@@ -5,91 +5,91 @@
 #include "../../GlobalInclude.h"
 #include OATPP_CODEGEN_BEGIN(DTO)
 /*
-	æ”¶è´¹æ˜ç»†æ®ä¼ è¾“å¯¹è±¡
+	ÊÕ·ÑÃ÷Ï¸¾İ´«Êä¶ÔÏó
 */
 class ChargeItemBriefDTO : public oatpp::DTO
 {
 	DTO_INIT(ChargeItemBriefDTO, DTO);
-	//æ”¶è´¹æ˜ç»†ä¸»é”®
+	//ÊÕ·ÑÃ÷Ï¸Ö÷¼ü
 	API_DTO_FIELD(String, chargeItemId, ZH_WORDS_GETTER("lhfc.charging.charge.ChargeItemBriefDTO.chargeItemId.description"), true, "335346159333150720");
 
-	//æ”¶è´¹çŠ¶æ€ç¼–ç 
+	//ÊÕ·Ñ×´Ì¬±àÂë
 	API_DTO_FIELD(String, statusCode, ZH_WORDS_GETTER("lhfc.charging.charge.ChargeItemBriefDTO.statusCode.description"), true, "SETTLED");
 
-	//æ”¶è´¹çŠ¶æ€æ–‡æœ¬
+	//ÊÕ·Ñ×´Ì¬ÎÄ±¾
 	API_DTO_FIELD(String, statusText, ZH_WORDS_GETTER("lhfc.charging.charge.ChargeItemBriefDTO.statusText.description"), true, ZH_WORDS_GETTER("lhfc.charging.charge.ChargeItemBriefDTO.statusText.value"));
 
-	//è¯¥è¡Œæ€»é‡‘é¢
+	//¸ÃĞĞ×Ü½ğ¶î
 	API_DTO_FIELD(Float64, totalPrice, ZH_WORDS_GETTER("lhfc.charging.charge.ChargeItemBriefDTO.totalPrice.description"), true, 0.23);
 
-	//æ”¶è´¹é¡¹ç›®å±•ç¤ºåç§°
+	//ÊÕ·ÑÏîÄ¿Õ¹Ê¾Ãû³Æ
 	API_DTO_FIELD(String, itemLabel, ZH_WORDS_GETTER("lhfc.charging.charge.ChargeItemBriefDTO.itemLabel.description"), true, ZH_WORDS_GETTER("lhfc.charging.charge.ChargeItemBriefDTO.itemLabel.value"));
 };
 /*
-	è·å–æ‚£è€…é˜Ÿåˆ—æ•°æ®ä¼ è¾“å¯¹è±¡
+	»ñÈ¡»¼Õß¶ÓÁĞÊı¾İ´«Êä¶ÔÏó
 */
 class GetPatientQueueDTO : public oatpp::DTO
 {
 	DTO_INIT(GetPatientQueueDTO, DTO);
 
-	// å…³è”ä¸€ä¸ªPayloadDTOè´Ÿè½½æ•°æ®å¯¹è±¡
+	// ¹ØÁªÒ»¸öPayloadDTO¸ºÔØÊı¾İ¶ÔÏó
 	CC_SYNTHESIZE(const PayloadDTO*, _payload, Payload);
 
-	//å°±è¯Šå•id
+	//¾ÍÕïµ¥id
 	API_DTO_FIELD(String, encounterId, ZH_WORDS_GETTER("lhfc.charging.charge.GetPatientQueueDTO.encounterId.description"), true, "335345648856993792");
 
-	//å°±è¯Šä¸šåŠ¡æµæ°´å·
+	//¾ÍÕïÒµÎñÁ÷Ë®ºÅ
 	API_DTO_FIELD(String, encounterBusNo, ZH_WORDS_GETTER("lhfc.charging.charge.GetPatientQueueDTO.encounterBusNo.description"), false, "EN2026-07-140001");
 
-	//æ‚£è€…id
+	//»¼Õßid
 	API_DTO_FIELD(String, patientId, ZH_WORDS_GETTER("lhfc.charging.charge.GetPatientQueueDTO.patientId.description"), true, "326940849401761792");
 
-	//æ‚£è€…å§“å
+	//»¼ÕßĞÕÃû
 	API_DTO_FIELD(String, patientName, ZH_WORDS_GETTER("lhfc.charging.charge.GetPatientQueueDTO.patientName.description"), true, ZH_WORDS_GETTER("lhfc.charging.charge.GetPatientQueueDTO.patientName.value"));
 
-	//æ‚£è€…æ€§åˆ«ç¼–ç 
+	//»¼ÕßĞÔ±ğ±àÂë
 	API_DTO_FIELD(String, genderCode, ZH_WORDS_GETTER("lhfc.charging.charge.GetPatientQueueDTO.genderCode.description"), false, "FEMALE");
 
-	//æ‚£è€…æ€§åˆ«æ–‡æœ¬
+	//»¼ÕßĞÔ±ğÎÄ±¾
 	API_DTO_FIELD(String, genderEnumText, ZH_WORDS_GETTER("lhfc.charging.charge.GetPatientQueueDTO.genderEnumText.description"), false, ZH_WORDS_GETTER("lhfc.charging.charge.GetPatientQueueDTO.genderEnumText.value"));
 
-	//æ‚£è€…å¹´é¾„
+	//»¼ÕßÄêÁä
 	API_DTO_FIELD(String, ageText, ZH_WORDS_GETTER("lhfc.charging.charge.GetPatientQueueDTO.ageText.description"), false, ZH_WORDS_GETTER("lhfc.charging.charge.GetPatientQueueDTO.ageText.value"));
 
-	//ç§‘å®¤åç§°
+	//¿ÆÊÒÃû³Æ
 	API_DTO_FIELD(String, organizationName, ZH_WORDS_GETTER("lhfc.charging.charge.GetPatientQueueDTO.organizationName.description"), false, ZH_WORDS_GETTER("lhfc.charging.charge.GetPatientQueueDTO.organizationName.value"));
 
-	//æ¥è¯ŠåŒ»ç”Ÿå§“å
+	//½ÓÕïÒ½ÉúĞÕÃû
 	API_DTO_FIELD(String, doctorName, ZH_WORDS_GETTER("lhfc.charging.charge.GetPatientQueueDTO.doctorName.description"), false, "admin");
 
-	//å°±è¯Šå¼€å§‹æ—¶é—´
+	//¾ÍÕï¿ªÊ¼Ê±¼ä
 	API_DTO_FIELD(String, startTime, ZH_WORDS_GETTER("lhfc.charging.charge.GetPatientQueueDTO.startTime.description"), false, "2026-07-14 17:05:08");
 
-	//é˜Ÿåˆ—çŠ¶æ€
+	//¶ÓÁĞ×´Ì¬
 	API_DTO_FIELD(String, queueLabelCode, ZH_WORDS_GETTER("lhfc.charging.charge.GetPatientQueueDTO.queueLabelCode.description"), true, "SETTLED");
 
-	//å°±è¯Šè´¹ç”¨æ€»é‡‘é¢
+	//¾ÍÕï·ÑÓÃ×Ü½ğ¶î
 	API_DTO_FIELD(Float64, totalAmount, ZH_WORDS_GETTER("lhfc.charging.charge.GetPatientQueueDTO.totalAmount.description"), false, 568.50);
 
-	//å·²æ”¯ä»˜é‡‘é¢
+	//ÒÑÖ§¸¶½ğ¶î
 	API_DTO_FIELD(Float64, paidAmount, ZH_WORDS_GETTER("lhfc.charging.charge.GetPatientQueueDTO.paidAmount.description"), false, 200.00);
 
-	//æ”¶è´¹æ˜ç»†æ‘˜è¦åˆ—è¡¨
+	//ÊÕ·ÑÃ÷Ï¸ÕªÒªÁĞ±í
 	API_DTO_FIELD(Vector<Object<ChargeItemBriefDTO>>, cashierChargeItems, ZH_WORDS_GETTER("lhfc.charging.charge.GetPatientQueueDTO.cashierChargeItems.description"), false, {Object<ChargeItemBriefDTO>(ChargeItemBriefDTO::createShared())});
 
-	//æ”¶è´¹çŠ¶æ€æ±‡æ€»ç¼–ç 
+	//ÊÕ·Ñ×´Ì¬»ã×Ü±àÂë
 	API_DTO_FIELD(String, cashierChargeRollupStatusCode, ZH_WORDS_GETTER("lhfc.charging.charge.GetPatientQueueDTO.cashierChargeRollupStatusCode.description"), false, "SETTLED");
 
-	//æ”¶è´¹çŠ¶æ€æ±‡æ€»æ–‡æœ¬
+	//ÊÕ·Ñ×´Ì¬»ã×ÜÎÄ±¾
 	API_DTO_FIELD(String, cashierChargeRollupStatusText, ZH_WORDS_GETTER("lhfc.charging.charge.GetPatientQueueDTO.cashierChargeRollupStatusText.description"), false, ZH_WORDS_GETTER("lhfc.charging.charge.GetPatientQueueDTO.cashierChargeRollupStatusText.value"));
 
-	//æœ€è¿‘ä¸€æ¬¡æˆåŠŸæ”¯ä»˜æµæ°´ä¸»é”®
+	//×î½üÒ»´Î³É¹¦Ö§¸¶Á÷Ë®Ö÷¼ü
 	API_DTO_FIELD(String, paymentId, ZH_WORDS_GETTER("lhfc.charging.charge.GetPatientQueueDTO.paymentId.description"), false, "335373637774217216");
 
-	//æ”¯ä»˜æ–¹å¼ç¼–ç 
+	//Ö§¸¶·½Ê½±àÂë
 	API_DTO_FIELD(String, paymentType, ZH_WORDS_GETTER("lhfc.charging.charge.GetPatientQueueDTO.paymentType.description"), false, "");
 public:
-	// æ•°æ®æ ¡éªŒï¼ˆå¦‚éœ€å¯ç”¨å¯è‡ªè¡Œè§£é™¤æ³¨é‡Šå¹¶æŒ‰éœ€å®ç°ï¼‰
+	// Êı¾İĞ£Ñé£¨ÈçĞèÆôÓÃ¿É×ÔĞĞ½â³ı×¢ÊÍ²¢°´ĞèÊµÏÖ£©
 	//std::string validate()
 	//{
 	//	if (!age || age < 0)
@@ -99,7 +99,7 @@ public:
 };
 
 /*
-	è·å–æ‚£è€…é˜Ÿåˆ—åˆ†é¡µæ•°æ®ä¼ è¾“å¯¹è±¡
+	»ñÈ¡»¼Õß¶ÓÁĞ·ÖÒ³Êı¾İ´«Êä¶ÔÏó
 */
 class GetPatientQueuePageDTO : public PageDTO<GetPatientQueueDTO::Wrapper>
 {

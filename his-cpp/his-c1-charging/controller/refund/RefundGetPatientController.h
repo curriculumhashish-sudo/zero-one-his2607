@@ -37,7 +37,7 @@ class RefundGetPatientController : public oatpp::web::server::api::ApiController
 
 public:
     // Endpoint metadata definition for Swagger documentation
-    // POST /charging/refund/get-patient-list â€” paginated query for refund patient queue
+    // POST /charging/refund/get-patient-list ¡ª paginated query for refund patient queue
     API_DEF_ENDPOINT_INFO_QUERY_AUTH(
         ZH_WORDS_GETTER("xbzml.charging.refund.get-patient-list.summary"),
         queryAll,
@@ -55,7 +55,7 @@ public:
         execQueryAll(query));
 
 private:
-    // Execute paginated query â€” delegates to Service layer
+    // Execute paginated query ¡ª delegates to Service layer
     RefundGetPatientPageJsonVO::Wrapper execQueryAll(
         const RefundGetPatientQuery::Wrapper& query);
 };

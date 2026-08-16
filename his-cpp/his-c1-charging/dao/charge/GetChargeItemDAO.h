@@ -7,15 +7,15 @@
 #include "domain/do/charge/GetChargeItemDO.h"
 
 /**
- * æ”¶è´¹é¡¹æ˜ç»†æŸ¥è¯¢ DAOï¼ˆæ¥å£2ï¼‰
+ * ÊÕ·ÑÏîÃ÷Ï¸²éÑ¯ DAO£¨½Ó¿Ú2£©
  */
 class GetChargeItemDAO : public BaseDAO
 {
 public:
     /**
-     * æŒ‰å°±è¯ŠIDæŸ¥è¯¢æ”¶è´¹é¡¹æ˜ç»†åˆ—è¡¨
-     * @param encounterId å°±è¯Šä¸»é”®
-     * @return æ”¶è´¹é¡¹æ˜ç»† DO åˆ—è¡¨
+     * °´¾ÍÕïID²éÑ¯ÊÕ·ÑÏîÃ÷Ï¸ÁĞ±í
+     * @param encounterId ¾ÍÕïÖ÷¼ü
+     * @return ÊÕ·ÑÏîÃ÷Ï¸ DO ÁĞ±í
      */
     std::list<GetChargeItemDO> selectByEncounterId(const std::string& encounterId);
 };

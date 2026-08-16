@@ -2,7 +2,7 @@
 #include "ChargeItemBriefDAO.h"
 #include "ChargeItemBriefMapper.h"
 
-// é˜²æ­¢ ODBC/MySQL ç±»å‹å†²çª
+// ·ÀÖ¹ ODBC/MySQL ÀàĞÍ³åÍ»
 #include "NacosClient.h"
 
 std::list<ChargeItemBriefDO> ChargeItemBriefDAO::selectByEncounterIds(
@@ -14,7 +14,7 @@ std::list<ChargeItemBriefDO> ChargeItemBriefDAO::selectByEncounterIds(
     SqlParams params;
     std::ostringstream inClause;
 
-    // æ„å»º IN (?, ?, ...) å­å¥å¹¶ç»‘å®šå‚æ•°
+    // ¹¹½¨ IN (?, ?, ...) ×Ó¾ä²¢°ó¶¨²ÎÊı
     bool first = true;
     for (auto& id : encounterIds)
     {

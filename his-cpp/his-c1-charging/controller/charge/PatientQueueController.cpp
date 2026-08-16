@@ -1,7 +1,7 @@
 #include "PatientQueueController.h"
 #include "service/charge/GetPatientQueueService.h"
 
-// è·å–æ‚£è€…é˜Ÿåˆ—ï¼ˆåˆ†é¡µ+æ¡ä»¶æŸ¥è¯¢ï¼‰
+// »ñÈ¡»¼Õß¶ÓÁĞ£¨·ÖÒ³+Ìõ¼ş²éÑ¯£©
 GetPatientQueueJsonVO::Wrapper PatientQueueController::execQueryPatientQueue(const GetPatientQueueQuery::Wrapper& query)
 {
     auto vo = GetPatientQueueJsonVO::createShared();

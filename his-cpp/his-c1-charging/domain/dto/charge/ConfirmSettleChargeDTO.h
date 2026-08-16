@@ -7,114 +7,114 @@
 
 #include OATPP_CODEGEN_BEGIN(DTO)
 /*
-   æ”¯ä»˜æ˜ç»†æäº¤ï¼ˆpaymentDetails å­å¯¹è±¡ï¼‰
+   Ö§¸¶Ã÷Ï¸Ìá½»£¨paymentDetails ×Ó¶ÔÏó£©
 */
 class PaymentDetailSubmitDTO : public oatpp::DTO
 {
     DTO_INIT(PaymentDetailSubmitDTO, DTO);
 
-    // æ”¯ä»˜æ¸ é“ç¼–ç ï¼ˆCASH / WECHAT / ALIPAY / SCAN_PAY / INSURANCE_ACCT / INSURANCE_FUNDï¼‰
+    // Ö§¸¶ÇşµÀ±àÂë£¨CASH / WECHAT / ALIPAY / SCAN_PAY / INSURANCE_ACCT / INSURANCE_FUND£©
     API_DTO_FIELD(String, payChannelCode, ZH_WORDS_GETTER("lhfc.charging.charge.PaymentDetailSubmitDTO.payChannelCode.description"), true, "CASH");
 
-    // é‡‘é¢
+    // ½ğ¶î
     API_DTO_FIELD(Float64, amount, ZH_WORDS_GETTER("lhfc.charging.charge.PaymentDetailSubmitDTO.amount.description"), true, 17.31);
 };
 
 /*
-   é“¶è”è¢«æ‰«å›æ‰§ï¼ˆclientScanResult å­å¯¹è±¡ï¼Œä»…æ‰«ç æ”¯ä»˜æ—¶ä¼ å…¥ï¼‰
+   ÒøÁª±»É¨»ØÖ´£¨clientScanResult ×Ó¶ÔÏó£¬½öÉ¨ÂëÖ§¸¶Ê±´«Èë£©
 */
 class ClientScanResultDTO : public oatpp::DTO
 {
     DTO_INIT(ClientScanResultDTO, DTO);
 
-    // é¢„ç•™å­—æ®µï¼Œæš‚ä¸å±•å¼€
+    // Ô¤Áô×Ö¶Î£¬Ôİ²»Õ¹¿ª
 };
 
 /*
-   æ­£å¼ç»“ç®—è¯·æ±‚
+   ÕıÊ½½áËãÇëÇó
 */
 class ConfirmSettleChargeRequestDTO : public oatpp::DTO
 {
     DTO_INIT(ConfirmSettleChargeRequestDTO, DTO);
 
-    // æ“ä½œäººè½½è·ï¼ˆç”±Controlleræ³¨å…¥ï¼ŒServiceè¯»å–ï¼‰
+    // ²Ù×÷ÈËÔØºÉ£¨ÓÉController×¢Èë£¬Service¶ÁÈ¡£©
     CC_SYNTHESIZE(const PayloadDTO*, _payload, Payload);
 
-    // æ”¯ä»˜è‰ç¨¿ä¸»é”®â€”â€”æ ¸å¿ƒé˜²é‡/é˜²æ¢å•é”šç‚¹
+    // Ö§¸¶²İ¸åÖ÷¼ü¡ª¡ªºËĞÄ·ÀÖØ/·À»»µ¥Ãªµã
     API_DTO_FIELD(String, paymentDraftId,
         ZH_WORDS_GETTER("lhfc.charging.charge.ConfirmSettleChargeRequestDTO.paymentDraftId.description"),
         true, "");
 
-    // å°±è¯Šä¸»é”®
+    // ¾ÍÕïÖ÷¼ü
     API_DTO_FIELD(String, encounterId,
         ZH_WORDS_GETTER("lhfc.charging.charge.ConfirmSettleChargeRequestDTO.encounterId.description"),
         true, "");
 
-    // æ”¶è´¹é¡¹ ID åˆ—è¡¨ï¼Œå¿…é¡»ä¸è‰ç¨¿ç»‘å®šçš„é›†åˆå®Œå…¨ä¸€è‡´
+    // ÊÕ·ÑÏî ID ÁĞ±í£¬±ØĞëÓë²İ¸å°ó¶¨µÄ¼¯ºÏÍêÈ«Ò»ÖÂ
     API_DTO_FIELD(Vector<String>, chargeItemIds,
         ZH_WORDS_GETTER("lhfc.charging.charge.ConfirmSettleChargeRequestDTO.chargeItemIds.description"),
         true, {});
 
-    // æ”¯ä»˜æ¸ é“ + å®ä»˜é‡‘é¢
+    // Ö§¸¶ÇşµÀ + Êµ¸¶½ğ¶î
     API_DTO_FIELD(Vector<Object<PaymentDetailSubmitDTO>>, paymentDetails,
         ZH_WORDS_GETTER("lhfc.charging.charge.ConfirmSettleChargeRequestDTO.paymentDetails.description"),
         true, {Object<PaymentDetailSubmitDTO>(PaymentDetailSubmitDTO::createShared())});
 
-    // è´¦å•æ—¥æœŸï¼ˆå®¢æˆ·ç«¯ç”Ÿæˆï¼Œæ ¼å¼ YYYY-MM-DD HH:mm:ssï¼‰
+    // ÕËµ¥ÈÕÆÚ£¨¿Í»§¶ËÉú³É£¬¸ñÊ½ YYYY-MM-DD HH:mm:ss£©
     API_DTO_FIELD(String, billDate,
         ZH_WORDS_GETTER("lhfc.charging.charge.ConfirmSettleChargeRequestDTO.billDate.description"),
         true, "");
 
-    // ç»“ç®—ç»“æœæšä¸¾
+    // ½áËã½á¹ûÃ¶¾Ù
     API_DTO_FIELD(String, outcomeEnum,
         ZH_WORDS_GETTER("lhfc.charging.charge.ConfirmSettleChargeRequestDTO.outcomeEnum.description"),
         true, "1");
 
-    // åŒ»ä¿æ”¶è´¹æ‰¹æ¬¡å·ï¼ˆå•ç»„ï¼‰
+    // Ò½±£ÊÕ·ÑÅú´ÎºÅ£¨µ¥×é£©
     API_DTO_FIELD(String, ybChrgBchno,
         ZH_WORDS_GETTER("lhfc.charging.charge.ConfirmSettleChargeRequestDTO.ybChrgBchno.description"),
         false, "");
 
-    // åŒ»ä¿æ”¶è´¹æ‰¹æ¬¡å·åˆ—è¡¨ï¼ˆå¤šç»„ï¼‰
+    // Ò½±£ÊÕ·ÑÅú´ÎºÅÁĞ±í£¨¶à×é£©
     API_DTO_FIELD(Vector<String>, ybChrgBchnos,
         ZH_WORDS_GETTER("lhfc.charging.charge.ConfirmSettleChargeRequestDTO.ybChrgBchnos.description"),
         false, {});
 
-    // é“¶è”è¢«æ‰«å›æ‰§ï¼ˆä»…æ‰«ç æ”¯ä»˜æ—¶ä¼ å…¥ï¼‰
+    // ÒøÁª±»É¨»ØÖ´£¨½öÉ¨ÂëÖ§¸¶Ê±´«Èë£©
     API_DTO_FIELD(Object<ClientScanResultDTO>, clientScanResult,
         ZH_WORDS_GETTER("lhfc.charging.charge.ConfirmSettleChargeRequestDTO.clientScanResult.description"),
         false, {});
 };
 
 /*
-   æ­£å¼ç»“ç®—å“åº”
+   ÕıÊ½½áËãÏìÓ¦
 */
 class ConfirmSettleChargeResponseDTO : public oatpp::DTO
 {
     DTO_INIT(ConfirmSettleChargeResponseDTO, DTO);
 
-    // æ­£å¼æ”¯ä»˜ä¸»é”®â€”â€”æ‰“å°å°ç¥¨çš„å¿…ä¼ å…¥å‚
+    // ÕıÊ½Ö§¸¶Ö÷¼ü¡ª¡ª´òÓ¡Ğ¡Æ±µÄ±Ø´«Èë²Î
     API_DTO_FIELD(String, paymentId, ZH_WORDS_GETTER("lhfc.charging.charge.ConfirmSettleChargeResponseDTO.paymentId.description"), true, "337209423854309376");
 
-    // ç¥¨æ®è‰ç¨¿ä¸»é”®
+    // Æ±¾İ²İ¸åÖ÷¼ü
     API_DTO_FIELD(String, invoiceId, ZH_WORDS_GETTER("lhfc.charging.charge.ConfirmSettleChargeResponseDTO.invoiceId.description"), true, "337209733486219264");
 
-    // å‘ç¥¨çŠ¶æ€ DRAFT / ISSUED / CANCELLED
+    // ·¢Æ±×´Ì¬ DRAFT / ISSUED / CANCELLED
     API_DTO_FIELD(String, invoiceStatus, ZH_WORDS_GETTER("lhfc.charging.charge.ConfirmSettleChargeResponseDTO.invoiceStatus.description"), true, "DRAFT");
 
-    // æˆåŠŸè¯­ä¹‰ç 
+    // ³É¹¦ÓïÒåÂë
     API_DTO_FIELD(String, successMessageCode, ZH_WORDS_GETTER("lhfc.charging.charge.ConfirmSettleChargeResponseDTO.successMessageCode.description"), false, "EX-OPC-410");
 
-    // åŒ»ä¿ç»“ç®— IDï¼ˆå¤šç»„é€—å·åˆ†éš”ï¼‰
+    // Ò½±£½áËã ID£¨¶à×é¶ººÅ·Ö¸ô£©
     API_DTO_FIELD(String, ybSetlId, ZH_WORDS_GETTER("lhfc.charging.charge.ConfirmSettleChargeResponseDTO.ybSetlId.description"), false, "");
 
-    // æ”¯ä»˜æµæ°´å·ï¼ˆæ ¼å¼ PMR-YYYY-MM-DDNNNNï¼‰
+    // Ö§¸¶Á÷Ë®ºÅ£¨¸ñÊ½ PMR-YYYY-MM-DDNNNN£©
     API_DTO_FIELD(String, paymentNo, ZH_WORDS_GETTER("lhfc.charging.charge.ConfirmSettleChargeResponseDTO.paymentNo.description"), false, "");
 
-    // æ”¯ä»˜æµæ°´çŠ¶æ€æšä¸¾
+    // Ö§¸¶Á÷Ë®×´Ì¬Ã¶¾Ù
     API_DTO_FIELD(String, statusEnum, ZH_WORDS_GETTER("lhfc.charging.charge.ConfirmSettleChargeResponseDTO.statusEnum.description"), false, "SUCCESS");
 
-    // ç»“ç®—å®Œæˆæ—¶é—´
+    // ½áËãÍê³ÉÊ±¼ä
     API_DTO_FIELD(String, settledAt, ZH_WORDS_GETTER("lhfc.charging.charge.ConfirmSettleChargeResponseDTO.settledAt.description"), false, "");
 };
 

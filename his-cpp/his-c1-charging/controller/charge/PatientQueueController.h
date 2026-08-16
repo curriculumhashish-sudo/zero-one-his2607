@@ -10,14 +10,14 @@
 
 #define API_TAG ZH_WORDS_GETTER("charging.charge.tag")
 /*
-   æ‚£è€…é˜Ÿåˆ—æ§åˆ¶å™¨
-   è´Ÿè´£åˆ†é¡µ+æ¡ä»¶æŸ¥è¯¢æ‚£è€…å°±è¯Šé˜Ÿåˆ—
+   »¼Õß¶ÓÁĞ¿ØÖÆÆ÷
+   ¸ºÔğ·ÖÒ³+Ìõ¼ş²éÑ¯»¼Õß¾ÍÕï¶ÓÁĞ
 */
 class PatientQueueController : public oatpp::web::server::api::ApiController
 {
     API_ACCESS_DECLARE(PatientQueueController);
 public:
-    // è·å–æ‚£è€…é˜Ÿåˆ—ï¼ˆåˆ†é¡µ+æ¡ä»¶æŸ¥è¯¢ï¼‰
+    // »ñÈ¡»¼Õß¶ÓÁĞ£¨·ÖÒ³+Ìõ¼ş²éÑ¯£©
     API_DEF_ENDPOINT_INFO_QUERY_AUTH(
         ZH_WORDS_GETTER("lhfc.charging.charge.GetPatientQueue.summary"),
         queryPatientQueue,

@@ -21,7 +21,7 @@
 #include "PrepaymentController.h"
 #include "../../service/pay_manage/PrepaymentService.h"
 
-// æ·»åŠ é¢„äº¤é‡‘
+// Ìí¼ÓÔ¤½»½ð
 PrepaymentAddVO::Wrapper PrepaymentController::execAddPrepayment(const PrepaymentAddDTO::Wrapper& dto)
 {
     OATPP_LOGD("Prepayment", "execAddPrepayment called");
@@ -48,7 +48,7 @@ PrepaymentAddVO::Wrapper PrepaymentController::execAddPrepayment(const Prepaymen
     return vo;
 }
 
-// é€€æ¬¾
+// ÍË¿î
 PrepaymentRefundVO::Wrapper PrepaymentController::execRefundPrepayment(const PrepaymentRefundDTO::Wrapper& dto)
 {
     auto vo = PrepaymentRefundVO::createShared();
@@ -73,7 +73,7 @@ PrepaymentRefundVO::Wrapper PrepaymentController::execRefundPrepayment(const Pre
     return vo;
 }
 
-// æŸ¥è¯¢é¢„äº¤é‡‘è®°å½•
+// ²éÑ¯Ô¤½»½ð¼ÇÂ¼
 PrepaymentPageJsonVO::Wrapper PrepaymentController::execQueryPrepayment(const PrepaymentQuery::Wrapper& query)
 {
     auto vo = PrepaymentPageJsonVO::createShared();

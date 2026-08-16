@@ -7,39 +7,39 @@
 
 #include OATPP_CODEGEN_BEGIN(DTO)
 /*
-   å‡†å¤‡æ‰“å°è¯·æ±‚
+   ×¼±¸´òÓ¡ÇëÇó
 */
 class PreparePrintRequestDTO : public oatpp::DTO
 {
     DTO_INIT(PreparePrintRequestDTO, DTO);
 
-    // ä¸šåŠ¡åœºæ™¯ç ï¼ˆå¦‚ "op-charge-print"ï¼‰
+    // ÒµÎñ³¡¾°Âë£¨Èç "op-charge-print"£©
     API_DTO_FIELD(String, scenarioCode, ZH_WORDS_GETTER("lhfc.charging.charge.PreparePrintRequestDTO.scenarioCode.description"), false, "op-charge-print");
 };
 
 /*
-   å‡†å¤‡æ‰“å°å“åº”
+   ×¼±¸´òÓ¡ÏìÓ¦
 */
 class PreparePrintResponseDTO : public oatpp::DTO
 {
     DTO_INIT(PreparePrintResponseDTO, DTO);
 
-    // æ‰“å°è¿½è¸ª IDï¼ˆè´¯ç©¿å…¨é“¾è·¯ï¼‰
+    // ´òÓ¡×·×Ù ID£¨¹á´©È«Á´Â·£©
     API_DTO_FIELD(String, traceId, ZH_WORDS_GETTER("lhfc.charging.charge.PreparePrintResponseDTO.traceId.description"), true, "");
 
-    // æ¨¡æ¿ä¸šåŠ¡å·
+    // Ä£°åÒµÎñºÅ
     API_DTO_FIELD(String, busNo, ZH_WORDS_GETTER("lhfc.charging.charge.PreparePrintResponseDTO.busNo.description"), true, "");
 
-    // åœºæ™¯ç 
+    // ³¡¾°Âë
     API_DTO_FIELD(String, scenarioCode, ZH_WORDS_GETTER("lhfc.charging.charge.PreparePrintResponseDTO.scenarioCode.description"), true, "op-charge-print");
 
-    // æ¨¡æ¿ç‰ˆæœ¬å·
+    // Ä£°å°æ±¾ºÅ
     API_DTO_FIELD(Int32, templateVersion, ZH_WORDS_GETTER("lhfc.charging.charge.PreparePrintResponseDTO.templateVersion.description"), true, 2);
 
-    // æ¨¡æ¿ç»“æ„ï¼ˆåŸå§‹JSONå¯¹è±¡ï¼‰
+    // Ä£°å½á¹¹£¨Ô­Ê¼JSON¶ÔÏó£©
     API_DTO_FIELD(Any, PrintJson, ZH_WORDS_GETTER("lhfc.charging.charge.PreparePrintResponseDTO.PrintJson.description"), true, {});
 
-    // ç¤ºä¾‹æ•°æ®ï¼ˆåŸå§‹JSONï¼Œè°ƒè¯•ç”¨ï¼‰
+    // Ê¾ÀıÊı¾İ£¨Ô­Ê¼JSON£¬µ÷ÊÔÓÃ£©
     API_DTO_FIELD(Any, samplePrintData, ZH_WORDS_GETTER("lhfc.charging.charge.PreparePrintResponseDTO.samplePrintData.description"), false, {});
 };
 

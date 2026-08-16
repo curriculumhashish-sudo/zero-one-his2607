@@ -8,35 +8,35 @@
 #include "domain/dto/charge/GetPatientQueueDTO.h"
 
 /**
- * æ‚£è€…é˜Ÿåˆ—æŸ¥è¯¢æœåŠ¡ï¼ˆæ¥å£1ï¼‰
+ * »¼Õß¶ÓÁĞ²éÑ¯·şÎñ£¨½Ó¿Ú1£©
  *
- * æŸ¥è¯¢æµç¨‹ï¼šDAOæŸ¥æ•°æ® -> DOè½¬DTO -> å†…å­˜è®¡ç®—è¡¥å……å­—æ®µ -> åˆ†é¡µç»„è£…è¿”å›
+ * ²éÑ¯Á÷³Ì£ºDAO²éÊı¾İ -> DO×ªDTO -> ÄÚ´æ¼ÆËã²¹³ä×Ö¶Î -> ·ÖÒ³×é×°·µ»Ø
  */
 class GetPatientQueueService
 {
 private:
-    // æ€§åˆ«ç¼–ç è½¬å±•ç¤ºæ–‡æœ¬ï¼ˆMALE -> ç”·ï¼ŒFEMALE -> å¥³ï¼‰
+    // ĞÔ±ğ±àÂë×ªÕ¹Ê¾ÎÄ±¾£¨MALE -> ÄĞ£¬FEMALE -> Å®£©
     static std::string translateGender(const std::string& code);
 
-    // ç”±å‡ºç”Ÿæ—¥æœŸè®¡ç®—å¹´é¾„å±•ç¤ºæ–‡æœ¬ï¼Œå¦‚ "1990-05-15" è®¡ç®—ä¸º "35å²"
+    // ÓÉ³öÉúÈÕÆÚ¼ÆËãÄêÁäÕ¹Ê¾ÎÄ±¾£¬Èç "1990-05-15" ¼ÆËãÎª "35Ëê"
     static std::string computeAgeText(const std::string& birthDate);
 
-    // æ”¶è´¹çŠ¶æ€ç¼–ç è½¬å±•ç¤ºæ–‡æœ¬ï¼ˆDRAFT -> å¾…æ”¶è´¹ ç­‰ï¼‰
+    // ÊÕ·Ñ×´Ì¬±àÂë×ªÕ¹Ê¾ÎÄ±¾£¨DRAFT -> ´ıÊÕ·Ñ µÈ£©
     static std::string translateChargeStatus(const std::string& code);
 
-    // æ ¹æ®æ‰€æœ‰æ”¶è´¹é¡¹çš„çŠ¶æ€ç åˆ—è¡¨ï¼Œèšåˆè®¡ç®—å‡ºæ±‡æ€»çŠ¶æ€ç ï¼ˆplanned/settled/mixedï¼‰
+    // ¸ù¾İËùÓĞÊÕ·ÑÏîµÄ×´Ì¬ÂëÁĞ±í£¬¾ÛºÏ¼ÆËã³ö»ã×Ü×´Ì¬Âë£¨planned/settled/mixed£©
     static std::string computeRollupStatusCode(
         const std::list<std::string>& statusCodes);
 
-    // æ±‡æ€»çŠ¶æ€ç è½¬å±•ç¤ºæ–‡æœ¬ï¼ˆplanned -> è®¡åˆ’ä¸­ ç­‰ï¼‰
+    // »ã×Ü×´Ì¬Âë×ªÕ¹Ê¾ÎÄ±¾£¨planned -> ¼Æ»®ÖĞ µÈ£©
     static std::string translateRollupStatus(const std::string& code);
 
 public:
     /**
-     * åˆ†é¡µæŸ¥è¯¢æ‚£è€…é˜Ÿåˆ—
-     * @param query å‰ç«¯ä¼ å…¥çš„æŸ¥è¯¢æ¡ä»¶ï¼ŒåŒ…å« keyword å…³é”®å­—ã€startDate/endDate æ—¶é—´èŒƒå›´ã€
-     *              queueTabCode é¡µç­¾è¿‡æ»¤ã€pageIndex é¡µç ã€pageSize æ¯é¡µæ¡æ•°
-     * @return åˆ†é¡µç»“æœï¼Œå†…å« content æ•°æ®åˆ—è¡¨ã€total æ€»è®°å½•æ•°ã€pages æ€»é¡µæ•°ç­‰
+     * ·ÖÒ³²éÑ¯»¼Õß¶ÓÁĞ
+     * @param query Ç°¶Ë´«ÈëµÄ²éÑ¯Ìõ¼ş£¬°üº¬ keyword ¹Ø¼ü×Ö¡¢startDate/endDate Ê±¼ä·¶Î§¡¢
+     *              queueTabCode Ò³Ç©¹ıÂË¡¢pageIndex Ò³Âë¡¢pageSize Ã¿Ò³ÌõÊı
+     * @return ·ÖÒ³½á¹û£¬ÄÚº¬ content Êı¾İÁĞ±í¡¢total ×Ü¼ÇÂ¼Êı¡¢pages ×ÜÒ³ÊıµÈ
      */
     GetPatientQueuePageDTO::Wrapper listAll(const GetPatientQueueQuery::Wrapper& query);
 };

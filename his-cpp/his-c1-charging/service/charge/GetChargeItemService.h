@@ -8,15 +8,15 @@
 #include "domain/dto/charge/GetChargeItemDTO.h"
 
 /**
- * æ‚£è€…ç¼´è´¹é¡¹æŸ¥è¯¢æœåŠ¡ï¼ˆæ¥å£2ï¼‰
+ * »¼Õß½É·ÑÏî²éÑ¯·şÎñ£¨½Ó¿Ú2£©
  */
 class GetChargeItemService
 {
 public:
     /**
-     * æŒ‰å°±è¯ŠIDæŸ¥è¯¢å¾…æ”¶è´¹æ˜ç»†åˆ—è¡¨
-     * @param query åŒ…å« encounterId å’Œ includePriceExtension
-     * @return ç¼´è´¹é¡¹ DTOï¼Œå« encounterId å’Œ items å­åˆ—è¡¨
+     * °´¾ÍÕïID²éÑ¯´ıÊÕ·ÑÃ÷Ï¸ÁĞ±í
+     * @param query °üº¬ encounterId ºÍ includePriceExtension
+     * @return ½É·ÑÏî DTO£¬º¬ encounterId ºÍ items ×ÓÁĞ±í
      */
     GetChargeItemDTO::Wrapper listAll(const GetChargeItemsQuery::Wrapper& query);
 };

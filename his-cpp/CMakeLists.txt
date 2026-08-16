@@ -1,4 +1,4 @@
-# CMakeList.txt: 顶层 CMake 项目文件，在此处执行全局配置
+﻿# CMakeList.txt: 顶层 CMake 项目文件，在此处执行全局配置
 # 并包含子项目。
 #
 cmake_minimum_required (VERSION 3.8)
@@ -163,6 +163,8 @@ add_subdirectory ("lib-common")
 if(UNIX)
 	add_subdirectory ("nacos-register")
 endif()
-
+# 在后面添加你的模块
 add_subdirectory ("his-c1-charging")
 add_subdirectory ("his-c1-form")
+add_subdirectory ("his-c2-opnurse")
+add_subdirectory ("his-c2-opdoctor")

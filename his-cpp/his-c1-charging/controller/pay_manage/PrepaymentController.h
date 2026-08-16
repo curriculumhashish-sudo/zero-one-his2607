@@ -32,15 +32,15 @@
 #define API_TAG ZH_WORDS_GETTER("charging.pay_manage.tag")
 
 /*
-   é¢„äº¤é‡‘ç®¡ç†æ§åˆ¶å™¨
-   å¤„ç†ï¼šæ·»åŠ é¢„äº¤é‡‘ã€é€€é¢„äº¤é‡‘ã€æŸ¥è¯¢è®°å½•
+   Ô¤½»½ğ¹ÜÀí¿ØÖÆÆ÷
+   ´¦Àí£ºÌí¼ÓÔ¤½»½ğ¡¢ÍËÔ¤½»½ğ¡¢²éÑ¯¼ÇÂ¼
 */
 class PrepaymentController : public oatpp::web::server::api::ApiController
 {
     API_ACCESS_DECLARE(PrepaymentController);
 
 public:
-    // æ·»åŠ é¢„äº¤é‡‘ï¼ˆæ”¶ï¼‰
+    // Ìí¼ÓÔ¤½»½ğ£¨ÊÕ£©
     API_DEF_ENDPOINT_INFO_AUTH(
         ZH_WORDS_GETTER("Jack.charging.charge.prepayment.add.summary"),
         addPrepayment,
@@ -52,7 +52,7 @@ public:
         BODY_DTO(PrepaymentAddDTO::Wrapper, dto), execAddPrepayment(dto)
     );
 
-    // é€€é¢„äº¤é‡‘
+    // ÍËÔ¤½»½ğ
     API_DEF_ENDPOINT_INFO_AUTH(
         ZH_WORDS_GETTER("Jack.charging.charge.prepayment.refund.summary"),
         refundPrepayment,
@@ -64,7 +64,7 @@ public:
         BODY_DTO(PrepaymentRefundDTO::Wrapper, dto), execRefundPrepayment(dto)
     );
 
-    // æŸ¥è¯¢é¢„äº¤é‡‘æµæ°´
+    // ²éÑ¯Ô¤½»½ğÁ÷Ë®
     API_DEF_ENDPOINT_INFO_AUTH(
         ZH_WORDS_GETTER("Jack.charging.charge.prepayment.query.summary"),
         queryPrepayment,
@@ -85,13 +85,13 @@ public:
     );
 
 private:
-    // æ‰§è¡Œæ·»åŠ é¢„äº¤é‡‘
+    // Ö´ĞĞÌí¼ÓÔ¤½»½ğ
     PrepaymentAddVO::Wrapper execAddPrepayment(const PrepaymentAddDTO::Wrapper& dto);
 
-    // æ‰§è¡Œé€€é¢„äº¤é‡‘
+    // Ö´ĞĞÍËÔ¤½»½ğ
     PrepaymentRefundVO::Wrapper execRefundPrepayment(const PrepaymentRefundDTO::Wrapper& dto);
 
-    // æ‰§è¡ŒæŸ¥è¯¢é¢„äº¤é‡‘æµæ°´
+    // Ö´ĞĞ²éÑ¯Ô¤½»½ğÁ÷Ë®
     PrepaymentPageJsonVO::Wrapper execQueryPrepayment(const PrepaymentQuery::Wrapper& query);
 };
 

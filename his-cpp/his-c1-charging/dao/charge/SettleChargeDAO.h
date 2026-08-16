@@ -6,7 +6,7 @@
 #include "BaseDAO.h"
 
 /**
- * ç»“ç®—å†™æ“ä½œ DAOï¼ˆæ¥å£3Cï¼‰
+ * ½áËãĞ´²Ù×÷ DAO£¨½Ó¿Ú3C£©
  */
 class SettleChargeDAO : public BaseDAO
 {
@@ -20,12 +20,12 @@ public:
     // ---- Read ----
 
     /**
-     * æ ¹æ® encounterId æŸ¥è¯¢çœŸå® patientId
+     * ¸ù¾İ encounterId ²éÑ¯ÕæÊµ patientId
      */
     std::string selectPatientIdByEncounter(const std::string& encounterId);
 
     /**
-     * æ ¹æ® encounterId æŸ¥è¯¢è´¦æˆ·ä¿¡æ¯ï¼ˆaccountId + accountCodeï¼‰
+     * ¸ù¾İ encounterId ²éÑ¯ÕË»§ĞÅÏ¢£¨accountId + accountCode£©
      */
     struct AccountInfo
     {
@@ -37,7 +37,7 @@ public:
     // ---- Write ----
 
     /**
-     * æ’å…¥æ”¯ä»˜æµæ°´è®°å½•
+     * ²åÈëÖ§¸¶Á÷Ë®¼ÇÂ¼
      */
     int insertPayment(const std::string& paymentId, const std::string& nowStr,
         const std::string& paymentNo, const std::string& entererId,
@@ -47,7 +47,7 @@ public:
         const std::string& encounterId);
 
     /**
-     * æ’å…¥æ”¯ä»˜æ˜ç»†è®°å½•ï¼ˆfin_payment_rec_detailï¼‰
+     * ²åÈëÖ§¸¶Ã÷Ï¸¼ÇÂ¼£¨fin_payment_rec_detail£©
      */
     int insertPaymentDetail(const std::string& detailId, const std::string& nowStr,
         const std::string& reconciliationId, const std::string& payChannelCode,
@@ -55,7 +55,7 @@ public:
         const std::string& accountId, const std::string& accountCode);
 
     /**
-     * æ’å…¥å‘ç¥¨è‰ç¨¿è®°å½•
+     * ²åÈë·¢Æ±²İ¸å¼ÇÂ¼
      */
     int insertInvoice(const std::string& invoiceId, const std::string& nowStr,
         const std::string& patientId, const std::string& paymentId,
@@ -63,7 +63,7 @@ public:
         const std::string& busNo);
 
     /**
-     * æ›´æ–°æŒ‡å®šæ”¶è´¹é¡¹çŠ¶æ€ä¸ºå·²ç»“ç®—
+     * ¸üĞÂÖ¸¶¨ÊÕ·ÑÏî×´Ì¬ÎªÒÑ½áËã
      */
     int updateChargeItemsToSettled(const std::string& chargeItemIdsStr,
         const std::string& nowStr);

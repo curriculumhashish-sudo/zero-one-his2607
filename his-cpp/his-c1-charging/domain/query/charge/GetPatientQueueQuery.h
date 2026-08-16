@@ -8,32 +8,32 @@
 
 #include OATPP_CODEGEN_BEGIN(DTO)
 /*
-	è·å–æ‚£è€…é˜Ÿåˆ—åˆ†é¡µæŸ¥è¯¢å¯¹è±¡
+	»ñÈ¡»¼Õß¶ÓÁĞ·ÖÒ³²éÑ¯¶ÔÏó
 */
 class GetPatientQueueQuery : public PageQuery {
 	DTO_INIT(GetPatientQueueQuery, PageQuery);
 
-	//å…³é”®å­—:å§“å/å°±è¯Šå·
+	//¹Ø¼ü×Ö:ĞÕÃû/¾ÍÕïºÅ
 	API_DTO_FIELD(String, keyword,
 		ZH_WORDS_GETTER("lhfc.charging.charge.GetPatientQueueQuery.keyword.description"),
 		false, "");
 
-	//å¼€å§‹æ—¥æœŸ
+	//¿ªÊ¼ÈÕÆÚ
 	API_DTO_FIELD(String, startDate,
 		ZH_WORDS_GETTER("lhfc.charging.charge.GetPatientQueueQuery.startDate.description"),
 		false, "");
 
-	//ç»“æŸæ—¥æœŸ
+	//½áÊøÈÕÆÚ
 	API_DTO_FIELD(String, endDate,
 		ZH_WORDS_GETTER("lhfc.charging.charge.GetPatientQueueQuery.endDate.description"),
 		false, "");
 
-	//æ”¶è´¹çŠ¶æ€
+	//ÊÕ·Ñ×´Ì¬
 	API_DTO_FIELD(String, queueTabCode,
 		ZH_WORDS_GETTER("lhfc.charging.charge.GetPatientQueueQuery.queueTabCode.description"),
 		true,"PENDING");
 
-	//ç§‘å®¤/æœºæ„ ID ç­›é€‰ï¼ˆå¯é€‰ï¼Œä¸ºç©ºæŸ¥å…¨éƒ¨ï¼‰
+	//¿ÆÊÒ/»ú¹¹ ID É¸Ñ¡£¨¿ÉÑ¡£¬Îª¿Õ²éÈ«²¿£©
 	API_DTO_FIELD(String, organizationId,
 		ZH_WORDS_GETTER("lhfc.charging.charge.GetPatientQueueQuery.organizationId.description"),
 		false, "");

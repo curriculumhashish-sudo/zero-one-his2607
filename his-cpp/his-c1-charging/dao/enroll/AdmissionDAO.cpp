@@ -311,7 +311,7 @@ INSERT INTO adm_account
 VALUES
 (?, ?, NOW(6), NOW(6), ?, ?,
  0, NULL, NULL, 1,
- ?, ?, 'PREPAY', ?, CONCAT(?,'ä½é™¢é¢„äº¤è´¦æˆ·'), ?,
+ ?, ?, 'PREPAY', ?, CONCAT(?,'×¡ÔºÔ¤½»ÕË»§'), ?,
  ?, 'UNSETTLE', 1, ?, 1, 'NORMAL')
 )";
         params.clear();
@@ -395,7 +395,7 @@ VALUES
             }
         }
 
-        // Commit transaction â€” all insert operations succeeded
+        // Commit transaction ¡ª all insert operations succeeded
         sqlSession->commitTransaction();
         return "";
     }

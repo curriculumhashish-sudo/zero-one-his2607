@@ -67,19 +67,19 @@ class RefundExecuteRefundRequestDTO : public oatpp::DTO
         info->description = ZH_WORDS_GETTER("xbzml.charging.refund.field.refundPaymentDetails");
     };
 
-    // Client refund receipt (e.g. WeChat/Alipay callback raw data) â€” reserved, not processed yet
+    // Client refund receipt (e.g. WeChat/Alipay callback raw data) ¡ª reserved, not processed yet
     DTO_FIELD(String, clientRefundResult, "clientRefundResult");
     DTO_FIELD_INFO(clientRefundResult) {
         info->description = ZH_WORDS_GETTER("xbzml.charging.refund.field.clientRefundResult");
     };
 
-    // Refund request id (idempotency key from client) â€” reserved, not processed yet
+    // Refund request id (idempotency key from client) ¡ª reserved, not processed yet
     DTO_FIELD(String, refundRequestId, "refundRequestId");
     DTO_FIELD_INFO(refundRequestId) {
         info->description = ZH_WORDS_GETTER("xbzml.charging.refund.field.refundRequestId");
     };
 
-    // Preserved (non-refunded) charge item ids â€” reserved, not processed yet
+    // Preserved (non-refunded) charge item ids ¡ª reserved, not processed yet
     DTO_FIELD(oatpp::List<String>, preservedNewChargeItemIds, "preservedNewChargeItemIds");
     DTO_FIELD_INFO(preservedNewChargeItemIds) {
         info->description = ZH_WORDS_GETTER("xbzml.charging.refund.field.preservedNewChargeItemIds");
@@ -96,7 +96,7 @@ class RefundExecuteRefundDTO : public oatpp::DTO
     DTO_FIELD_INFO(success) {
         info->description = ZH_WORDS_GETTER("xbzml.charging.refund.field.success");
     };
-    // Error code â€” empty on success, set on failure (e.g. PAYMENT_NOT_FOUND, REFUND_AMOUNT_EXCEEDS)
+    // Error code ¡ª empty on success, set on failure (e.g. PAYMENT_NOT_FOUND, REFUND_AMOUNT_EXCEEDS)
     DTO_FIELD(String, errorCode, "errorCode");
     DTO_FIELD_INFO(errorCode) {
         info->description = ZH_WORDS_GETTER("xbzml.charging.refund.field.errorCode");

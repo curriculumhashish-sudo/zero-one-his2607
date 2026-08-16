@@ -8,104 +8,104 @@
 
 #include OATPP_CODEGEN_BEGIN(DTO)
 /*
-   ä¸šåŠ¡é”šç‚¹ï¼ˆbizRef å­å¯¹è±¡ï¼‰
+   ÒµÎñÃªµã£¨bizRef ×Ó¶ÔÏó£©
 */
 class BizRefDTO : public oatpp::DTO
 {
     DTO_INIT(BizRefDTO, DTO);
 
-    // å°±è¯Šä¸»é”®
+    // ¾ÍÕïÖ÷¼ü
     API_DTO_FIELD(String, encounterId, ZH_WORDS_GETTER("lhfc.charging.charge.BizRefDTO.encounterId.description"), true, "");
 
-    // æ”¯ä»˜æµæ°´ä¸»é”®
+    // Ö§¸¶Á÷Ë®Ö÷¼ü
     API_DTO_FIELD(String, paymentId, ZH_WORDS_GETTER("lhfc.charging.charge.BizRefDTO.paymentId.description"), true, "");
 };
 
 /*
-   ç¡®è®¤æ‰“å°è¯·æ±‚ï¼ˆå®¡è®¡è½åº“ï¼‰
+   È·ÈÏ´òÓ¡ÇëÇó£¨Éó¼ÆÂä¿â£©
 */
 class ConfirmPrintRequestDTO : public oatpp::DTO
 {
     DTO_INIT(ConfirmPrintRequestDTO, DTO);
 
-    // æ‰“å°è¿½è¸ª IDï¼ˆ4B è¿”å›ï¼‰
+    // ´òÓ¡×·×Ù ID£¨4B ·µ»Ø£©
     API_DTO_FIELD(String, traceId,
         ZH_WORDS_GETTER("lhfc.charging.charge.ConfirmPrintRequestDTO.traceId.description"),
         true, "");
 
-    // æ¨¡æ¿ä¸šåŠ¡å·ï¼ˆ4B è¿”å›ï¼‰
+    // Ä£°åÒµÎñºÅ£¨4B ·µ»Ø£©
     API_DTO_FIELD(String, busNo,
         ZH_WORDS_GETTER("lhfc.charging.charge.ConfirmPrintRequestDTO.busNo.description"),
         true, "");
 
-    // åœºæ™¯ç ï¼ˆå›ºå®šå€¼ï¼‰
+    // ³¡¾°Âë£¨¹Ì¶¨Öµ£©
     API_DTO_FIELD(String, scenarioCode,
         ZH_WORDS_GETTER("lhfc.charging.charge.ConfirmPrintRequestDTO.scenarioCode.description"),
         false, "op-charge-print");
 
-    // æ¨¡æ¿ç‰ˆæœ¬å·ï¼ˆ4B è¿”å›ï¼‰
+    // Ä£°å°æ±¾ºÅ£¨4B ·µ»Ø£©
     API_DTO_FIELD(Int32, templateVersion,
         ZH_WORDS_GETTER("lhfc.charging.charge.ConfirmPrintRequestDTO.templateVersion.description"),
         false, 2);
 
-    // æ‰“å°ç»“æœ SUCCESS / FAILED
+    // ´òÓ¡½á¹û SUCCESS / FAILED
     API_DTO_FIELD(String, status,
         ZH_WORDS_GETTER("lhfc.charging.charge.ConfirmPrintRequestDTO.status.description"),
         true, "SUCCESS");
 
-    // å®é™…æ‰“å°çš„ä¸šåŠ¡æ•°æ®ï¼ˆç»“æ„åŒ SlipDTOï¼‰
+    // Êµ¼Ê´òÓ¡µÄÒµÎñÊı¾İ£¨½á¹¹Í¬ SlipDTO£©
     API_DTO_FIELD(Object<SlipDTO>, printData,
         ZH_WORDS_GETTER("lhfc.charging.charge.ConfirmPrintRequestDTO.printData.description"),
         false, {});
 
-    // ä¸šåŠ¡é”šç‚¹
+    // ÒµÎñÃªµã
     API_DTO_FIELD(Object<BizRefDTO>, bizRef,
         ZH_WORDS_GETTER("lhfc.charging.charge.ConfirmPrintRequestDTO.bizRef.description"),
         false, {});
 
-    // æ‰“å°æœºåç§°
+    // ´òÓ¡»úÃû³Æ
     API_DTO_FIELD(String, printer,
         ZH_WORDS_GETTER("lhfc.charging.charge.ConfirmPrintRequestDTO.printer.description"),
         false, "");
 
-    // æ‰“å°ä»½æ•°
+    // ´òÓ¡·İÊı
     API_DTO_FIELD(Int32, copies,
         ZH_WORDS_GETTER("lhfc.charging.charge.ConfirmPrintRequestDTO.copies.description"),
         false, 1);
 
-    // å®¢æˆ·ç«¯ç±»å‹
+    // ¿Í»§¶ËÀàĞÍ
     API_DTO_FIELD(String, clientType,
         ZH_WORDS_GETTER("lhfc.charging.charge.ConfirmPrintRequestDTO.clientType.description"),
         false, "electron-hiprint");
 
-    // å¤±è´¥æ—¶çš„é”™è¯¯ç 
+    // Ê§°ÜÊ±µÄ´íÎóÂë
     API_DTO_FIELD(String, errorCode,
         ZH_WORDS_GETTER("lhfc.charging.charge.ConfirmPrintRequestDTO.errorCode.description"),
         false, "");
 
-    // å¤±è´¥æ—¶çš„é”™è¯¯ä¿¡æ¯
+    // Ê§°ÜÊ±µÄ´íÎóĞÅÏ¢
     API_DTO_FIELD(String, errorMessage,
         ZH_WORDS_GETTER("lhfc.charging.charge.ConfirmPrintRequestDTO.errorMessage.description"),
         false, "");
 };
 
 /*
-   ç¡®è®¤æ‰“å°å“åº”
+   È·ÈÏ´òÓ¡ÏìÓ¦
 */
 class ConfirmPrintResponseDTO : public oatpp::DTO
 {
     DTO_INIT(ConfirmPrintResponseDTO, DTO);
 
-    // å®¡è®¡è½åº“æ˜¯å¦æˆåŠŸ
+    // Éó¼ÆÂä¿âÊÇ·ñ³É¹¦
     API_DTO_FIELD(Boolean, ok, ZH_WORDS_GETTER("lhfc.charging.charge.ConfirmPrintResponseDTO.ok.description"), true, true);
 
-    // æ‰“å°ç»“æœçŠ¶æ€ SUCCESS / FAILED
+    // ´òÓ¡½á¹û×´Ì¬ SUCCESS / FAILED
     API_DTO_FIELD(String, status, ZH_WORDS_GETTER("lhfc.charging.charge.ConfirmPrintResponseDTO.status.description"), false, "SUCCESS");
 
-    // å¤±è´¥æ—¶çš„é”™è¯¯ç 
+    // Ê§°ÜÊ±µÄ´íÎóÂë
     API_DTO_FIELD(String, errorCode, ZH_WORDS_GETTER("lhfc.charging.charge.ConfirmPrintResponseDTO.errorCode.description"), false, "");
 
-    // å¤±è´¥æ—¶çš„é”™è¯¯ä¿¡æ¯
+    // Ê§°ÜÊ±µÄ´íÎóĞÅÏ¢
     API_DTO_FIELD(String, errorMessage, ZH_WORDS_GETTER("lhfc.charging.charge.ConfirmPrintResponseDTO.errorMessage.description"), false, "");
 };
 

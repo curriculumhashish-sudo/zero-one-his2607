@@ -1,10 +1,10 @@
 // ============================================================================
-// RefundVerifyRefundService.h â€” é€€è´¹æ ¡éªŒ â€” ä¸šåŠ¡é€»è¾‘å±‚
+// RefundVerifyRefundService.h ¡ª ÍË·ÑĞ£Ñé ¡ª ÒµÎñÂß¼­²ã
 // ============================================================================
-// æ ¡éªŒæµç¨‹:
-//   1. æŸ¥è¯¢ adm_charge_item â€” æ£€æŸ¥æ”¶è´¹é¡¹ç›®æ˜¯å¦å­˜åœ¨ä¸”çŠ¶æ€å¯é€€
-//   2. æŸ¥è¯¢ fin_payment_reconciliation â€” æ£€æŸ¥æ”¯ä»˜æµæ°´çŠ¶æ€
-//   3. è¿”å› allowed + rejectReasonCode
+// Ğ£ÑéÁ÷³Ì:
+//   1. ²éÑ¯ adm_charge_item ¡ª ¼ì²éÊÕ·ÑÏîÄ¿ÊÇ·ñ´æÔÚÇÒ×´Ì¬¿ÉÍË
+//   2. ²éÑ¯ fin_payment_reconciliation ¡ª ¼ì²éÖ§¸¶Á÷Ë®×´Ì¬
+//   3. ·µ»Ø allowed + rejectReasonCode
 // ============================================================================
 
 #pragma once
@@ -15,6 +15,6 @@
 class RefundVerifyRefundService
 {
 public:
-    // æ ¡éªŒé€€è´¹æ˜¯å¦å¯æ‰§è¡Œ
+    // Ğ£ÑéÍË·ÑÊÇ·ñ¿ÉÖ´ĞĞ
     RefundVerifyRefundDTO::Wrapper verify(const RefundVerifyRefundQuery::Wrapper& query);
 };

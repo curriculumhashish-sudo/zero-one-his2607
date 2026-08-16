@@ -8,22 +8,22 @@
 #include "domain/dto/charge/ConfirmSettleChargeDTO.h"
 
 /**
- * ç»“ç®—æœåŠ¡ï¼ˆæ¥å£3Aé¢„ç»“ç®— + æ¥å£3Cæ­£å¼ç»“ç®—ï¼‰
+ * ½áËã·şÎñ£¨½Ó¿Ú3AÔ¤½áËã + ½Ó¿Ú3CÕıÊ½½áËã£©
  */
 class SettleChargeService
 {
 public:
     /**
-     * é¢„ç»“ç®—ï¼šç”Ÿæˆæ”¯ä»˜è‰ç¨¿ï¼Œé”å®šæ”¶è´¹é¡¹ï¼ŒæŒ‰è´¹ç”¨æ€§è´¨åˆ†ç»„
-     * @param dto è¯·æ±‚å‚æ•°ï¼ˆencounterId + chargeItemIdsï¼‰
-     * @return é¢„ç»“ç®—å“åº”ï¼ˆpaymentDraftId, displayAmount, previews, selfPayRollup, insuranceGroupsï¼‰
+     * Ô¤½áËã£ºÉú³ÉÖ§¸¶²İ¸å£¬Ëø¶¨ÊÕ·ÑÏî£¬°´·ÑÓÃĞÔÖÊ·Ö×é
+     * @param dto ÇëÇó²ÎÊı£¨encounterId + chargeItemIds£©
+     * @return Ô¤½áËãÏìÓ¦£¨paymentDraftId, displayAmount, previews, selfPayRollup, insuranceGroups£©
      */
     PreSettleChargeResponseDTO::Wrapper preSettle(const PreSettleChargeRequestDTO::Wrapper& dto);
 
     /**
-     * æ­£å¼ç»“ç®—ï¼šè½è´¦æ”¶è´¹ï¼Œå†™å…¥æ”¯ä»˜æµæ°´å’Œå‘ç¥¨
-     * @param dto è¯·æ±‚å‚æ•°ï¼ˆpaymentDraftId, encounterId, chargeItemIds, paymentDetails ç­‰ï¼‰
-     * @return æ­£å¼ç»“ç®—å“åº”ï¼ˆpaymentId, invoiceId, invoiceStatus ç­‰ï¼‰
+     * ÕıÊ½½áËã£ºÂäÕËÊÕ·Ñ£¬Ğ´ÈëÖ§¸¶Á÷Ë®ºÍ·¢Æ±
+     * @param dto ÇëÇó²ÎÊı£¨paymentDraftId, encounterId, chargeItemIds, paymentDetails µÈ£©
+     * @return ÕıÊ½½áËãÏìÓ¦£¨paymentId, invoiceId, invoiceStatus µÈ£©
      */
     ConfirmSettleChargeResponseDTO::Wrapper confirmSettle(const ConfirmSettleChargeRequestDTO::Wrapper& dto);
 };

@@ -7,8 +7,8 @@
 #include "domain/do/charge/GetChargeItemDO.h"
 
 /**
- * GetChargeItemDO ç»“æœé›†æ˜ å°„å™¨
- * SQL åˆ—åˆ«åå¿…é¡»ä¸ getString() å‚æ•°åä¸¥æ ¼ä¸€è‡´
+ * GetChargeItemDO ½á¹û¼¯Ó³ÉäÆ÷
+ * SQL ÁĞ±ğÃû±ØĞëÓë getString() ²ÎÊıÃûÑÏ¸ñÒ»ÖÂ
  */
 class GetChargeItemMapper : public Mapper<GetChargeItemDO>
 {
