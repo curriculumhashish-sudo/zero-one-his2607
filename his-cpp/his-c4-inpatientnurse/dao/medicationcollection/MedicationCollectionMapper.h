@@ -1,0 +1,8 @@
+#pragma once
+#ifndef _MEDICATION_COLLECTION_MAPPER_H_
+#define _MEDICATION_COLLECTION_MAPPER_H_
+#include "Mapper.h"
+#include "MedicationCollectionDAO.h"
+class PendingDispenseMapper:public Mapper<PendingDispenseRow>{public:PendingDispenseRow mapper(ResultSet*r)const override{PendingDispenseRow x;x.dispenseId=r->getString("dispense_id");x.procedureId=r->getString("procedure_id");x.plannedTime=r->getString("planned_time");x.quantity=r->getDouble("quantity");x.unitCode=r->getString("unit_code");x.price=r->getDouble("price");x.medReqId=r->getString("med_req_id");x.medicationId=r->getString("medication_id");x.medicationName=r->getString("medication_name");x.specification=r->getString("specification");x.groupId=r->getString("group_id");x.therapy=r->getString("therapy_enum");x.dosage=r->getString("dosage_instruction");x.method=r->getString("method_code");x.frequency=r->getString("frequency_code");x.locationId=r->getString("location_id");x.locationName=r->getString("location_name");x.encounterId=r->getString("encounter_id");x.patientId=r->getString("patient_id");x.patientName=r->getString("patient_name");x.bedName=r->getString("bed_name");return x;}};
+class SummarizeDispenseMapper:public Mapper<SummarizeDispenseRow>{public:SummarizeDispenseRow mapper(ResultSet*r)const override{SummarizeDispenseRow x;x.id=r->getString("id");x.encounterId=r->getString("encounter_id");x.patientId=r->getString("patient_id");x.medicationId=r->getString("medication_id");x.locationId=r->getString("location_id");x.destinationLocationId=r->getString("destination_location_id");x.unitCode=r->getString("unit_code");x.quantity=r->getDouble("quantity");x.price=r->getDouble("price");return x;}};
+#endif

@@ -1,0 +1,69 @@
+/*
+ Copyright Zero One Star. All rights reserved.
+
+ @Author: Swan_Woo
+ @Date: 2022/12/03 14:58:34
+
+ Licensed under the Apache License, Version 2.0 (the "License");
+ you may not use this file except in compliance with the License.
+ You may obtain a copy of the License at
+
+      https://www.apache.org/licenses/LICENSE-2.0
+
+ Unless required by applicable law or agreed to in writing, software
+ distributed under the License is distributed on an "AS IS" BASIS,
+ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ See the License for the specific language governing permissions and
+ limitations under the License.
+*/
+#include "stdafx.h"
+#include "Router.h"
+#include "ApiHelper.h"
+#include "controller/chargedetails/CostDetailController.h"
+#include "admissiontransfer/AdmissionTransferController.h"
+#include "encountermanage/EncounterManageController.h"
+#include "medicationcollection/MedicationCollectionController.h"
+#include "controller/medicalorderexecution/OrderExecuteControlController.h"
+#include "medicationcollection/DispenseController.h"
+#include "medicalorderverification/MedicalOrderVerificationController.h"
+#include "medicalorderexecution/MedicalOrderExecutionController.h"
+#include "controller/admissiontransfer/BedController.h"
+#include "nursing/NursingController.h"
+#include "temperature/TemperatureController.h"
+#include "inpatientbilling/InpatientBillingController.h"
+
+// If the macro for disabling Swagger documentation is defined
+#ifdef CLOSE_SWAGGER_DOC
+// Simplified controller binding macro
+#define ROUTER_SIMPLE_BIND(__CLASS__) \
+router->addController(__CLASS__::createShared())
+#else
+// Simplified controller binding macro (with Swagger support)
+#define ROUTER_SIMPLE_BIND(__CLASS__) \
+BIND_CONTROLLER(docEndpoints, router, __CLASS__)
+#endif
+
+Router::Router(Endpoints* docEndpoints, HttpRouter* router)
+{
+	this->docEndpoints = docEndpoints;
+	this->router = router;
+}
+
+void Router::initRouter()
+{
+	// Cost Detail
+	ROUTER_SIMPLE_BIND(CostDetailController);
+	// Medical Order Execution (core)
+	ROUTER_SIMPLE_BIND(MedicalOrderExecutionController);
+	// Other inpatient nurse modules
+	ROUTER_SIMPLE_BIND(MedicationCollectionController);
+	ROUTER_SIMPLE_BIND(EncounterManageController);
+	ROUTER_SIMPLE_BIND(AdmissionTransferController);
+	ROUTER_SIMPLE_BIND(OrderExecuteControlController);
+	ROUTER_SIMPLE_BIND(DispenseController);
+	ROUTER_SIMPLE_BIND(MedicalOrderVerificationController);
+	ROUTER_SIMPLE_BIND(BedController);
+    ROUTER_SIMPLE_BIND(NursingController);
+    ROUTER_SIMPLE_BIND(TemperatureController);
+    ROUTER_SIMPLE_BIND(InpatientBillingController);
+}
