@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zeroone.star.statdata.mapper.WkfSupplyRequestMapper">
+
+    <select id="getStockInByMonth" resultType="map">
+        SELECT 
+            DATE_FORMAT(occurrence_time, '%Y-%m') AS month,
+            item_table AS material_type,
+            SUM(item_quantity) AS total_amount
+        FROM wkf_supply_request
+        WHERE is_deleted = 0
+          AND type_enum IN ('CABINET_INBOUND_RECEIPT', 'PHARMACY_STOCK_IN')
+          AND status_enum IN ('AGREE', 'APPROVAL')
+          AND occurrence_time &gt;= #{startDate}
+          AND occurrence_time &lt; #{endDate}
+        GROUP BY month, item_table
+        ORDER BY month, item_table
+    </select>
+
+    <select id="getStockOutByMonth" resultType="map">
+        SELECT 
+            DATE_FORMAT(occurrence_time, '%Y-%m') AS month,
+            item_table AS material_type,
+            SUM(item_quantity) AS total_amount
+        FROM wkf_supply_request
+        WHERE is_deleted = 0
+          AND type_enum = 'CABINET_STOCK_OUT'
+          AND status_enum IN ('AGREE', 'APPROVAL')
+          AND occurrence_time &gt;= #{startDate}
+          AND occurrence_time &lt; #{endDate}
+        GROUP BY month, item_table
+        ORDER BY month, item_table
+    </select>
+
+</mapper>

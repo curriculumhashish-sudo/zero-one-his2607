@@ -1,0 +1,164 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.zeroone.star.clinics.mapper.ScheduleMapper">
+
+    <insert id="insertSchedule" parameterType="com.zeroone.star.clinics.entity.Schedule">
+
+        insert into wkf_schedule
+        (id, tenant_id, created_at, updated_at, created_by, updated_by, is_deleted, deleted_at,
+        deleted_by, version, organization_id, name, status_enum, active_flag, planning_horizon_start,
+        planning_horizon_end, service_type_concept_json, healthcare_service_id, service_category_json,
+        specialty_json, comment_markdown, substitute_practitioner_id, substitute_reason,
+        source_schedule_template_id, slot_provision_template_id)
+        values (
+        #{id}, #{tenantId}, #{createdAt}, #{updatedAt}, #{createdBy}, #{updatedBy}, #{isDeleted}, #{deletedAt},
+        #{deletedBy}, #{version}, #{organizationId}, #{name}, #{statusEnum}, #{activeFlag}, #{planningHorizonStart},
+        #{planningHorizonEnd}, #{serviceTypeConceptJson}, #{healthcareServiceId}, #{serviceCategoryJson},
+        #{specialtyJson}, #{commentMarkdown}, #{substitutePractitionerId}, #{substituteReason},
+        #{sourceScheduleTemplateId}, #{slotProvisionTemplateId}
+        );
+    </insert>
+    <!-- 按条件查询日程列表 -->
+    <select id="selectByConditions" resultType="com.zeroone.star.clinics.entity.Schedule">
+        SELECT DISTINCT s.*
+        FROM wkf_schedule s
+        LEFT JOIN wkf_schedule_actor a ON s.id = a.schedule_id AND a.is_deleted = 0
+        WHERE s.is_deleted = 0
+        <if test="query.organizationId != null and query.organizationId != ''">
+            AND s.organization_id = #{query.organizationId}
+        </if>
+        <if test="query.healthcareServiceId != null and query.healthcareServiceId != ''">
+            AND s.healthcare_service_id = #{query.healthcareServiceId}
+        </if>
+        <if test="query.practitionerId != null and query.practitionerId != ''">
+            AND a.actor_id = #{query.practitionerId}
+        </if>
+        <if test="query.rangeStart != null and query.rangeStart != ''">
+            AND s.planning_horizon_end &gt;= #{query.rangeStart}
+        </if>
+        <if test="query.rangeEnd != null and query.rangeEnd != ''">
+            AND s.planning_horizon_start &lt;= #{query.rangeEnd}
+        </if>
+        <if test="query.locationId != null and query.locationId != ''">
+            AND s.organization_id = #{query.locationId}
+        </if>
+        ORDER BY s.planning_horizon_start
+    </select>
+
+    <!-- 批量查询参与者 -->
+    <select id="selectActorsByScheduleIds" resultType="com.zeroone.star.clinics.entity.ScheduleActor">
+        SELECT *
+        FROM wkf_schedule_actor
+        WHERE is_deleted = 0
+        AND schedule_id IN
+        <foreach collection="scheduleIds" item="id" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+        ORDER BY sort_no
+    </select>
+
+    <!-- 获取日程详情 -->
+    <select id="getById" resultType="com.zeroone.star.clinics.entity.Schedule">
+        SELECT *
+        FROM wkf_schedule
+        WHERE id = #{scheduleId}
+    </select>
+
+    <!-- 查询单个日程的参与者 -->
+    <select id="selectActorsByScheduleId" resultType="com.zeroone.star.clinics.entity.ScheduleActor">
+        SELECT *
+        FROM wkf_schedule_actor
+        WHERE is_deleted = 0
+        AND schedule_id = #{scheduleId}
+        ORDER BY sort_no
+    </select>
+    <!-- 新增日程参与者 -->
+    <insert id="insertScheduleActor" parameterType="com.zeroone.star.clinics.entity.ScheduleActor">
+        INSERT INTO wkf_schedule_actor
+        (id, tenant_id, created_at, updated_at, created_by, updated_by, is_deleted, deleted_at,
+        deleted_by, version, schedule_id, actor_type, actor_id, sort_no)
+        VALUES (
+        #{id}, #{tenantId}, #{createdAt}, #{updatedAt}, #{createdBy}, #{updatedBy}, #{isDeleted}, #{deletedAt},
+        #{deletedBy}, #{version}, #{scheduleId}, #{actorType}, #{actorId}, #{sortNo}
+        );
+    </insert>
+
+    <!-- 查询医师名称 -->
+    <select id="selectPractitionerName" resultType="string">
+        SELECT name FROM adm_practitioner WHERE id = #{id}
+    </select>
+
+    <!-- 查询地点名称 -->
+    <select id="selectLocationName" resultType="string">
+        SELECT name FROM adm_location WHERE id = #{id}
+    </select>
+
+    <!-- 查询医疗服务名称 -->
+    <select id="selectHealthcareServiceName" resultType="string">
+        SELECT name FROM adm_healthcare_service WHERE id = #{id}
+    </select>
+
+    <!-- 批量查询医师名称 -->
+    <select id="selectPractitionerNames" resultType="map">
+        SELECT id, name FROM adm_practitioner WHERE id IN
+        <foreach collection="ids" item="id" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </select>
+
+    <!-- 批量查询地点名称 -->
+    <select id="selectLocationNames" resultType="map">
+        SELECT id, name FROM adm_location WHERE id IN
+        <foreach collection="ids" item="id" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </select>
+
+    <!-- 批量查询医疗服务名称 -->
+    <select id="selectHealthcareServiceNames" resultType="map">
+        SELECT id, name FROM adm_healthcare_service WHERE id IN
+        <foreach collection="ids" item="id" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </select>
+
+    <!-- 查询日排班模板 -->
+    <select id="selectDayTemplate" resultType="map">
+        SELECT
+            id,
+            organization_id AS organizationId,
+            template_code AS templateCode,
+            template_name AS templateName,
+            practitioner_id AS practitionerId,
+            location_id AS locationId,
+            healthcare_service_id AS healthcareServiceId,
+            slot_provision_template_id AS slotProvisionTemplateId,
+            effective_start AS effectiveStart,
+            effective_end AS effectiveEnd
+        FROM bkg_schedule_template
+        WHERE id = #{id} AND is_deleted = 0
+    </select>
+
+    <!-- 查询周排班模板子项 -->
+    <select id="selectWeekItems" resultType="map">
+        SELECT
+            id,
+            week_schedule_template_id AS weekScheduleTemplateId,
+            weekday,
+            day_schedule_template_id AS dayScheduleTemplateId,
+            sort_no AS sortNo
+        FROM bkg_week_schedule_template_item
+        WHERE week_schedule_template_id = #{weekTemplateId} AND is_deleted = 0 AND enabled = 1
+        ORDER BY weekday
+    </select>
+
+    <!--    <select id="selectPage" resultType="com.zeroone.star.clinics.entity.Schedule">-->
+<!--        select * from wkf_schedule-->
+<!--        <where>-->
+<!--            <if test="ew!=null and ew.sqlSegment!=null and ew.sqlSegment!=''">-->
+<!--                ${ew.sqlSegment}-->
+<!--            </if>-->
+<!--        </where>-->
+<!--    </select>-->
+
+</mapper>
