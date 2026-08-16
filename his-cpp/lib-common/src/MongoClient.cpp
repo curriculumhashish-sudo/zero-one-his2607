@@ -48,7 +48,8 @@ bool MongoClient::initPool()
 	ss << "mongodb://";
 	ss << m_username << ":" << m_password;
 	ss << "@" << m_host << ":" << m_port << "/" << m_db;
-	ss << "?minPoolSize=" << m_min << "&maxPoolSize=" << m_max;
+	ss << "?authSource=" << m_authDatabase;
+	ss << "&minPoolSize=" << m_min << "&maxPoolSize=" << m_max;
 	mongocxx::uri uri{ ss.str().c_str() };
 	m_pool = std::make_shared<mongocxx::pool>(uri);
 	isInit = true;
@@ -62,6 +63,7 @@ MongoClient::MongoClient(const string& username, const string& password, const s
 	this->m_host = host;
 	this->m_port = port;
 	this->m_db = db;
+	this->m_authDatabase = "admin";
 	this->isInit = false;
 }
 
@@ -78,6 +80,7 @@ MongoClient::MongoClient(const string& uri)
 		m_port = temp[0];
 		m_db = temp[1];
 	}
+	this->m_authDatabase = "admin";
 	this->isInit = false;
 }
 

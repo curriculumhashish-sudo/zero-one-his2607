@@ -50,6 +50,8 @@ private:
 	string m_host;
 	// 数据库
 	string m_db;
+	// 身份认证数据库
+	string m_authDatabase;
 	// MongoDB服务器端口
 	string m_port;
 	// 最大连接数
