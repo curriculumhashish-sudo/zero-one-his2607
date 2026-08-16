@@ -1,0 +1,273 @@
+# 打不死的小强
+diagnosis:
+ tags:
+  t1: 诊断接口
+ get:
+  summary: 分页查询示例数据
+ add:
+  summary: 新增诊断数据
+ modify:
+  summary: 修改诊断数据
+ remove:
+  summary: 删除诊断数据
+ query-by-id:
+  summary: 通过ID获取单条数据
+ export:
+  summary: 导出示例数据(响应Excel文件)
+ export-pdf:
+  summary: 导出示例数据(响应PdfBase64字符串)
+ import:
+  summary: 导入示例数据
+ query-one:
+  summary: 使用声明式服务查询一条数据
+ query-all:
+  summary: 使用声明式服务查询多条数据
+ field:
+  id: 诊断表id
+  tenantId: 租户id
+  encounterId: 就诊id
+  conditionId: 病情/诊断条件id
+  patientId: 患者id
+  primaryFlag: 是否主诊断
+  setAlways: 是否设为常用
+  rank: 排序
+  conditionDefId: 诊断定义id
+  conditionCode: 病情编码
+  diagTypeCode: 诊断类型
+  diseaseDefId: 疾病id
+  syndromeDefId: 证候id
+  description: 诊断描述
+  tcmFlag: 是否中医
+
+# 营养快线  nick1484065161
+tcm-prescription:
+  tags:
+    tag: 中药处方管理
+  sign:
+    summary: 签发中药处方
+  field:
+    prescription-group-key: 处方分组标识
+    medication-request-id: 医嘱请求ID
+    encounter-id: 住院就诊ID
+    patient-id: 患者ID
+    sign-targets: 签发目标列表
+    success: 是否签发成功
+    prescription-no-by-group-key: 处方分组与处方编号对应关系
+    action: 操作类型
+    medication-request-ids: 药品医嘱ID集合
+    prescription-no: 处方编号
+    scope: 操作范围
+    prescription-nos: 处方编号列表
+    stop-time: 停嘱时间
+    message: 操作提示信息
+  withdraw:
+    summary: 撤回中药处方
+  stop:
+    summary: 停嘱中药处方
+  cancel-stop:
+    summary: 取消停嘱中药处方
+
+# 不再掩饰  nick7650257705
+inpdocws:
+  cycle-control:
+    tag: 周期控制
+    patient-queue:
+      summary: 查询住院患者队列
+    discharge-order:
+      summary: 创建出院医嘱
+  field:
+    encounterId: 就诊ID（adm_encounter.id）
+    patientId: 患者ID
+    patientName: 患者姓名
+    gender: 性别
+    age: 年龄
+    diagnosisSummary: 诊断描述
+    bedName: 床号
+    bedId: 床位ID
+    wardId: 病区ID
+    wardName: 病区名称
+    houseName: 病房号
+    accountBalance: 账户余额
+    statusEnum: 就诊状态
+    encounterBusNo: 住院号
+    admitTime: 入院时间
+    organizationId: 科室ID
+    organizationName: 科室名称
+    keyword: 关键字（住院号/姓名/床号）
+    orderStatus: 医嘱状态
+    encounterNewStatus: 就诊新状态（创建出院后变为ON_HOLD）
+    orderId: 出院医嘱ID
+
+# 皮卡丘  pkq
+medicalorder:
+  tag: "医嘱管理"
+  field:
+    id: "医嘱ID"
+    busNo: "业务编号"
+    groupId: "分组编号"
+    statusEnum: "医嘱状态"
+    patientId: "患者ID"
+    encounterId: "就诊ID"
+    medicationId: "药品ID"
+    prescriptionNo: "处方号"
+    orderIds: "医嘱ID列表"
+    orderId: "医嘱ID"
+    stopReason: "停嘱原因码"
+    autoRefund: "是否自动退费"
+    splitAll: "是否拆分全组"
+    splitCount: "拆分数量"
+    successCount: "成功数量"
+    failCount: "失败数量"
+    failReasons: "失败原因列表"
+    operatorId: "操作人ID"
+    clearGroupIds: "拆组ID列表"
+    assignGroup: "并组载荷"
+    lines: "停嘱行列表"
+    productTableName: "产品定义表名"
+    stopTime: "停嘱时间"
+  merge-order:
+    summary: "并组医嘱接口"
+  split-order:
+    summary: "拆嘱医嘱接口"
+  stop-order:
+    summary: "批量停止医嘱接口"
+
+# 早睡觉
+inpatient-record:
+ api-name: 住院病历
+ summary1: 获取历史病历列表（条件+分页）
+ summary2: 获取历史病历详情
+ summary3: 新增病历
+ summary4: 修改病历
+ summary5: 保存病历
+ title: 病历名称
+ content: 病历内容详情
+ id: 病历主键
+ patient_id: 病人id
+ encounter_id: 门诊id
+ document_type_code: 病历类型编码
+ document_type_name: 病历类型名称
+ # title: 病历名称
+ status: 病历状态
+ # content: 病历内容详情
+ created_at: 病历创建时间
+ updated_at: 病历更新时间
+ created_by: 病历创建人id
+ updated_by: 病历更新人id
+
+# 莫央 ztjin
+advice:
+ tag: 医嘱接口
+ sign:
+  summary: 签发医嘱
+ withdraw:
+  summary: 撤回医嘱
+ cancel-stop:
+  summary: 取消停嘱
+ field:
+  encounterId: 就诊ID
+  tenantId: 租户ID
+  updatedCount: 更新数量
+  patientId: 患者ID
+  productTableName: 产品定义表名
+  requestId: 医嘱请求ID
+  signTargets: 签发目标列表
+  withdrawTargets: 撤回目标列表
+  cancelStopLines: 取消停嘱行列表
+  signBatchCode: 签发批次号
+
+# 卷毛羊的榴莲
+prescription:
+  field:
+    prescriptionNo: 处方号
+    prescriptionGroupKey: 处方组号
+    statusEnum: 处方状态
+    therapyEnum: 长期或短期
+    methodName: 用法名称
+    rateName: 频次名称
+    days: 天数
+    chineseHerbsDoseQuantity: 中药付数
+    sufferingFlag: 是否代煎
+    description: 诊断描述
+    remark: 备注
+    lines: 药品明细列表
+    encounterId: 就诊ID
+    patientId: 患者ID
+    action: 操作类型
+    scope: 操作范围
+    medicationRequestIds: 药品申请ID列表
+    # prescriptionGroupKey: 处方分组标识
+    prescriptions: 处方列表
+    success: 是否成功
+    message: 提示信息
+    medicationRequestId: 药品申请ID
+    medicationDefinitionId: 药品定义ID
+    medicationName: 药品名称
+    dose: 每付剂量
+    retailUnitPrice: 零售单价
+    unitName: 单位名称
+    historyRows: 历史处方列表
+    lineOp: 明细操作类型
+    doseUnitCode: 剂量单位编码
+    sortNumber: 排序号
+    dispenseLocationId: 发药位置ID
+    authoredAt: 开方时间
+    summaryText: 处方摘要
+    medicationNames: 药品名称列表
+    newMedicationRequestIds: 新增药品申请ID列表
+    tcmSyndromeGroup: 中医病证组
+    methodCode: 用法编码
+    rateCode: 频次编码
+    tenantId: 租户id
+  tag: 住院医生站-中医处方
+  query-history:
+    summary: 查询历史处方
+  query-current:
+    summary: 查询当前处方
+  post:
+    summary: 新增处方
+  delete:
+    summary: 删除处方
+
+# 晚睡觉
+diagnosis-entry:
+ api-name: 诊断录入
+ summary1: 获取诊断使用历史
+ summary2: 获取患者诊断记录（条件+分页）
+ condition_id: 诊断主键
+ definition_name: 诊断症状名称
+ definition_code: 诊断症状编码
+ description: 诊断描述
+ kind_text: 医学类型名称
+ type_name: 诊断类型名称
+ main_flag: 主诊标注
+ patient_id: 患者id
+ tenant_id: 租户id
+enter-orders:
+ api-name: 开立医嘱
+ summary1: 获取医嘱列表（条件+分页）
+ summary2: 新增医嘱
+ summary3: 修改医嘱
+ summary4: 删除医嘱
+ request_id: 医嘱主键
+ status: 医嘱状态
+ medicine_type: 药品类型
+ therapy_type: 医嘱类型
+ medicine_name: 药品名称
+ specification: 药品规格
+ dose: 单次剂量
+ dose_unit: 剂量单位
+ method: 服用方式
+ rate: 服用时间
+ authored_at: 开立时间
+ total_price: 总金额
+ authored_by: 开立医生
+ skin_text: 皮试标志
+ patient_id: 患者id
+ description: 诊断描述
+ created_at: 新增时间
+ created_by: 新增人id
+ tenant_id: 租户id
+ encounter_id: 诊断id
+ group_id: 小组id
+ excel: 导入报表文件

@@ -1,0 +1,98 @@
+﻿# 799
+rent:
+ tags:
+  t1: 租户管理
+ get:
+  summary1: 获取租户列表（条件+分页）
+  summary2: 获取租户名称
+ field:
+  id: 租户编号
+  name: 租户名称
+  code: 租户编码
+  description: 租户描述
+  is_active: 租户状态
+  extraProperties: 租户扩展属性
+  created_at: 租户创建时间
+  updated_at: 租户更新时间
+  created_by: 租户创建人
+  updated_by: 租户更新人
+  is_deleted: 租户是否删除
+  deleted_at: 租户删除时间
+  deleted_by: 租户删除人
+  keywords: 关键字,请输入租户名称或描述
+  status: 租户状态 1-启用 0-禁用
+
+# 放荡不稽  nick5788930659
+tenant:
+  tags:
+    tag: 租户管理
+  add:
+    summary: 新增租户
+  modify:
+    summary: 修改租户
+  remove:
+    summary: 删除租户
+  field:
+    code: 租户编码
+    name: 租户名称
+    status: 租户状态
+    description: 租户描述
+    id: 租户编号
+
+# JOKER  aliyun7883333437
+tenant-user:
+  tags:
+    tag: 租户用户管理
+  query:
+    summary: 获取租户用户列表（条件+分页）
+  add:
+    summary: 添加租户用户（支持批量）
+  remove:
+    summary: 移除租户用户（支持批量）
+  field:
+    id: 关联编号
+    tenantId: 租户编号
+    userId: 用户编号
+    userIds: 用户编号列表
+    userName: 登录用户名
+    name: 用户姓名
+    phoneNumber: 手机号
+    email: 邮箱
+    isActive: 启用状态 1-启用 0-禁用
+    createdAt: 创建时间
+    createdBy: 创建人
+    keywords: 关键字,请输入登录名/姓名/手机号/邮箱
+
+# 下一个高碳日
+settings:
+  field:
+   keywords: 关键字（名称，标题）
+   id: 主键
+   name: 配置名称
+   value: 配置值
+   description: 配置标题
+   provider_name: 提供者级别
+   provider_key: 提供者键
+   tenant_id: 租户ID
+  api:
+    query_list: 查询配置列表
+    query_items: 查询配置项列表
+    tag: 系统管理-配置管理
+
+# 泰普寇德
+settingitems:
+  add:
+    summary: 新增配置项
+  modify:
+    summary: 修改配置项
+  remove:
+    summary: 删除配置项
+  tag: 配置相关接口
+  dto:
+    id: 配置项的主键
+    name: 配置项的名称
+    value: 配置项的值
+    providername: 提供者类型
+    providerkey: 提供者键
+    tenantid: 租户ID
+    description: 描述
