@@ -21,7 +21,9 @@ export const useAiChatStore = defineStore('ai-chat', {
     /** 智能体列表是否正在加载 */
     agentsLoading: false,
     /** 初始历史消息 */
-    initialMessages: [] as ChatMessage[]
+    initialMessages: [] as ChatMessage[],
+    /** his-assistant 返回的服务端会话标识，用于连续多轮对话。 */
+    conversationId: ''
   }),
   actions: {
     /**
@@ -69,12 +71,12 @@ export const useAiChatStore = defineStore('ai-chat', {
     async requestAi(text: string, _history: ChatMessage[], _images?: ChatImage[]) {
       const currentAgent = this.currentAgent
       if (!currentAgent) return '请选择助手'
-      const url = currentAgent?.url
-      if (url) {
+      if (currentAgent?.url) {
         try {
-          const reply = await requestAiReply(url, text)
+          const reply = await requestAiReply(text, this.conversationId || undefined)
           if (typeof reply === 'undefined') return '（无内容）'
-          return typeof reply === 'string' ? reply : this.getReplyText(reply)
+          this.conversationId = reply.conversationId || this.conversationId
+          return this.getReplyText(reply)
         } catch (err: any) {
           const msg = err?.message || err?.data?.message || '未知错误'
           return `请求失败：${msg}`
@@ -88,9 +90,9 @@ export const useAiChatStore = defineStore('ai-chat', {
      * @param reply AI 响应数据
      */
     getReplyText(reply: AiChatReplyVO) {
-      if (typeof reply.reply === 'string') return reply.reply
-      if (typeof reply.content === 'string') return reply.content
-      if (typeof reply.message === 'string') return reply.message
+      if (typeof reply.answer === 'string') {
+        return reply.degraded ? `【降级模式】${reply.answer}` : reply.answer
+      }
       return JSON.stringify(reply)
     }
   }

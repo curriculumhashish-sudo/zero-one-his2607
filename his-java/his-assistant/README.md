@@ -22,3 +22,14 @@ sp:
 - `DELETE /assistant/general-assistant/clear-conversation/{conversationId}`：清除会话上下文。
 
 实时号源、运营指标、排班和院内知识等事实必须通过 MCP 工具读取；模型不可用或工具调用失败时，响应中的 `degraded` 会标记为 `true`。
+
+## 本地前端联调
+
+不依赖 Nacos 和 MCP 启动服务：
+
+```shell
+java -jar target/his-assistant-1.0.0-SNAPSHOT.jar \
+  --spring.config.location=optional:file:src/main/resources/application-local.yaml
+```
+
+未配置 `AI_DASHSCOPE_API_KEY` 时，服务仍可测试能力列表、意图路由和降级响应；要测试真实模型与 MCP 工具调用，请提供有效密钥并使用正常环境配置。

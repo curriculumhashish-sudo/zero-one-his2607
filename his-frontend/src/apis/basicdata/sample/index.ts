@@ -1,5 +1,5 @@
 import { useProfiledHttp } from '../client'
-import { getApiProfile, mockOrThrow } from '../profile'
+import { getApiProfile, isMockEnabled, mockOrThrow } from '../profile'
 import { asNumber, asString, normalizePage, parseStatus, type BackendPage } from '../shared'
 import {
   mockCreateSample,
@@ -140,6 +140,7 @@ function rememberPayload(id: string, data: SampleSavePayload, extra?: BackendSam
 export const listSample = async (
   query: SampleQuery
 ): Promise<{ rows: SampleRecord[]; total: number }> => {
+  if (isMockEnabled()) return mockListSample(query)
   try {
     const http = useProfiledHttp()
     const profile = getApiProfile()
@@ -173,11 +174,12 @@ export const listSample = async (
 export const getSampleDetail = async (id: string): Promise<SampleDetail> => {
   const cached = sampleCache.get(id)
   if (cached) return mapDetail(cached)
-  if (import.meta.env.VITE_USE_MOCK === 'true') return mockGetSampleDetail(id)
+  if (isMockEnabled()) return mockGetSampleDetail(id)
   throw new Error('未找到样本详情，请先刷新样本列表后再编辑')
 }
 
 export const createSample = async (data: SampleSavePayload): Promise<SampleDetail> => {
+  if (isMockEnabled()) return mockCreateSample(data)
   try {
     const http = useProfiledHttp()
     const profile = getApiProfile()
@@ -194,6 +196,7 @@ export const createSample = async (data: SampleSavePayload): Promise<SampleDetai
 }
 
 export const updateSample = async (id: string, data: SampleSavePayload): Promise<SampleDetail> => {
+  if (isMockEnabled()) return mockUpdateSample(id, data)
   try {
     const http = useProfiledHttp()
     const profile = getApiProfile()
@@ -209,6 +212,7 @@ export const updateSample = async (id: string, data: SampleSavePayload): Promise
 }
 
 export const setSampleEnabled = async (id: string, enabled: boolean): Promise<void> => {
+  if (isMockEnabled()) return mockSetSampleEnabled(id, enabled)
   try {
     const http = useProfiledHttp()
     const statusEnum = enabled ? 'ACTIVE' : 'INACTIVE'
@@ -233,6 +237,7 @@ export const setSampleEnabled = async (id: string, enabled: boolean): Promise<vo
 }
 
 export const removeSample = async (id: string): Promise<void> => {
+  if (isMockEnabled()) return mockRemoveSample(id)
   try {
     const http = useProfiledHttp()
     if (getApiProfile() === 'c6') {

@@ -8,8 +8,6 @@ import com.zeroone.star.project.vo.assistant.AssistantCapabilityVO;
 import com.zeroone.star.project.vo.assistant.GeneralAssistantChatVO;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import jakarta.validation.Valid;
-import jakarta.validation.constraints.Pattern;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -39,7 +37,7 @@ public class GeneralAssistantController implements GeneralAssistantApis {
     @Override
     @PostMapping("/chat")
     @Operation(summary = "与通用助手对话", description = "识别业务意图，路由或组合调度垂直助手，并返回执行轨迹")
-    public JsonVO<GeneralAssistantChatVO> chat(@Valid @RequestBody GeneralAssistantChatDTO dto) {
+    public JsonVO<GeneralAssistantChatVO> chat(@RequestBody GeneralAssistantChatDTO dto) {
         return JsonVO.success(assistantService.chat(dto));
     }
 
@@ -54,8 +52,7 @@ public class GeneralAssistantController implements GeneralAssistantApis {
     @DeleteMapping("/clear-conversation/{conversationId}")
     @Operation(summary = "清除会话", description = "清除通用助手及各垂直助手保存的会话上下文")
     public JsonVO<Boolean> clearConversation(
-            @PathVariable
-            @Pattern(regexp = "^[A-Za-z0-9_-]{1,64}$", message = "会话ID格式不正确") String conversationId) {
+            @PathVariable String conversationId) {
         assistantService.clearConversation(conversationId);
         return JsonVO.success(true);
     }

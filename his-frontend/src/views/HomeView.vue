@@ -205,7 +205,10 @@ const { user, getMenus: menus } = storeToRefs(ustore)
 const userInfo = computed(() => `欢迎用户：${user.value?.username ?? '游客'}`)
 
 const apiProfile = ref<ApiProfile>(getApiProfile())
-const apiProfileLabel = computed(() => getApiProfileLabel(apiProfile.value))
+const apiProfileLabel = computed(() => {
+  const label = getApiProfileLabel(apiProfile.value)
+  return import.meta.env.VITE_USE_MOCK === 'true' ? `${label} Mock` : label
+})
 const route = useRoute()
 const showApiProfileSwitch = computed(() => route.path.startsWith('/basicdata/'))
 

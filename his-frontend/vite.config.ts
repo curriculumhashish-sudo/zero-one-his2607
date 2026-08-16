@@ -23,6 +23,7 @@ const j3StorehouseServerUrl = env.VITE_J3_STOREHOUSE_SERVER_URL || 'http://115.2
 const j3FeeServerUrl = env.VITE_J3_FEE_SERVER_URL || 'http://47.96.2.145:10205'
 const j3SupplierServerUrl = env.VITE_J3_SUPPLIER_SERVER_URL || 'http://47.96.2.145:10206'
 const j3WardServerUrl = env.VITE_J3_WARD_SERVER_URL || 'http://47.96.2.145:10207'
+const assistantServerUrl = env.VITE_ASSISTANT_SERVER_URL || 'http://localhost:10003'
 
 const j3Proxy = (target: string) => ({
   changeOrigin: true,
@@ -35,6 +36,10 @@ export default defineConfig({
     host: '0.0.0.0',
     port: 3000,
     proxy: {
+      '/assistant': {
+        changeOrigin: true,
+        target: assistantServerUrl
+      },
       '/api/c5-basicdata-api': {
         changeOrigin: true,
         target: c5BasicDataServerUrl,

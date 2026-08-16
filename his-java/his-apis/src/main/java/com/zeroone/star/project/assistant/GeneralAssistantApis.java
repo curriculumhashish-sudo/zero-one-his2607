@@ -4,6 +4,8 @@ import com.zeroone.star.project.dto.assistant.GeneralAssistantChatDTO;
 import com.zeroone.star.project.vo.JsonVO;
 import com.zeroone.star.project.vo.assistant.AssistantCapabilityVO;
 import com.zeroone.star.project.vo.assistant.GeneralAssistantChatVO;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.Pattern;
 
 import java.util.List;
 
@@ -25,7 +27,7 @@ public interface GeneralAssistantApis {
      * @param dto 会话请求
      * @return 助手答复与路由轨迹
      */
-    JsonVO<GeneralAssistantChatVO> chat(GeneralAssistantChatDTO dto);
+    JsonVO<GeneralAssistantChatVO> chat(@Valid GeneralAssistantChatDTO dto);
 
     /**
      * 获取通用助手当前可路由的能力。
@@ -40,5 +42,6 @@ public interface GeneralAssistantApis {
      * @param conversationId 会话ID
      * @return 是否清理成功
      */
-    JsonVO<Boolean> clearConversation(String conversationId);
+    JsonVO<Boolean> clearConversation(
+            @Pattern(regexp = "^[A-Za-z0-9_-]{1,64}$", message = "会话ID格式不正确") String conversationId);
 }

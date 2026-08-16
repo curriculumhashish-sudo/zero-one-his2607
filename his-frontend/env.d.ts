@@ -2,6 +2,7 @@
 
 // .env 环境变量声明
 interface ImportMetaEnv {
+  readonly VITE_ASSISTANT_SERVER_URL?: string
   /** 应用标题 */
   readonly VITE_APP_TITLE: string
   /** 后端接口请求超时毫秒数 */

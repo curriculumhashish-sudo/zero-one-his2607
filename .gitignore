@@ -81,4 +81,7 @@ auto-imports.d.ts
 components.d.ts
 package-lock.json
 node_modules
+.pnpm-store/
 pnpm-lock.yaml
+
+his-java/his-assistant/src/main/resources/application-local.yaml

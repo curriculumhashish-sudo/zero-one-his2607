@@ -21,7 +21,7 @@ import { computed } from 'vue'
 import type { CommonComponentKey, StatusDisplayOption } from './type'
 
 interface StatusDisplayProps {
-  value?: CommonComponentKey | null
+  value?: CommonComponentKey | boolean | null
   options?: StatusDisplayOption[]
   fallbackLabel?: string
   size?: 'large' | 'default' | 'small'

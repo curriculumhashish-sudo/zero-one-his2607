@@ -6,23 +6,31 @@ import type { AgentOption } from '@/components/ai-chat/type'
 export interface AiAgentVO extends AgentOption {}
 
 /**
- * AI 对话请求参数
+ * 通用助手能力
  */
+export interface AssistantCapabilityVO {
+  code: string
+  name: string
+  description: string
+  examples: string[]
+}
+
+/** 通用助手对话请求参数 */
 export interface AiChatRequestDTO {
-  /** 用户输入内容 */
+  conversationId?: string
   message: string
-  /** 当前用户标识 */
-  userId: string
+  context?: Record<string, unknown>
 }
 
 /**
- * AI 对话响应对象
+ * 通用助手对话响应对象
  */
 export interface AiChatReplyVO extends Record<string, any> {
-  /** 回复内容 */
-  reply?: string
-  /** 兼容部分接口返回 content 字段 */
-  content?: string
-  /** 兼容部分接口返回 message 字段 */
-  message?: string
+  conversationId?: string
+  intent?: string
+  composite?: boolean
+  degraded?: boolean
+  answer?: string
+  suggestions?: string[]
+  timestamp?: string
 }
