@@ -1,0 +1,4 @@
+interface:
+  display_name: "复用项目库"
+  short_description: "开发前检索并复用 his-cpp 现有封装、示例与测试"
+  default_prompt: "使用 $reuse-project-libraries 先检索现有项目库和示例，再实现这个 C++ API 需求。"

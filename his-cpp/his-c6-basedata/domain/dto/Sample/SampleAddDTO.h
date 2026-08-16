@@ -1,0 +1,51 @@
+﻿#pragma once
+/*
+ Copyright Zero One Star. All rights reserved.
+
+ @Author: awei
+ @Date: 2026/07/21 11:05:00
+
+ Licensed under the Apache License, Version 2.0 (the "License");
+ you may not use this file except in compliance with the License.
+ You may obtain a copy of the License at
+
+      https://www.apache.org/licenses/LICENSE-2.0
+
+ Unless required by applicable law or agreed to in writing, software
+ distributed under the License is distributed on an "AS IS" BASIS,
+ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ See the License for the specific language governing permissions and
+ limitations under the License.
+*/
+#ifndef _SAMPLE_ADD_DTO_H_
+#define _SAMPLE_ADD_DTO_H_
+
+#include "../../GlobalInclude.h"
+
+#include OATPP_CODEGEN_BEGIN(DTO)
+
+/* Request body for creating a sample. */
+class SampleAddDTO : public oatpp::DTO
+{
+    DTO_INIT(SampleAddDTO, DTO);
+
+    // Database-aligned fields
+    API_DTO_FIELD_DEFAULT(String, busNo, "bus_no");
+    API_DTO_FIELD_DEFAULT(String, name, "name");
+    API_DTO_FIELD_DEFAULT(String, pyStr, "py_str");
+    API_DTO_FIELD_DEFAULT(String, wbStr, "wb_str");
+    API_DTO_FIELD_DEFAULT(String, typeEnum, "type_enum");
+    API_DTO_FIELD_DEFAULT(String, statusEnum, "status_enum");
+
+    // Legacy aliases kept for backward compatibility
+    API_DTO_FIELD_DEFAULT(String, sampleCode, ZH_WORDS_GETTER("sample.field.sampleCode"));
+    API_DTO_FIELD_DEFAULT(String, sampleName, ZH_WORDS_GETTER("sample.field.sampleName"));
+    API_DTO_FIELD_DEFAULT(String, inputCode, ZH_WORDS_GETTER("sample.field.inputCode"));
+    API_DTO_FIELD_DEFAULT(String, wbCode, ZH_WORDS_GETTER("sample.field.wbCode"));
+    API_DTO_FIELD(Int32, status, ZH_WORDS_GETTER("sample.field.status"), false, 1);
+    API_DTO_FIELD_DEFAULT(String, remark, ZH_WORDS_GETTER("sample.field.remark"));
+};
+
+#include OATPP_CODEGEN_END(DTO)
+
+#endif // !_SAMPLE_ADD_DTO_H_
