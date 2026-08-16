@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zeroone.star.basedata.mapper.EquipmentMapper">
+    <update id="deleteByEquipmentIds">
+        UPDATE adm_device_definition
+        SET is_deleted = 1, deleted_at = NOW(), deleted_by = #{userId}
+        WHERE id IN
+        <foreach collection="equipmentIds" item="id" open="(" close=")" separator=",">
+            #{id}
+        </foreach>
+    </update>
+
+
+    <select id="queryEquipmentsById" resultType="com.zeroone.star.project.vo.j4.equipment.EquipmentVO"
+            parameterType="java.lang.String">
+        SELECT ad.id,
+               ad.name,
+               ad.bus_no,
+               ad.py_str,
+               ad.wb_str,
+               ad.category_code,
+               ad.type_code,
+               ad.purchase_unit_code,
+               ad.total_volume,
+               ad.item_min_quantity,
+               ad.item_max_quantity,
+               ad.split_unit_code,
+               ad.merchandise_name,
+               ad.merchandise_py_str,
+               ad.merchandise_wb_str,
+               ad.def_encounter_unit_code,
+               ad.def_inhospital_unit_code,
+               ad.org_id,
+               ad.location_id,
+               ad.model_number,
+               ad.hvcm_flag,
+               ad.dose_unit_code,
+               ad.package_unit_code,
+               ad.stock_unit_code,
+               ad.approval_number,
+               ad.manufacturer_id,
+               ad.manufacturer_text,
+               ad.supply_id,
+               ad.description,
+               ad.jurisdiction,
+               ad.device_version,
+               ad.substance_text,
+               ad.allergen_flag,
+               ad.rx_flag,
+               ad.yb_flag,
+               ad.yb_no,
+               ad.yb_org_no,
+               ad.yb_match_flag,
+               ad.chrgitm_lv,
+               ad.status_enum,
+               ad.active_flag,
+               ad.yb_mapping_code,
+               ad.dose_unit_ratio,
+               ad.purchase_unit_ratio,
+               ad.stock_unit_ratio,
+               ad.package_unit_ratio,
+               ac.price_type_code,
+               ac.price_value
+        FROM adm_device_definition ad INNER JOIN adm_charge_item_definition ac ON ad.id = ac.instance_id
+        WHERE ad.id = #{equipmentId} AND ad.is_deleted = 0
+    </select>
+</mapper>

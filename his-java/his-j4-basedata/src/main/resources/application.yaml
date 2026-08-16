@@ -1,0 +1,14 @@
+# 添加本地默认值，防止 Nacos 未连上时解析失败
+sn:
+  j4-basedata: j4-basedata
+sp:
+  j4-basedata: 10300
+
+server:
+  port: ${sp.j4-basedata}
+  servlet:
+    context-path: /j4-basedata
+spring:
+  application:
+    name: ${sn.j4-basedata}
+   

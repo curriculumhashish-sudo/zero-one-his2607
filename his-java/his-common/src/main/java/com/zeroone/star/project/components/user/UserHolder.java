@@ -144,4 +144,40 @@ public class UserHolder {
             throw new IllegalStateException("Failed to get current department/organization id", e);
         }
     }
+
+    /**
+     * 获取当前请求的默认存放位置ID (locationId)
+     * <p>数据来源：Redis Hash {@code his:login:context:{userId}} → field {@code locationId} 或 {@code deptId}</p>
+     * @return 默认存放位置ID
+     * @throws RuntimeException 如果获取不到用户信息或位置ID
+     */
+    public String getCurrentLocationId() {
+        try {
+            // 1. 获取当前用户ID
+            UserDTO currentUser = getCurrentUser();
+            String userId = currentUser.getId();
+
+            // 2. 构建 Redis Key
+            String redisKey = "his:login:context:" + userId;
+
+            // 3. 优先取 locationId 字段；若无则取 deptId (科室作为默认位置标识)
+            Object locationObj = stringRedisTemplate.opsForHash().get(redisKey, "locationId");
+            if (locationObj != null && StringUtils.hasText(locationObj.toString())) {
+                return locationObj.toString();
+            }
+
+            // 若未单独配置 locationId，取当前科室 ID (deptId) 作为默认存放位置 ID
+            Object deptObj = stringRedisTemplate.opsForHash().get(redisKey, "deptId");
+            if (deptObj != null && StringUtils.hasText(deptObj.toString())) {
+                return deptObj.toString();
+            }
+
+            throw new RuntimeException("未找到用户 [" + userId + "] 的位置/库位信息");
+
+        } catch (RuntimeException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new RuntimeException("获取当前位置ID失败", e);
+        }
+    }
 }
