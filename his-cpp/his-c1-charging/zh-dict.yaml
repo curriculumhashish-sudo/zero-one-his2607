@@ -1,0 +1,1230 @@
+charging:
+ admission:
+  tag: 收费工作站-住院登记
+  add_discription: 住院登记
+  delete_discription: 取消登记
+  idCard: 身份证号
+  name: 姓名
+  birthtime: 出生日期
+  age: 年龄
+  sex: 性别
+  phone: 联系方式
+  admissionDept: 入院科室(旧字段,优先使用 organizationId)
+  admission_ward: 入院病区(旧字段,优先使用 wardId)
+  attending_doctor: 主治医师(旧字段,优先使用 attendingDoctorId)
+  admissionDiagnosis: 入院诊断
+  diagnosisDesc: 诊断描述
+  patientCondition: 患者病情
+  admissionType: 入院类型
+  admissionMode: 入院方式
+  feeNature: 费用性质
+  admissionDate: 入院日期
+  prepayAmount: 预交金金额(paymentDetails 合计为空时使用)
+  payWay: 支付方式(CASH/WECHAT/ALIPAY/BANK_CARD/ACCOUNT/INSURANCE)
+  delete: 取消原因
+  encounterId: 住院登记记录ID
+  organizationId: 入院科室ID
+  wardId: 入院病区ID
+  attendingDoctorId: 主治医生ID
+  contractId: 费用性质合同ID(写入账户 contract_no)
+  paymentDetails: 预交金支付明细列表
+  paymentAmount: 支付金额
+  insuranceRevoked: 医保是否已撤销(仅记录标记,不做冲正)
+  add_success: 住院登记成功
+  delete_success: 取消登记成功
+  resultEncounterId: 生成的住院登记记录ID(adm_encounter.id)
+  resultPatientId: 生成的患者ID(adm_patient.id)
+  resultEncounterBusNo: 生成的住院号(adm_encounter.bus_no)
+  add_error_codes: "错误码说明:200-成功(data含encounterId/patientId/encounterBusNo);401-未登录或TOKEN过期;403-无权限;9995-参数校验失败;9999-业务失败(日期格式无效/登记失败);9994-服务器异常"
+  delete_error_codes: "错误码说明:200-成功;401-未登录或TOKEN过期;403-无权限;9995-参数校验失败(encounterId、cancelReason 必填);9999-业务失败(登记不存在/状态不可取消/取消失败);9994-服务器异常"
+  error_date_invalid: 入院日期或出生日期格式无效(需 YYYY-MM-DD)
+  error_encounter_not_found: 未找到对应的住院登记记录
+  error_status_not_cancelable: 当前登记状态不可取消
+  error_operation_failed: 操作失败,请稍后重试
+ register:
+  tag: 收费工作站-门诊挂号
+ settle:
+  tag: 收费工作站-住院结算
+ charge:
+  tag: 收费工作站-门诊收费
+ enroll:
+  tag: 收费工作站-住院登记
+  query_all:
+   summary: 分页查询住院登记记录
+  query_by_id:
+   summary: 查看住院登记记录详情
+ refund:    
+  tag: 收费工作站-门诊退费
+ pay_manage:
+  tag: 收费工作站-预交金管理
+  GetPatientQueue:
+   summary: 获取患者队列（条件+分页）
+  GetPatientDetails:
+   summary: 获取患者详细信息
+  GetPatientPayRecords:
+   summary: 获取患者预交金流水（条件+分页）
+macchiato:
+ charging:
+  register:
+   visitNumber: 就诊号
+   patientName: 患者姓名
+   phone: 联系电话
+   amount: 应收金额
+   paymentDraft: 支付草稿号
+   registrationType: 挂号类型
+   paymentMethod: 支付方式(1-现金,2-微信,3-支付宝,4-银行卡)
+   department: 挂号科室
+   doctor: 接诊医生
+   registrationTime: 挂号时间
+   refundAmount: 应退金额
+   status: 当前状态
+   printType: 打印类型
+   isDefault: 是否设为默认
+   summary1: 确认收费
+   summary2: 确认退号
+   summary3: 打印挂号小票
+   traceId: 打印追踪ID
+   bindingCode: 打印绑定代码
+   templateVersion: 打印模板版本
+   printerName: 打印机名称
+   copies: 打印份数
+   operatorId: 操作员ID
+   operatorName: 操作员名称
+   clientType: 客户端类型
+   bizRefJson: 业务参考JSON
+   printRequest: 打印请求数据
+   encounterId: 就诊ID
+   version: 版本号
+   slotId: 时段ID
+   chargeItemId: 收费项目ID
+   refundRequestId: 退费ID
+   accountId: 账户ID
+   entererId: 录入人ID
+   payEnum: 支付方式枚举
+   patientId: 患者ID
+   paymentNo: 支付流水号
+   refundingChargeItemIds: 收费项目ID集合
+   detailId: 支付明细记录ID
+   invoiceId: 发票ID
+   printSuccess: 打印是否成功
+   printErrorMessage: 打印失败错误信息
+   printerStatus: 打印机状态
+   transactionId: 交易ID
+   thirdPartyTransactionId: 第三方平台交易号
+   paymentTime: 支付完成时间
+   receiptData: 完整回执数据
+   paymentStatus: 支付状态(0-待支付,1-成功,2-失败)
+   failureReason: 支付失败原因
+   scanPaymentReceipt: 扫码支付回执
+yxy:
+ charging:
+  register:
+   tag1: 获取就诊记录（条件+分页）
+   tag2: 获取当日号源（条件+分页）
+   tag3: 新增挂号
+   summary1: 获取就诊记录（条件+分页）
+   summary2: 获取当日号源（条件+分页）
+   summary3: 新增挂号
+   getsee_id: 就诊表id
+   today_id: 时刻表id
+   number: 就诊号
+   name: 患者姓名
+   start_time: 开始时间(uint64类型时间戳)
+   end_time: 结束时间（uint64类型时间戳）
+   sex: 患者性别
+   phone: 患者联系方式
+   organization: 科室
+   doctor: 医生
+   cost_type: 费用性质
+   addr: 参保地
+   register_type: 号源性质
+   cost: 挂号费
+   time: 挂号时间
+   status: 预约状态码
+   capacity: 额定总容量
+   book_count: 已预约计数
+   id_number: 身份证号
+   birth_date: 出生日期
+   age: 年龄
+   patient_id: 患者表id(如果患者表没有该用户可不填)
+   doctor_id: 医生id
+   organization_id: 科室id
+   cost_type_id: 费用id
+   register_type_id: 挂号类型id
+   operator_id: 操作者id
+   tenant_id: 租户id
+   register_def_id: 收费项目定义id
+   encounterId: 就诊标识
+   encounterBusNo: 就诊业务号
+   serviceTypeId: 挂号服务类型标识
+   statusEnum: 挂号状态枚举(IN_PROGRESS:就诊已开始，患者正在接受诊疗，其他:未知)
+   slotId: 号源标识
+   contractNo: 合同/医保类型标识
+   role_code: 就诊参与者角色编码（REGISTRATION_DOCTOR等）
+   balance: 账号余额
+   type_code: account表中的type代码
+   encounter_id: 就诊表id
+   chargItem_id: 收费项目表id
+   pay_id: 支付流水表id
+
+lhfc:
+  charging:
+    charge:
+      tags:
+        t1: 获取患者队列
+        t2: 获取患者缴费项
+        t3: 确认缴费
+        t4: 打印门诊收费小票
+      # ---- 功能1: 获取患者队列 ----
+      GetPatientQueue:
+        summary: 获取患者就诊队列（分页+条件查询）
+      ChargeItemBriefDTO:
+        chargeItemId:
+          description: 收费明细主键
+        statusCode:
+          description: 收费状态编码
+        statusText:
+          description: 收费状态文本
+          value: 已结算
+        totalPrice:
+          description: 该行总金额
+        itemLabel:
+          description: 收费项目展示名称
+          value: 盐酸氨溴索注射液
+      GetPatientQueueDTO:
+        encounterId:
+          description: 就诊单主键
+        encounterBusNo:
+          description: 就诊业务流水号
+        patientId:
+          description: 患者主键
+        patientName:
+          description: 患者姓名
+          value: 周女士
+        genderCode:
+          description: 患者性别编码
+        genderEnumText:
+          description: 患者性别文本
+          value: 女性
+        ageText:
+          description: 患者年龄文本
+          value: 26岁
+        organizationName:
+          description: 科室名称
+          value: 门诊内科
+        doctorName:
+          description: 接诊医生姓名
+        startTime:
+          description: 就诊开始时间
+        queueLabelCode:
+          description: 队列/收费标签编码
+        totalAmount:
+          description: 就诊费用总金额（可为 null）
+        paidAmount:
+          description: 已支付金额（可为 null）
+        cashierChargeItems:
+          description: 收费明细摘要列表
+        cashierChargeRollupStatusCode:
+          description: 收费状态汇总编码
+        cashierChargeRollupStatusText:
+          description: 收费状态汇总文本
+          value: 已结算
+        paymentId:
+          description: 最近一次成功支付流水主键
+      GetPatientQueueQuery:
+        keyword:
+          description: 关键字（就诊流水号/患者姓名/身份证/手机号匹配）
+        startDate:
+          description: 就诊开始日期下界（格式 yyyy-MM-dd HH:mm:ss）
+        endDate:
+          description: 就诊开始日期上界（格式 yyyy-MM-dd HH:mm:ss）
+        queueTabCode:
+          description: 页签（ALL/PENDING/SETTLED）
+        pageNo:
+          description: 页码（0-based）
+        pageSize:
+          description: 每页条数
+        organizationId:
+          description: 科室ID（当前始终传 null）
+      # ---- 功能2: 获取患者缴费项 ----
+      GetChargeItems:
+        summary: 获取患者缴费项
+      GetChargeItemsQuery:
+        encounterId:
+          description: 就诊主键
+        includePriceExtension:
+          description: 是否加载定价扩展字段
+      GetChargeItemRowDTO:
+        chargeItemId:
+          description: 收费明细主键
+        serviceTable:
+          description: 来源业务表名
+        serviceId:
+          description: 来源业务主键
+        itemName:
+          description: 收费项目展示名称
+          value: 一次性使用精密输液器（带针）
+        busNo:
+          description: 收费明细业务流水号
+        unitPrice:
+          description: 单价
+        quantityValue:
+          description: 数量值
+        quantityUnit:
+          description: 数量单位编码
+          value: 支
+        quantityDisplay:
+          description: 数量展示文本
+        chargeCategoryCode:
+          description: 费用分类编码
+        chargeCategoryDisplay:
+          description: 费用分类展示名
+          value: 医用耗材
+        statusCode:
+          description: 收费状态持久化码
+        statusText:
+          description: 收费状态展示文案
+          value: 已结算
+        totalPrice:
+          description: 行总价
+        amount:
+          description: 行应收金额
+        insuranceAmount:
+          description: 医保支付金额
+        selfPayAmount:
+          description: 自费支付金额
+        cashierUserId:
+          description: 收款人系统用户主键
+        cashierName:
+          description: 收款人姓名
+        discountRateDisplay:
+          description: 折扣率展示文本
+          value: 10.0折
+        accountId:
+          description: 记账账户主键
+        contractName:
+          description: 费用性质合同名称
+          value: 自费
+        contractId:
+          description: 费用性质合同主键
+        feeNatureDisplay:
+          description: 费用性质展示
+          value: 自费
+        medTypeCode:
+          description: 医疗类别
+        ybNo:
+          description: 医保目录编码
+        medicalInsuranceCode:
+          description: 医保编码展示
+      GetChargeItemDTO:
+        encounterId:
+          description: 就诊主键
+        items:
+          description: 待收费明细列表
+      # ---- 功能3A: 预结算 ----
+      PreSettleCharge:
+        summary: 预结算（生成草稿锁定收费项）
+      PreSettleChargeRequestDTO:
+        encounterId:
+          description: 就诊主键
+        chargeItemIds:
+          description: 待收收费项ID列表
+        contractId:
+          description: 费用性质合同主键
+        insuranceTypeCode:
+          description: 医保类型编码
+        personalInsuranceNo:
+          description: 个人医保编号
+        insuranceCardNo:
+          description: 社保卡号
+      PreSettleChargeLinePreviewDTO:
+        chargeItemId:
+          description: 收费明细主键
+        itemLabel:
+          description: 项目展示名称
+          value: 注射用头孢呋辛钠
+        lineAmount:
+          description: 本行应收金额
+        feeNatureDisplay:
+          description: 费用性质展示
+          value: 自费
+      OpSelfPayRollupDTO:
+        accountId:
+          description: 自费账户主键
+        chargeItemIds:
+          description: 自费收费项ID列表
+        totalAmount:
+          description: 自费合计
+      OpInsurancePreSettleGroupDTO:
+        groupIndex:
+          description: 分组序号
+        contractId:
+          description: 费用性质合同主键
+        accountId:
+          description: 记账账户主键
+        chargeItemIds:
+          description: 收费项ID列表
+        medType:
+          description: 医疗类别编码
+        medTypeDisplay:
+          description: 医疗类别展示
+        diseCodg:
+          description: 诊断编码
+        diseName:
+          description: 诊断名称
+        medfeeSumamt:
+          description: 医疗费总额
+        fundPaySumamt:
+          description: 统筹基金支付
+        acctPay:
+          description: 个人账户支付
+        psnCashPay:
+          description: 个人现金支付
+        chrgBchno:
+          description: 医保收费批次号
+        preSettleId:
+          description: 医保预结算ID
+        mdtrtId:
+          description: 就诊ID（医保侧）
+      PreSettleChargeResponseDTO:
+        paymentDraftId:
+          description: 支付草稿主键
+        displayAmount:
+          description: 展示应收金额
+        insurancePreSettled:
+          description: 是否已完成医保预结算
+        settlementComposition:
+          description: 结算构成
+        ybChrgBchno:
+          description: 医保收费批次号
+        ybMedfeeSumamt:
+          description: 医保医疗费总额
+        ybFundPaySumamt:
+          description: 医保统筹支付
+        ybAcctPay:
+          description: 医保个账支付
+        ybPsnCashPay:
+          description: 医保现金自付
+        previews:
+          description: 行预览列表
+        selfPayRollup:
+          description: 自费汇总
+        insuranceGroups:
+          description: 医保分组列表
+      # ---- 功能3C: 正式结算 ----
+      ConfirmSettleCharge:
+        summary: 正式结算（落账收费）
+      PaymentDetailSubmitDTO:
+        payChannelCode:
+          description: 支付渠道编码
+        amount:
+          description: 金额
+      ClientScanResultDTO:
+        _placeholder: 银联被扫回执（预留）
+      ConfirmSettleChargeRequestDTO:
+        paymentDraftId:
+          description: 支付草稿主键
+        encounterId:
+          description: 就诊主键
+        chargeItemIds:
+          description: 收费项ID列表
+        paymentDetails:
+          description: 支付明细列表
+        billDate:
+          description: 账单日期
+        outcomeEnum:
+          description: 结算结果枚举
+        ybChrgBchno:
+          description: 医保收费批次号（单组）
+        ybChrgBchnos:
+          description: 医保收费批次号列表（多组）
+        clientScanResult:
+          description: 银联被扫回执
+      ConfirmSettleChargeResponseDTO:
+        paymentId:
+          description: 正式支付主键
+        invoiceId:
+          description: 票据草稿主键
+        invoiceStatus:
+          description: 发票状态
+        successMessageCode:
+          description: 成功语义码
+        ybSetlId:
+          description: 医保结算ID
+        paymentNo:
+          description: 支付流水号
+        statusEnum:
+          description: 支付流水状态枚举
+        settledAt:
+          description: 结算完成时间
+      # ---- 功能4A: 打印门诊收费小票 ----
+      PrintChargeReceipt:
+        summary: 打印门诊收费小票
+      PrintChargeReceiptRequestDTO:
+        encounterId:
+          description: 就诊主键
+        paymentId:
+          description: 支付流水主键
+      ChargeReceiptChargeLineDTO:
+        itemName:
+          description: 项目名称
+          value: 注射用头孢呋辛钠
+        quantityText:
+          description: 数量展示
+          value: 1 瓶
+        amountText:
+          description: 金额展示
+        chargeCategoryText:
+          description: 费用类别
+      SlipDTO:
+        encounterId:
+          description: 就诊ID
+        patientName:
+          description: 患者姓名
+          value: 李先生
+        hospitalName:
+          description: 机构名称
+          value: 测试医院
+        genderEnumText:
+          description: 性别展示
+          value: 男性
+        ageText:
+          description: 年龄文本
+          value: 25岁
+        feeNatureText:
+          description: 费用性质
+          value: 自费
+        totalAmountText:
+          description: 合计金额
+        poolingPayText:
+          description: 统筹支付
+        fundPayText:
+          description: 基金支付
+        accountPayText:
+          description: 个人账户支付
+        deductibleLineText:
+          description: 起付线
+        cashPayText:
+          description: 现金支付
+        wechatPayText:
+          description: 微信支付
+        alipayPayText:
+          description: 支付宝支付
+        accountBalanceText:
+          description: 个账支付后余额
+        cashierName:
+          description: 收费员姓名
+        chargeTimeText:
+          description: 收费时间
+        chargeItemLines:
+          description: 收费项目列表
+      PrintChargeReceiptResponseDTO:
+        slip:
+          description: 小票打印数据
+      # ---- 功能4B: 准备打印 ----
+      PreparePrint:
+        summary: 准备打印（获取打印模板）
+      PreparePrintRequestDTO:
+        scenarioCode:
+          description: 业务场景码
+      PrintElementTypeDTO:
+        type:
+          description: 元素类型
+        title:
+          description: 元素标题
+        editable:
+          description: 是否可编辑
+        columnResizable:
+          description: 是否可调整列宽
+        isEnableDeleteRow:
+          description: 是否启用删除行
+        isEnableEditField:
+          description: 是否启用编辑字段
+        isEnableInsertRow:
+          description: 是否启用插入行
+        isEnableMergeCell:
+          description: 是否启用合并单元格
+        isEnableContextMenu:
+          description: 是否启用右键菜单
+        isEnableDeleteColumn:
+          description: 是否启用删除列
+        isEnableInsertColumn:
+          description: 是否启用插入列
+        columnAlignEditable:
+          description: 列对齐是否可编辑
+        columnTitleEditable:
+          description: 列标题是否可编辑
+        columnDisplayEditable:
+          description: 列显示是否可编辑
+        columnDisplayIndexEditable:
+          description: 列显示顺序是否可编辑
+      WatermarkOptionsDTO:
+        width:
+          description: 水印宽度
+        format:
+          description: 时间戳格式
+        height:
+          description: 水印高度
+        rotate:
+          description: 旋转角度
+        content:
+          description: 水印内容
+        fontSize:
+          description: 字体大小
+        fillStyle:
+          description: 填充样式
+        timestamp:
+          description: 是否显示时间戳
+      PanelLayoutOptionsDTO:
+        layoutType:
+          description: 布局类型
+        paperStyle:
+          description: 纸张样式
+        paperWidth:
+          description: 纸张宽度
+        paperHeight:
+          description: 纸张高度
+        layoutRowGap:
+          description: 行间距
+        layoutColumnGap:
+          description: 列间距
+      PrintElementDTO:
+        options:
+          description: 元素选项（随type变化）
+        printElementType:
+          description: 元素类型元信息
+      PrintElementOptionsDTO:
+        top:
+          description: 顶部偏移
+        left:
+          description: 左侧偏移
+        width:
+          description: 元素宽度
+        height:
+          description: 元素高度
+        field:
+          description: 绑定数据字段名
+        title:
+          description: 字段标题
+        fontSize:
+          description: 字体大小
+        hideTitle:
+          description: 是否隐藏标题
+        textAlign:
+          description: 文本对齐
+        fontWeight:
+          description: 字体粗细
+        columns:
+          description: 表格列定义
+        lineHeight:
+          description: 行高
+        tableBorder:
+          description: 表格边框样式
+        tableHeaderBorder:
+          description: 表头边框样式
+        tableHeaderRepeat:
+          description: 表头重复方式
+        tableBodyRowBorder:
+          description: 表体行边框样式
+        tableBodyRowHeight:
+          description: 表体行高度
+        tableBodyCellBorder:
+          description: 表体单元格边框样式
+        tableHeaderRowHeight:
+          description: 表头行高度
+        tableHeaderCellBorder:
+          description: 表头单元格边框样式
+        borderWidth:
+          description: 线宽
+      TableColumnDTO:
+        align:
+          description: 列对齐方式
+        field:
+          description: 绑定字段名
+        fixed:
+          description: 列宽是否固定
+        title:
+          description: 列标题
+        width:
+          description: 列宽度
+        checked:
+          description: 是否勾选显示
+        colspan:
+          description: 列合并数
+        rowspan:
+          description: 行合并数
+        columnId:
+          description: 列唯一标识
+      PrintPanelDTO:
+        name:
+          description: 面板名称
+        index:
+          description: 面板序号
+        width:
+          description: 纸张宽度（mm）
+        height:
+          description: 纸张高度（mm）
+        paperType:
+          description: 纸张类型
+        paperFooter:
+          description: 纸张底部边距
+        paperHeader:
+          description: 纸张顶部边距
+        paperNumberTop:
+          description: 页码顶部位置
+        paperNumberLeft:
+          description: 页码左侧位置
+        paperNumberContinue:
+          description: 页码是否连续
+        paperNumberDisabled:
+          description: 页码是否禁用
+        watermarkOptions:
+          description: 水印选项
+        panelLayoutOptions:
+          description: 面板布局选项
+        printElements:
+          description: 打印元素列表
+      PrintJsonDTO:
+        panels:
+          description: 面板列表
+      PreparePrintResponseDTO:
+        traceId:
+          description: 打印追踪ID
+        busNo:
+          description: 模板业务号
+        scenarioCode:
+          description: 场景码
+        templateVersion:
+          description: 模板版本号
+        PrintJson:
+          description: 模板结构
+        samplePrintData:
+          description: 示例数据
+      # ---- 功能4C: 确认打印 ----
+      ConfirmPrint:
+        summary: 确认打印（审计落库）
+      BizRefDTO:
+        encounterId:
+          description: 就诊主键
+        paymentId:
+          description: 支付流水主键
+      ConfirmPrintRequestDTO:
+        traceId:
+          description: 打印追踪ID
+        busNo:
+          description: 模板业务号
+        scenarioCode:
+          description: 场景码
+        templateVersion:
+          description: 模板版本号
+        status:
+          description: 打印结果
+        printData:
+          description: 实际打印数据
+        bizRef:
+          description: 业务锚点
+        printer:
+          description: 打印机名称
+        copies:
+          description: 打印份数
+        clientType:
+          description: 客户端类型
+        errorCode:
+          description: 失败错误码
+        errorMessage:
+          description: 失败错误信息
+      ConfirmPrintResponseDTO:
+        ok:
+          description: 审计落库是否成功
+        status:
+          description: 打印结果状态 SUCCESS / FAILED
+        errorCode:
+          description: 失败时的错误码
+        errorMessage:
+          description: 失败时的错误信息
+      # ---- 字典翻译 ----
+      dict:
+        gender:
+          male: 男
+          female: 女
+        ageSuffix: 岁
+        chargeStatus:
+          pending: 待收费
+          settled: 已结算
+          refunding: 退费中
+          refunded: 已退费
+        rollupStatus:
+          planned: 计划中
+          settled: 已结算
+          mixed: 混合
+qi:
+  charging:
+    settle:
+      tag1: 获取患者列表（条件+分页）
+      tag2: 获取患者费用合计
+      tag3: 获取患者费用大类明细
+      summary1: 获取患者列表（条件+分页）
+      summary2: 获取患者费用合计
+      summary3: 获取患者费用大类明细
+      encounter_id: 就诊ID
+      inpatient_no: 住院号
+      patient_name: 患者姓名
+      gender: 性别
+      age: 年龄
+      dept_name: 科室
+      ward_name: 病区
+      bed_no: 床位号
+      admit_date: 入院日期
+      admit_start_date: 入院开始日期  
+      admit_end_date: 入院结束日期 
+      insurance_type: 医保类型
+      encounter_status: 就诊状态
+      total_hospital_fee: 住院总费用
+      personal_pay_fee: 个人自付金额
+      prepay_total_fee: 预交押金总额
+      final_balance_fee: 应补/应退金额
+      sort_num: 序号
+      charge_type_name: 费用大类
+      type_total_fee: 大类费用金额
+QQQQ:
+  field:
+    keyword: 患者姓名或住院号
+    id_card: 患者身份证号
+    statuses: 住院登记状态，多个状态使用逗号分隔
+    encounter_id: 住院登记记录ID
+    encounter_bus_no: 住院号
+    patient_name: 患者姓名
+    status_enum: 住院登记状态编码
+    status_enum_text: 住院登记状态名称
+    organization_name: 入院科室
+    ward_name: 入院病区
+    bed_name: 入科床位
+    start_time: 入院时间
+    patient_id: 患者ID
+    gender_enum: 性别编码
+    gender_enum_text: 性别
+    birth_date: 出生日期
+    age: 年龄
+    phone: 联系电话
+    admission_count: 住院次数
+    organization_id: 入院科室ID
+    ward_id: 入院病区ID
+    bed_id: 入科床位ID
+    outpatient_doctor_name: 门诊医生
+    attending_doctor_id: 主治医生ID
+    attending_doctor_name: 主治医生
+    condition_definition_id: 入院诊断ID
+    condition_definition_name: 入院诊断
+    diagnosis_description: 诊断描述
+    admit_source_code: 入院类型编码
+    admit_source_code_text: 入院类型
+    in_way_code: 入院方式编码
+    in_way_code_text: 入院方式
+    priority_enum: 患者病情编码
+    priority_enum_text: 患者病情
+    contract_id: 费用性质ID
+    contract_name: 费用性质
+    cancelable: 是否可取消登记
+  status:
+    planned: 待登记
+    registered: 已登记
+    in_progress: 住院中
+    canceled: 已取消
+    cancelled: 已取消
+    completed: 已完成
+    discharged: 已出院
+    on_hold: 暂停
+  page:
+    index: 当前页码
+    size: 每页数据条数
+  message:
+    success: 操作成功
+  gender:
+    male: 男
+    female: 女
+    unknown: 未知
+
+Jack:
+  charging:
+    charge:
+      prepayment:
+        tag: 收费工作站-预交金管理
+        add:
+          summary: 收预交金
+        refund:
+          summary: 退预交金
+        query:
+          summary: 查询预交金流水
+      PrepaymentPaymentDetailDTO:
+        payChannelCode:
+          description: 支付渠道编码（CASH/WECHAT/ALIPAY/BANK_CARD）
+        amount:
+          description: 支付金额
+      PrepaymentAddDTO:
+        inpatientNo:
+          description: 住院号
+        paymentDetails:
+          description: 支付明细数组
+        paymentDraftId:
+          description: 支付草稿ID（预结算流程生成）
+        operatorId:
+          description: 操作员ID
+        operatorName:
+          description: 操作员姓名
+        remark:
+          description: 备注
+      PrepaymentRefundDTO:
+        inpatientNo:
+          description: 住院号
+        paymentDetails:
+          description: 退款支付明细数组
+        paymentDraftId:
+          description: 退款草稿ID（预结算流程生成）
+        operatorId:
+          description: 退款操作员ID
+        operatorName:
+          description: 退款操作员姓名
+        reason:
+          description: 退款原因
+        remark:
+          description: 备注
+      PrepaymentAddResponseDTO:
+        paymentId:
+          description: 支付流水主键
+        transactionNo:
+          description: 交易流水号
+        encounterId:
+          description: 就诊ID
+        inpatientNo:
+          description: 住院号
+        amount:
+          description: 收款总金额
+        balance:
+          description: 交易后账户余额
+        statusEnum:
+          description: 状态（SUCCESS-成功）
+        createTime:
+          description: 收款时间
+      PrepaymentRefundResponseDTO:
+        paymentId:
+          description: 支付流水主键
+        transactionNo:
+          description: 交易流水号
+        encounterId:
+          description: 就诊ID
+        inpatientNo:
+          description: 住院号
+        amount:
+          description: 退款总金额
+        balance:
+          description: 退款后账户余额
+        statusEnum:
+          description: 状态（SUCCESS-成功）
+        createTime:
+          description: 退款时间
+      PrepaymentRecordDTO:
+        prepaymentId:
+          description: 预交金流水号
+        inpatientNo:
+          description: 住院号
+        patientName:
+          description: 患者姓名
+          value: 张三
+        amount:
+          description: 金额
+        type:
+          description: 类型（ADD-收,REFUND-退）
+        method:
+          description: 支付/退款方式
+          value: 现金
+        operator:
+          description: 操作员
+        createTime:
+          description: 操作时间
+      PrepaymentQuery:
+        inpatientNo:
+          description: 住院号
+          value: ZY202607190001
+xbzml:
+  charging:
+    refund:
+      get-patient-list:
+        summary: 获取患者队列（分页+条件）
+      get-item-list:
+        summary: 获取患者缴费项
+      verify-refund:
+        summary: 确认退费项目是否可退
+      execute-refund:
+        summary: 执行退费
+      prepare-print:
+        summary: 退费打印准备（回传打印模版）
+      confirm-print:
+        summary: 确认退费打印是否成功
+      field:
+        # get patient
+        keyword: 查询关键字（患者姓名、就诊ID等）
+        queueTabCode: 队列标签（ALL-全部、PENDING-待退费、SETTLED-已退费）
+        startDate: 就诊开始日期下界
+        endDate: 就诊开始日期上界
+        encounterId: 就诊ID
+        encounterBusNo: 就诊流水号
+        patientId: 患者ID
+        patientName: 患者姓名
+        genderCode: 性别编码
+        genderEnumText: 性别
+        ageText: 年龄
+        queueLabelCode: 队列标签编码
+        chargeItemStatusSummary: 退费状态
+        organizationName: 就诊机构
+        doctorName: 医生姓名
+        startTime: 开始时间
+        totalAmount: 总金额
+        paidAmount: 已付金额
+        # get item
+        detailViewCode: 视图类型编码（PENDING-待退费 / SETTLED-已退费）
+        paymentRecordId: 支付记录ID（支付组级）
+        paymentId: 支付记录ID（明细行级）
+        paymentNo: 支付流水号（支付组级）
+        paymentStatusEnum: 支付状态枚举码
+        paymentStatusEnumText: 支付状态枚举显示文本
+        entererUserId: 录入人用户ID
+        collectorName: 收款人姓名
+        halfRefundOnPayment: 是否为支付级别半退
+        refundingLines: 退费行列表
+        preservedLines: 保留行列表
+        chargeItemId: 收费项目ID
+        chargeItemStatusEnum: 收费项目状态枚举码
+        chargeItemStatusEnumText: 收费项目状态枚举显示文本
+        itemName: 项目显示名称
+        lineTotalAmount: 行合计金额
+        refundableAmount: 可退总金额
+        originalPayChannelCodes: 原始支付渠道编码列表
+        paymentGroups: 支付组列表
+        # pagination
+        content: 当前页数据列表
+        totalCount: 总记录数
+        pageIndex: 当前页码
+        pages: 总页数
+        # verify refund
+        refundingChargeItemIds: 待退费收费项目ID列表
+        allowed: 是否允许退费
+        rejectReasonCode: 拒绝原因编码
+        # execute refund
+        billDate: 账单日期
+        originalPaymentId: 原始支付记录ID
+        refundPaymentDetails: 退费支付明细列表
+        clientRefundResult: 客户端退款回执
+        refundRequestId: 退款请求标识（幂等键）
+        preservedNewChargeItemIds: 保留不退费项目标识
+        amount: 退款金额
+        payChannelCode: 支付渠道编码
+        success: 是否执行成功
+        errorCode: 错误码（成功时为空）
+        reversePaymentId: 冲正支付记录ID
+        halfRefundExecuted: 是否为半退
+        insuranceRevoked: 医保是否已撤销
+        # prepare print
+        scenarioCode: 场景编码
+        templateVersion: 模版版本号
+        traceId: 打印任务追踪ID
+        busNo: 业务流水号
+        # confirm print
+        status: 打印状态
+        printData: 实际打印数据
+        bizRef: 业务参考信息
+        copies: 打印份数
+        clientType: 客户端类型
+byj:
+ charging:
+  pay_manage:
+   hospitalized_number: 住院号
+   name: 姓名
+   bed_number: 床号
+   hospitalized_time: 入院日期
+   pay_time: 收费时间
+   service_type: 业务类型
+   cost: 金额(元)
+   pay_type: 支付方式
+   operateman: 操作员
+   bill_number: 票据号
+   status: 状态
+   sex: 性别
+   age: 年龄
+   depart: 所在科室
+   cost_attr: 费用性质
+   rest: 账户余额
+   ward: 病区
+   visit_status: 就诊状态
+   male: 男
+   female: 女
+   pay_type_cash: 现金
+   pay_type_wechat: 微信
+   pay_type_alipay: 支付宝
+   pay_type_bank_card: 银行卡
+   pay_type_insurance: 医保
+   service_type_prepay: 收预交金
+   service_type_settlement: 结算
+   service_type_refund: 退费
+   status_completed: 成功（收款已完成）
+   status_pending: 处理中
+   status_cancelled: 已取消
+yiguang:
+ charging:
+  admission:
+   summary1: 住院登记
+   summary2: 取消登记
+   id: 身份证号
+   name: 姓名
+   birthtime: 出生日期
+   age: 年龄
+   sex: 性别
+   phone: 联系方式
+   admissionDept: 入院科室
+   admission_ward: 入院病区
+   attending_doctorL: 主治医师
+   admissionDiagnosis: 入院诊断
+   diagnosisDesc: 诊断描述
+   patientCondition: 患者病情
+   admissionType: 入院类型
+   admissionMode: 入院方式
+   feeNature: 费用性质
+   admissiondata: 入院日期
+   delete: 取消原因
+ovo:
+  charging:
+    settle:
+      get_cost_detail_summary: 获取患者费用明细清单
+      get_settle_history_summary: 获取患者历史结算记录
+      settle_summary: 住院结算
+      patient_id: 患者主键
+      patient_name: 患者姓名
+      patient_name_example: 张三
+      encounter_id: 住院就诊主键
+      history_encounter_id: 住院就诊主键，为空时查询患者全部住院记录
+      encounter_bus_no: 住院号
+      cost_status_filter: 收费明细状态，ALL表示全部
+      history_status_filter: 结算状态，ALL表示包含结算和退结算记录
+      charge_item_id: 收费明细主键
+      charge_item_bus_no: 收费明细业务流水号
+      prescription_no: 处方号
+      item_name: 收费项目名称
+      item_name_example: 阿莫西林胶囊
+      charge_category_code: 费用类别编码
+      charge_category_name: 费用类别名称
+      charge_category_name_example: 药品费
+      quantity_value: 数量
+      quantity_unit: 数量单位
+      quantity_unit_example: 盒
+      unit_price: 单价
+      total_price: 明细总价
+      charge_status: 收费明细状态
+      occurrence_time: 费用发生时间
+      performing_org_name: 执行科室名称
+      performing_org_name_example: 住院药房
+      enterer_name: 录入人姓名
+      enterer_name_example: 张护士
+      total_amount: 费用总额
+      settled_amount: 已结算金额
+      unsettled_amount: 待结算金额
+      cost_items: 费用明细列表
+      payment_detail_id: 支付明细主键
+      pay_enum: 支付方式，支持CASH、WECHAT、ALIPAY、BANK_CARD、ACCOUNT、INSURANCE
+      payment_amount: 支付金额
+      return_amount: 支付明细退款金额
+      pay_trans_no: 第三方支付流水号，现金和账户余额支付可为空
+      pay_trans_date: 支付时间
+      pay_result: 支付结果
+      settlement_id: 结算记录主键
+      payment_id: 支付流水主键
+      payment_no: 支付流水号
+      kind_enum: 流水类型，SETTLEMENT为结算，REVERSAL为退结算
+      settlement_status: 结算状态
+      display_amount: 应付金额
+      tendered_amount: 实收金额
+      returned_amount: 找零金额
+      bill_date: 结算时间，格式yyyy-MM-dd HH:mm:ss
+      invoice_id: 发票主键
+      pre_settle_id: 预结算记录主键
+      setl_id: 医保结算标识
+      payment_details: 支付明细列表
+      account_id: 就诊账户主键
+      charge_item_ids: 本次结算的收费明细主键列表
+      contract_no: 费用性质合同编号
+      remark: 结算备注
+      settled_at: 结算完成时间
+      settle_result_status: 结算结果状态
+      query_empty: 查询参数不能为空
+      encounter_id_invalid: 住院就诊记录主键不能为空且长度不能超过64个字符
+      encounter_id_too_long: 住院就诊记录主键长度不能超过64个字符
+      patient_id_invalid: 患者主键不能为空且长度不能超过64个字符
+      cost_status_invalid: 收费明细状态仅支持ALL、DRAFT、UNSETTLED、SETTLED或REFUNDED
+      page_index_invalid: 页码必须在1到1000000之间
+      page_size_invalid: 每页条数必须在1到100之间
+      history_status_invalid: 结算状态仅支持ALL、CONFIRMED、SUCCESS、REFUNDED或CANCELLED
+      settle_request_empty: 结算请求不能为空
+      account_id_invalid: 就诊账户主键不能为空且长度不能超过64个字符
+      charge_items_empty: 至少需要选择一条待结算收费项目
+      charge_items_too_many: 单次结算的收费项目不能超过500条
+      charge_item_id_invalid: 收费项目主键不能为空且长度不能超过64个字符
+      charge_item_id_duplicate: 收费项目主键不能重复
+      display_amount_invalid: 结算金额必须大于0且不能超过一万亿元
+      payment_details_empty: 至少需要提供一种支付方式
+      payment_details_too_many: 单次结算的支付方式不能超过10种
+      payment_detail_empty: 支付明细不能为空
+      pay_enum_invalid: 支付方式仅支持CASH、WECHAT、ALIPAY、BANK_CARD、ACCOUNT或INSURANCE
+      payment_amount_invalid: 每条支付明细金额必须大于0且不能超过一万亿元
+      payment_total_too_large: 支付明细金额合计不能超过一万亿元
+      pay_trans_no_too_long: 支付交易号长度不能超过255个字符
+      pay_trans_no_required: 微信、支付宝或银行卡支付必须提供支付交易号
+      payment_total_invalid: 支付明细金额合计必须等于结算金额
+      contract_no_too_long: 合同编号长度不能超过255个字符
+      bill_date_invalid: 结算时间必须使用yyyy-MM-dd HH:mm:ss格式且日期有效
+      remark_too_long: 结算备注长度不能超过255个字符
+      encounter_not_found: 未找到对应的患者住院记录
+      get_cost_detail_failed: 获取患者住院费用明细失败
+      get_settle_history_failed: 获取患者历史结算记录失败
+      settle_failed: 住院结算失败，请稍后重试
+      generate_id_failed: 生成结算主键失败
+      charge_amount_out_of_range: 收费项目金额超出系统可结算范围
+      operator_not_found: 无法从登录凭证中获取结算操作人
+      account_mismatch: 患者、住院记录与就诊账户不匹配
+      account_unavailable: 当前就诊账户不可用
+      account_already_settled: 当前就诊账户已经完成结账
+      contract_mismatch: 结算合同与就诊账户合同不一致
+      insurance_contract_requires_api: 医保住院结算需要先完成医保预结算及正式结算调用
+      charge_item_mismatch: 部分收费项目不存在或不属于当前就诊账户
+      charge_item_status_invalid: 所选收费项目中包含不可结算状态的数据
+      charge_amount_mismatch: 结算金额与所选收费项目金额合计不一致
+      insurance_payment_requires_api: 医保支付需要先完成医保预结算及正式结算调用
+      settle_payment_total_invalid: 支付明细金额合计与结算金额不一致
+      account_balance_insufficient: 就诊账户余额不足
+      insert_payment_failed: 新增住院结算支付流水失败
+      insert_payment_detail_failed: 新增住院结算支付明细失败
+      insert_invoice_failed: 新增住院结算发票失败
+      charge_item_state_changed: 收费项目状态已变化，请刷新后重试
+      account_state_changed: 就诊账户状态已变化，请刷新后重试
+      cost_presentation_mode: 显示模式，SUMMARY仅返回汇总，DETAIL返回汇总和费用明细
+      charge_date_from: 费用开始日期，格式yyyy-MM-dd或yyyy-MM-dd HH:mm:ss
+      charge_date_to: 费用结束日期，格式yyyy-MM-dd或yyyy-MM-dd HH:mm:ss
+      cost_presentation_mode_invalid: 显示模式仅支持SUMMARY或DETAIL
+      charge_date_invalid: 费用日期必须使用yyyy-MM-dd或yyyy-MM-dd HH:mm:ss格式且日期有效
+      charge_date_range_invalid: 费用开始日期不能晚于费用结束日期
+      history_presentation_mode: 显示模式，SUMMARY仅返回汇总，DETAIL返回汇总、支付记录和费用明细
+      history_presentation_mode_invalid: 显示模式仅支持SUMMARY或DETAIL
+      payment_id_too_long: 支付流水主键长度不能超过64个字符
+      active_payment_id: 当前支付流水主键
+      receivable_total: 应收合计
+      net_settle_total: 净结算合计（实收金额减找零金额）
+      settle_time: 结算时间
+      history_categories: 结算费用分类汇总列表
+      history_lines: 结算费用明细列表
+      history_payments: 结算支付记录列表
+      category_line_count: 分类下的明细条数
+      category_total_amount: 分类金额合计
+      payment_draft_id: 预结算草稿标识（防重防换单，本期不强制校验）
+      yb_pre_settle_id: 医保预结算记录标识
+      yb_chrg_bchno: 医保收费批次号
+      client_scan_result: 扫码支付回执（预留，暂不展开）
+      payment_draft_id_too_long: 预结算草稿标识长度不能超过64个字符
+      yb_pre_settle_id_too_long: 医保预结算记录标识长度不能超过64个字符
+      yb_chrg_bchno_too_long: 医保收费批次号长度不能超过64个字符

@@ -1,0 +1,14 @@
+spring:
+  datasource:
+    url: jdbc:mysql://8.137.103.174:23306/zo_his?useUnicode=true&useSSL=false&characterEncoding=utf-8&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true
+    username: his_app
+    password: LvvJ7Db@2026_Q8mR4xK2
+    druid:
+     max-active: 5
+  data:
+    redis:
+      host: 8.163.102.33
+      port: 6380
+      password: Lin@@2830564901zero-one-his
+    mongodb:
+      uri: mongodb://994xyQ10gK1h:2rNNkUEG8C8syEOmJBK66WUnh24g4BKS@47.113.229.85:41242/hisDb

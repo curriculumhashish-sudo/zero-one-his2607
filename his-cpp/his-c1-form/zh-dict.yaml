@@ -1,0 +1,122 @@
+form:
+ cost_info: 
+  tag: 报表中心-门诊费用明细
+ data_statistics: 
+  tag: 报表中心-数据统计
+Litguidyo:
+ form:
+  inoutbound:
+   id: 编号
+   name: 项目名称
+   onemoney: 单价
+   allmoney: 总金额
+   outmoney: 出库金额
+   outallmoney: 出库总金额
+   number: 数量
+   bus_no: 库存id
+   excel: excel表格
+   summary: 物资入库出库数据查询
+   tag1 : 物资入库出库数据查询
+   time: 有效期
+   numbers: 有效物资数量
+   tag2: 物资有效期预警分布
+   summary2: 物资有效期查询
+   query-by-id: 通过id获取单条数据
+   InventoryName: 物资名称
+rhqm:
+ form:
+  cost_info:
+   query:
+    title: 门诊费用明细(条件+分页)
+    id: 编号
+    start_time: 开始时间(dateFrom)
+    end_time: 结束时间(dateTo)
+    name: 患者姓名(patientKeyword)
+    room: 挂号科室(deptId)
+    feeClass: 费用大类编号(feeType)
+    detailClass: 细分类编号(feeTypeDetail)
+    projectName: 项目名称(projectName)
+    hisID: 院内编号(internalCode)
+    checker: 收银员(cashierId)
+    feeDir: 收退方向编号（0 / 1）(tradeDirection)
+   export:
+    tag: "导出报表"
+    fileID: "文件ID"
+    title: 导出报表
+   data:
+    chargeID: 收费条目ID
+    encounterID: 就诊条目ID
+    paymentID: 支付条目ID
+    cashierID: 收费员ID
+    name: 患者姓名
+    room: 挂号科室
+    roomID: 科室ID
+    date: 就诊日期
+    feeClass: 大类
+    feeClassCode: 费用大类编码
+    detailClass: 细分类
+    detailClassCode: 细分类编码
+    projectName: 项目名称
+    hisID: 院内编码
+    spec: 规格
+    number: 数量
+    unit: 单位
+    doctor: 开单医生
+    settleTime: 结算时间
+    source: 来源
+    insuranceLevel: 医保等级
+    insuranceType: 医保类型
+    originalPrice: 原价
+    discountAmount: 优惠金额
+    receivableAmount: 应收金额
+    discountedPrice: 折后金额
+    unitPrice: 单价
+    lineAmount: 行金额
+    actualAmount: 实收金额
+    insuranceAmount: 医保金额
+    selfPayAmount: 自费金额
+    summary: 合计金额
+   other:
+    charge: 收费
+    refund: 退费
+W:
+  form:
+    data_statistics:
+      tag: "报表中心-数据统计"
+      query_trend:
+        summary: "查询门诊接诊量趋势（周/月）"
+      query_weekly_trend:
+        summary: "查询门诊接诊量趋势（周）"
+      query_monthly_trend:
+        summary: "查询门诊接诊量趋势（月）"
+      query_disease_distribution:
+        summary: "查询患者疾病类型分布"
+      field:
+        time_type: "时间维度（1=本周, 2=本月）"
+        date_from: "开始日期"
+        date_to: "结束日期"
+        granularity: "粒度（day/month/year）"
+        organization_id: "机构ID"
+        label: "横轴标签"
+        value: "数值"
+        points: "趋势数据点列表"
+        items: "疾病分布数据项列表"
+        unit: "单位"
+        unit_person_times: "人次"
+        unit_persons: "人"
+Lin:
+  form:
+    data_statistics:
+      query_flow_trend:
+        summary: "获取流量趋势"
+      query_month_visit:
+        summary: "获取月访问量"
+      field:
+        visit_list: 一天每小时流量的列表（索引代表0-23小时）
+        monthFrom: 开始月份（格式：yyyy-MM）示例值(2026-07)
+        monthTo: 结束月份（格式：yyyy-MM）示例值(2026-07)
+        total_visit: 月总访问量
+        dateFrom: 开始日期(yyyy-MM-dd),示例值(2026-07-20)
+        dateTo: 结束日期(yyyy-MM-dd),示例值(2026-07-20)
+        organizationId: 组织ID,示例值(org001)
+        daytList: 一个月日流量的列表（索引代表号数，索引1就代表1号）
