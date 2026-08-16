@@ -37,6 +37,10 @@ spring:
               uri: lb://${sn.login}
               predicates:
                 - Path=/login/**
+            - id: assistant-route
+              uri: lb://${sn.assistant}
+              predicates:
+                - Path=/assistant/**
 
 zo:
   cloud:

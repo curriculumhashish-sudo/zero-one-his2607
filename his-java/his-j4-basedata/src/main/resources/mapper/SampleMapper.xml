@@ -13,6 +13,7 @@
             s.wb_str,
             s.type_enum,
             s.status_enum,
+            s.version,
             s.updated_at
         FROM adm_specimen_definition s
         <where>

@@ -37,6 +37,7 @@
         <module>his-gateway</module>
         <module>his-login</module>
         <module>his-mcp-gateway</module>
+		<module>his-assistant</module>
         <module>his-j1-sysmgr</module>
         <module>his-j1-login</module>
         <module>his-j2-sysmgr</module>
@@ -50,6 +51,7 @@
         <module>his-j3-supplier</module>
         <module>his-j3-fee</module>
         <module>his-j3-register</module>
+        <module>his-assistant</module>
         <module>his-j4-basedata</module>
         <module>his-j5-ons</module>
         <module>his-j5-configuration</module>

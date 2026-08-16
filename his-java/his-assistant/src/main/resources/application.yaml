@@ -1,0 +1,33 @@
+server:
+  port: ${sp.assistant}
+  servlet:
+    context-path: /assistant
+spring:
+  application:
+    name: ${sn.assistant}
+  ai:
+    dashscope:
+      api-key: ${AI_DASHSCOPE_API_KEY}
+      chat:
+        options:
+          model: ${AI_MODEL:glm-5}
+          temperature: 0.2
+          max_tokens: 6000
+          top_p: 0.8
+    mcp:
+      client:
+        enabled: true
+        name: his-general-assistant
+        version: 1.0.0
+        type: SYNC
+    alibaba:
+      mcp:
+        nacos:
+          client:
+            enabled: true
+
+his:
+  assistant:
+    routing-confidence: 0.55
+    max-context-entries: 20
+    max-context-value-length: 500
