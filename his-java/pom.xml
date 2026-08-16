@@ -53,6 +53,8 @@
         <module>his-j4-basedata</module>
         <module>his-j5-ons</module>
         <module>his-j5-configuration</module>
+        <module>his-j6-pharmacy</module>
+        <module>his-j6-report</module>
     </modules>
     <properties>
         <!-- 项目版本号 -->

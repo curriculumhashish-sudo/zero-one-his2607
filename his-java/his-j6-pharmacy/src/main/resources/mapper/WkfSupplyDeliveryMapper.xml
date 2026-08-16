@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zeroone.star.pharmacy.mapper.WkfSupplyDeliveryMapper">
+
+
+    <select id="selectSummaryByRequestIds" resultType="com.zeroone.star.pharmacy.service.impl.WkfSupplyRequestServiceImpl$RequestSummaryDTO">
+        SELECT
+        request_id AS requestId,
+        COUNT(1) AS itemCount
+        FROM wkf_supply_delivery
+        WHERE request_id IN
+        <foreach collection="ids" open="(" separator="," close=")" item="id">
+            #{id}
+        </foreach>
+        AND is_deleted = false
+        GROUP BY request_id
+    </select>
+
+</mapper>

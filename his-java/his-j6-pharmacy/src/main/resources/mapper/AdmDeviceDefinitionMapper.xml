@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zeroone.star.pharmacy.mapper.AdmDeviceDefinitionMapper">
+
+    <select id="selectIdsByCategoryCodes" resultType="java.lang.Long">
+        SELECT id
+        FROM adm_device_definition
+        WHERE category_code IN
+        <foreach item="code" index="index" collection="deviceCategoryCodes" open="(" separator="," close=")">
+            #{code}
+        </foreach>
+    </select>
+    <select id="selectIdsByKeyword" resultType="java.lang.Long">
+        SELECT id
+        FROM adm_device_definition
+        WHERE name LIKE CONCAT('%', #{keyword}, '%')
+    </select>
+</mapper>

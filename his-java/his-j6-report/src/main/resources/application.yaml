@@ -1,0 +1,8 @@
+server:
+  port: ${sp.j6-report}
+  servlet:
+    # 设置应用上下文路径
+    context-path: /j6-report
+spring:
+  application:
+    name: ${sn.j6-report}

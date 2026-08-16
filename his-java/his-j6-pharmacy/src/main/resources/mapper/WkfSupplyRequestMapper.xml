@@ -1,0 +1,314 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zeroone.star.pharmacy.mapper.WkfSupplyRequestMapper">
+    <select id="selectStocktakeRowsForApproval"
+            resultType="com.zeroone.star.pharmacy.entity.WkfSupplyRequest">
+        select
+            id, bus_no, type_enum, status_enum, category_enum,
+            item_table, item_id, item_quantity, total_quantity, unit_code,
+            lot_number, trace_no, price, total_price, profit_loss_price,
+            purpose_location_id, purpose_type_enum, source_location_id, source_type_enum,
+            supplier_id, practitioner_id, applicant_id, apply_time,
+            approver_id, approval_time, reason, remake,
+            start_time, end_time, occurrence_time,
+            is_deleted, version, tenant_id,
+            created_at, updated_at, created_by, updated_by
+        from wkf_supply_request
+        where bus_no = #{busNo}
+          and type_enum = #{typeEnum}
+          and is_deleted = 0
+    </select>
+
+    <update id="updateStocktakeToPending">
+        update wkf_supply_request
+        set status_enum = 'APPROVAL',
+            applicant_id = #{applicantId},
+            apply_time = #{applyTime},
+            approver_id = #{approverId},
+            approval_time = null,
+            reason = null,
+            updated_at = #{updatedAt},
+            updated_by = #{updatedBy}
+        where bus_no = #{busNo}
+          and type_enum = #{typeEnum}
+          and status_enum = #{currentStatus}
+          and is_deleted = 0
+    </update>
+
+    <update id="updateStocktakeToWithdraw">
+        update wkf_supply_request
+        set status_enum = 'WITHDRAW',
+            approver_id = null,
+            approval_time = null,
+            updated_at = #{updatedAt},
+            updated_by = #{updatedBy}
+        where bus_no = #{busNo}
+          and type_enum = #{typeEnum}
+          and status_enum = #{currentStatus}
+          and is_deleted = 0
+    </update>
+
+    <update id="updateStocktakeToAgree">
+        update wkf_supply_request
+        set status_enum = 'AGREE',
+            approver_id = #{approverId},
+            approval_time = #{approvalTime},
+            updated_at = #{updatedAt},
+            updated_by = #{updatedBy}
+        where bus_no = #{busNo}
+          and type_enum = #{typeEnum}
+          and status_enum = #{currentStatus}
+          and is_deleted = 0
+    </update>
+
+    <update id="updateStocktakeToReject">
+        update wkf_supply_request
+        set status_enum = 'REJECT',
+            approver_id = #{approverId},
+            approval_time = #{approvalTime},
+            reason = #{reason},
+            updated_at = #{updatedAt},
+            updated_by = #{updatedBy}
+        where bus_no = #{busNo}
+          and type_enum = #{typeEnum}
+          and status_enum = #{currentStatus}
+          and is_deleted = 0
+    </update>
+
+    <!-- 查询进货单审批所需字段 -->
+    <select id="selectInboundRowsForApproval" resultType="com.zeroone.star.pharmacy.entity.WkfSupplyRequest">
+        SELECT id, bus_no, type_enum, status_enum, category_enum,
+               item_table, item_id, item_quantity, total_quantity, unit_code,
+               lot_number, trace_no, price, total_price, profit_loss_price,
+               purpose_location_id, purpose_type_enum, source_location_id, source_type_enum,
+               supplier_id, practitioner_id, applicant_id, apply_time,
+               approver_id, approval_time, reason, remake,
+               start_time, end_time, occurrence_time,
+               is_deleted, version, tenant_id,
+               created_at, updated_at, created_by, updated_by
+        FROM wkf_supply_request
+        WHERE bus_no = #{busNo}
+          AND type_enum = #{typeEnum}
+          AND is_deleted = 0
+    </select>
+
+    <!-- 分页查询（出库单列表，含名称JOIN） -->
+    <select id="selectDistinctBusNoPage" resultType="com.zeroone.star.project.vo.j6.pharmacy.stockout.StockOutListVO">
+        SELECT t.bus_no, t.type_enum, t.status_enum, t.source_location_id, t.purpose_location_id, t.apply_time,
+               t.approval_time, t.occurrence_time, t.applicant_id, t.created_by, t.approver_id,
+               t.original_bus_no, sub.total_amount,
+               src.name AS sourceLocationName,
+               dst.name AS purposeLocationName,
+               creator.name AS createdBy,
+               approver.name AS approverName
+        FROM wkf_supply_request t
+        INNER JOIN (
+            SELECT MIN(id) min_id, bus_no,
+                   SUM(total_price) AS total_amount,
+                   MAX(source_location_id) AS source_location_id,
+                   MAX(purpose_location_id) AS purpose_location_id,
+                   MAX(created_by) AS created_by,
+                   MAX(approver_id) AS approver_id
+            FROM wkf_supply_request
+            WHERE is_deleted = 0
+              AND type_enum = 'WAREHOUSE_STOCKOUT'
+            <if test="query.keyword != null and query.keyword != ''">
+                AND bus_no LIKE CONCAT('%', #{query.keyword}, '%')
+            </if>
+            <if test="query.applyTimeFrom != null">
+                AND created_at >= #{query.applyTimeFrom}
+            </if>
+            <if test="query.applyTimeTo != null">
+                AND created_at &lt;= #{query.applyTimeTo}
+            </if>
+            <if test="query.purposeLocationId != null and query.purposeLocationId != ''">
+                AND purpose_location_id = #{query.purposeLocationId}
+            </if>
+            <if test="query.sourceLocationId != null and query.sourceLocationId != ''">
+                AND source_location_id = #{query.sourceLocationId}
+            </if>
+            GROUP BY bus_no
+        ) sub ON t.id = sub.min_id
+        LEFT JOIN adm_location src ON src.id = sub.source_location_id AND src.is_deleted = 0
+        LEFT JOIN adm_location dst ON dst.id = sub.purpose_location_id AND dst.is_deleted = 0
+        LEFT JOIN adm_practitioner creator ON creator.id = sub.created_by
+        LEFT JOIN adm_practitioner approver ON approver.id = sub.approver_id
+        ORDER BY t.created_at DESC
+    </select>
+
+    <!-- 根据单据编号查询所有明细行（关联药品/耗材信息） -->
+    <select id="selectDetailLinesByBusNo" resultType="com.zeroone.star.project.vo.j6.pharmacy.stockout.StockOutLineVO">
+        SELECT
+        sr.id,
+        sr.item_table     AS itemTable,
+        sr.item_id        AS itemId,
+        COALESCE(m.name, dev.name)                   AS productName,
+        COALESCE(m.total_volume, dev.total_volume)   AS specification,
+        COALESCE(m.manufacturer_text, dev.manufacturer_text) AS manufacturer,
+        sr.item_quantity  AS itemQuantity,
+        sr.unit_code      AS unitCode,
+        sr.unit_code      AS unitCodeDictText,
+        sr.lot_number     AS lotNumber,
+        sr.start_time     AS startTime,
+        sr.end_time       AS endTime,
+        sr.trace_no       AS traceNo,
+        sr.remake,
+        sr.price,
+        sr.total_price    AS totalPrice,
+        sr.occurrence_time AS occurrenceTime
+        FROM wkf_supply_request sr
+        LEFT JOIN med_medication_definition m
+            ON sr.item_table = 'med_medication_definition' AND sr.item_id = m.id AND m.is_deleted = 0
+        LEFT JOIN adm_device_definition dev
+            ON sr.item_table = 'adm_device_definition' AND sr.item_id = dev.id AND dev.is_deleted = 0
+        WHERE sr.bus_no = #{busNo}
+          AND sr.is_deleted = 0
+        ORDER BY sr.id ASC
+    </select>
+
+
+    <!-- 提交审批 -->
+    <update id="updateInboundToPending">
+        UPDATE wkf_supply_request
+        SET status_enum = 'APPROVAL',
+            approver_id = #{approverId},
+            applicant_id = #{applicantId},
+            apply_time = #{applyTime},
+            updated_at = #{updatedAt},
+            updated_by = #{updatedBy}
+        WHERE bus_no = #{busNo}
+          AND type_enum = #{typeEnum}
+          AND status_enum = #{currentStatus}
+          AND is_deleted = 0
+    </update>
+
+    <!-- 撤回审批 -->
+    <update id="updateInboundToWithdraw">
+        UPDATE wkf_supply_request
+        SET status_enum = 'WITHDRAW',
+            approver_id = NULL,
+            approval_time = NULL,
+            updated_at = #{updatedAt},
+            updated_by = #{updatedBy}
+        WHERE bus_no = #{busNo}
+          AND type_enum = #{typeEnum}
+          AND status_enum = #{currentStatus}
+          AND is_deleted = 0
+    </update>
+
+    <!-- 审批通过 -->
+    <update id="updateInboundToAgree">
+        UPDATE wkf_supply_request
+        SET status_enum = 'AGREE',
+            approver_id = #{approverId},
+            approval_time = #{approvalTime},
+            updated_at = #{updatedAt},
+            updated_by = #{updatedBy}
+        WHERE bus_no = #{busNo}
+          AND type_enum = #{typeEnum}
+          AND status_enum = #{currentStatus}
+          AND is_deleted = 0
+    </update>
+
+    <!-- 驳回审批 -->
+    <update id="updateInboundToReject">
+        UPDATE wkf_supply_request
+        SET status_enum = 'REJECT',
+            approver_id = #{approverId},
+            approval_time = #{approvalTime},
+            reason = #{reason},
+            updated_at = #{updatedAt},
+            updated_by = #{updatedBy}
+        WHERE bus_no = #{busNo}
+          AND type_enum = #{typeEnum}
+          AND status_enum = #{currentStatus}
+          AND is_deleted = 0
+    </update>
+
+    <!-- 软删除进货单（逻辑删除） -->
+    <update id="deleteInboundByBusNo">
+        UPDATE wkf_supply_request
+        SET is_deleted = 1,
+            deleted_at = #{deletedAt},
+            deleted_by = #{deletedBy}
+        WHERE bus_no = #{busNo}
+          AND is_deleted = 0
+    </update>
+
+    <!-- 进货单列表（按 bus_no 聚合，每单一条） -->
+    <select id="selectInboundReceiptListPage" resultType="com.zeroone.star.project.vo.j6.pharmacy.inbound.InboundReceiptListVO">
+        SELECT t.bus_no           AS busNo,
+               t.status_enum      AS statusEnum,
+               sup.name           AS supplierName,
+               creator.name       AS creatorName,
+               approver.name      AS approverName,
+               sub.total_amount   AS totalAmount,
+               sub.approval_time  AS approvalTime,
+               sub.apply_time     AS applyTime,
+               loc.name           AS purposeLocationName
+        FROM wkf_supply_request t
+        INNER JOIN (
+            SELECT bus_no,
+                   MIN(id)                               AS min_id,
+                   SUM(COALESCE(total_price, 0))         AS total_amount,
+                   MAX(approval_time)                    AS approval_time,
+                   MAX(apply_time)                       AS apply_time,
+                   MAX(created_by)                       AS created_by,
+                   MAX(approver_id)                      AS approver_id,
+                   MAX(supplier_id)                      AS supplier_id,
+                   MAX(purpose_location_id)              AS purpose_location_id
+            FROM wkf_supply_request
+            WHERE is_deleted = 0
+              AND type_enum = 'CABINET_INBOUND_RECEIPT'
+            <if test="query.keyword != null and query.keyword != ''">
+                AND bus_no LIKE CONCAT('%', #{query.keyword}, '%')
+            </if>
+            <if test="query.applyTimeFrom != null">
+                AND created_at >= #{query.applyTimeFrom}
+            </if>
+            <if test="query.applyTimeTo != null">
+                AND created_at &lt;= #{query.applyTimeTo}
+            </if>
+            <if test="query.purposeLocationId != null and query.purposeLocationId != ''">
+                AND purpose_location_id = #{query.purposeLocationId}
+            </if>
+            GROUP BY bus_no
+        ) sub ON t.id = sub.min_id
+        LEFT JOIN cus_supplier sup ON sup.id = sub.supplier_id AND sup.is_deleted = 0
+        LEFT JOIN adm_practitioner creator ON creator.id = sub.created_by
+        LEFT JOIN adm_practitioner approver ON approver.id = sub.approver_id
+        LEFT JOIN adm_location loc ON loc.id = sub.purpose_location_id AND loc.is_deleted = 0
+        WHERE t.is_deleted = 0
+        ORDER BY t.created_at DESC
+    </select>
+
+    <!-- 进货单明细行 -->
+    <select id="selectInboundReceiptDetailLines" resultType="com.zeroone.star.project.vo.j6.pharmacy.inbound.InboundReceiptDetailLineVO">
+        SELECT sr.id,
+               sr.item_table     AS itemTable,
+               sr.item_id        AS itemId,
+               COALESCE(m.name, dev.name)         AS productName,
+               COALESCE(m.total_volume, dev.total_volume) AS specification,
+               COALESCE(m.manufacturer_text, '')  AS manufacturer,
+               sr.item_quantity  AS itemQuantity,
+               sr.unit_code      AS unitCode,
+               sr.unit_code      AS unitCodeDictText,
+               sr.lot_number     AS lotNumber,
+               sr.trace_no       AS traceNo,
+               sr.price,
+               sr.total_price    AS totalPrice,
+               sr.start_time     AS startTime,
+               sr.end_time       AS endTime,
+               sr.occurrence_time AS occurrenceTime,
+               sr.remake
+        FROM wkf_supply_request sr
+        LEFT JOIN med_medication_definition m
+            ON sr.item_table = 'med_medication_definition' AND sr.item_id = m.id AND m.is_deleted = 0
+        LEFT JOIN adm_device_definition dev
+            ON sr.item_table = 'adm_device_definition' AND sr.item_id = dev.id AND dev.is_deleted = 0
+        WHERE sr.bus_no = #{busNo}
+          AND sr.is_deleted = 0
+        ORDER BY sr.id ASC
+    </select>
+
+</mapper>
